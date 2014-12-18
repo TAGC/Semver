@@ -25,6 +25,18 @@ class Version {
         this.release = release;
     }
 
+    Version incrementMajor() {
+        new Version(major+1, minor, patch, release)
+    }
+
+    Version incrementMinor() {
+        new Version(major, minor+1, patch, release)
+    }
+
+    Version incrementPatch() {
+        new Version(major, minor, patch+1, release)
+    }
+
     @Override
     String toString() {
         "$major.$minor.$patch${release? '': '-SNAPSHOT'}"

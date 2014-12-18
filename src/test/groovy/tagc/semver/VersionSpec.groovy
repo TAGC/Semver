@@ -55,7 +55,7 @@ class VersionSpec extends Specification {
         version.getMajor() == 1
         version.getMinor() == 2
         version.getPatch() == 3
-        vresion.isRelease()
+        version.isRelease()
     }
 
     def "Incrementing major number should return new version with incremented major"() {
