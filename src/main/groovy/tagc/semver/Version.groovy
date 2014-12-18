@@ -27,6 +27,6 @@ class Version {
 
     @Override
     String toString() {
-        "$major.$minor.$patch{release? '': '-SNAPSHOT'}"
+        "$major.$minor.$patch${release? '': '-SNAPSHOT'}"
     }
 }
