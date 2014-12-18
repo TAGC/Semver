@@ -94,6 +94,28 @@ class VersionSpec extends Specification {
         newVersion.getPatch() == oldPatch + 1
     }
 
+    def "Switching to release should return new version with release state"() {
+        given:
+        def devVersion = new Version(1,2,3,false)
+
+        when:
+        def releaseVersion = devVersion.toRelease()
+
+        then:
+        releaseVersion.isRelease()
+    }
+
+    def "Switching to develop should return new version with develop state"() {
+        given:
+        def releaseVersion = new Version(1,2,3,true)
+
+        when:
+        def devVersion = releaseVersion.toDevelop()
+
+        then:
+        !devVersion.isRelease()
+    }
+
     def "Non-release versions should have -SNAPSHOT in printed representation"() {
         given:
         def version = new Version(1,2,3,false)
