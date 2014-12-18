@@ -37,6 +37,14 @@ class Version {
         new Version(major, minor, patch+1, release)
     }
 
+    Version toRelease() {
+        new Version(major, minor, patch, true)
+    }
+
+    Version toDevelop() {
+        new Version(major, minor, patch, false)
+    }
+
     @Override
     String toString() {
         "$major.$minor.$patch${release? '': '-SNAPSHOT'}"
