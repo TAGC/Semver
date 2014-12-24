@@ -123,4 +123,52 @@ class VersionSpec extends Specification {
         expect:
         version ==~ ".*-SNAPSHOT\$"
     }
+
+    // Comparison and equality tests.
+    def "Versions should compare lexicographically based on major number"() {
+        given:
+        def oldVersion = new Version(1,0,0)
+        def newVersion = new Version(2,0,0)
+
+        expect:
+        oldVersion < newVersion
+    }
+
+    def "Versions should compare lexicographically based on minor number"() {
+        given:
+        def oldVersion = new Version(1,0,0)
+        def newVersion = new Version(1,1,0)
+
+        expect:
+        oldVersion < newVersion
+    }
+
+    def "Versions should compare lexicographically based on patch number"() {
+        given:
+        def oldVersion = new Version(1,0,0)
+        def newVersion = new Version(1,0,1)
+
+        expect:
+        oldVersion < newVersion
+    }
+
+    def "Versions with equal major, minor and patch should be equal"() {
+        given:
+        def devVersion = new Version(1,2,3,false)
+        def releaseVersion = new Version(1,2,3,true)
+
+        expect:
+        devVersion == releaseVersion
+    }
+
+    def "Equal versions should have the same hash code"() {
+        given:
+        def devVersion = new Version(1,2,3,false)
+        def releaseVersion = new Version(1,2,3,true)
+
+        assert devVersion == releaseVersion
+
+        expect:
+        devVersion.hashCode() == releaseVersion.hashCode()
+    }
 }
