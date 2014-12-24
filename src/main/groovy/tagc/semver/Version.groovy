@@ -1,6 +1,6 @@
 package tagc.semver;
 
-class Version {
+class Version implements Comparable<Version> {
     
     static class Builder {
         int major = 0
@@ -43,6 +43,39 @@ class Version {
 
     Version toDevelop() {
         new Version(major, minor, patch, false)
+    }
+
+    @Override
+    boolean equals(Object o) {
+        if (o == null) return false
+        if (! (o instanceof Version)) return false
+        if (this.major != o.major) return false
+        if (this.minor != o.minor) return false
+        
+        this.patch == o.patch
+    }
+
+    @Override
+    int hashCode() {
+        def result = 17;
+        result = 31 * result + major;
+        result = 31 * result + minor;
+        result = 31 * result + patch;
+
+        return result
+    }
+
+    @Override
+    int compareTo(Version that) {
+        if (this.major == that.major) {
+            if (this.minor == that.minor) {
+                return this.patch <=> that.patch
+            } else {
+                return this.minor <=> that.minor
+            }
+        } else {
+            return this.major <=> that.major
+        }
     }
 
     @Override
