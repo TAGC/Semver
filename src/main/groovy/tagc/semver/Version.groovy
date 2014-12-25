@@ -57,10 +57,10 @@ class Version implements Comparable<Version> {
 
     @Override
     int hashCode() {
-        def result = 17;
-        result = 31 * result + major;
-        result = 31 * result + minor;
-        result = 31 * result + patch;
+        def result = 17
+        result = 31 * result + major
+        result = 31 * result + minor
+        result = 31 * result + patch
 
         return result
     }

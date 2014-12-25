@@ -9,6 +9,7 @@
 
 // Apply the groovy plugin to add support for Groovy
 apply plugin: 'groovy'
+apply plugin: 'eclipse'
 
 // In this section you declare where to find the dependencies of your project
 repositories {
@@ -22,7 +23,27 @@ dependencies {
     // We use the latest groovy 2.x version for building this library
     compile 'org.codehaus.groovy:groovy-all:2.3.7'
 
+    // Gradle API
+    compile gradleApi()
+
+    // Git gradle plugin
+    compile 'org.ajoberstar:gradle-git:0.12.0'
+
+    // Git gradle plugin.
+    //compile 'org.ajoberstar:gradle-git:0.12.0'
+
     // We use the awesome Spock testing and specification framework
     testCompile 'org.spockframework:spock-core:0.7-groovy-2.0'
     testCompile 'junit:junit:4.11'
+}
+
+buildscript {
+    repositories {
+        // jcenter()
+        mavenCentral()
+    }
+    dependencies {
+        // Git gradle plugin
+        classpath 'org.ajoberstar:gradle-git:0.12.0'
+    }
 }
