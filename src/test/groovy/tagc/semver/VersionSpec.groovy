@@ -1,5 +1,6 @@
+package tagc.semver
+
 import spock.lang.Specification
-import tagc.semver.Version
 
 class VersionSpec extends Specification {
     

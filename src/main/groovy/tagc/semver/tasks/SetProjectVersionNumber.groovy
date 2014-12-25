@@ -1,6 +1,7 @@
 package tagc.semver.tasks
 
 import org.ajoberstar.grgit.Grgit
+import org.eclipse.jgit.errors.RepositoryNotFoundException
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.tasks.Input
@@ -12,17 +13,22 @@ class SetProjectVersionNumber extends DefaultTask {
     
     private static final String MASTER_BRANCH = "master"
     
-    @Input File versionFile
-    private final Grgit repo
+    @Input String versionFilePath
+    private Grgit repo
     
     SetProjectVersionNumber() {
         this.group = 'semver'
         this.description = "Sets the semantic version number of the project."
-        this.repo = Grgit.open(project.file('.'))
     }
     
     @TaskAction
     void setProjectVersionNumber() {
+        try {
+            this.repo = Grgit.open(project.file('.'))
+        } catch(RepositoryNotFoundException e) {
+            throw new GradleException("No Git repository can be found for this project")
+        }
+        
         def rawVersion = readRawVersion()
         
         if (isOnMasterBranch()) {
@@ -33,7 +39,7 @@ class SetProjectVersionNumber extends DefaultTask {
     }
     
     private Version readRawVersion() {
-        versionFile = new File(getVersionFile())
+        def versionFile = new File(getVersionFilePath())
         if (!versionFile.exists()) {
             throw new GradleException("Missing version file: $versionFile.canonicalPath")
         }

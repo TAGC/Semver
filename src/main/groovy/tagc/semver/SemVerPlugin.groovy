@@ -17,10 +17,10 @@ class SemVerPlugin implements Plugin<Project> {
     private void addTasks(Project project) {
         project.tasks.withType(SetProjectVersionNumber) {
             def extension = project.extensions.findByName(EXTENSION_NAME)
-            conventionMapping.versionFile = { extension.versionFile }
+            conventionMapping.versionFilePath = { extension.versionFilePath }
         }
         
-        project.task('SetProjectVersion', type: SetProjectVersionNumber)
+        project.task('setProjectVersionNumber', type: SetProjectVersionNumber)
         //project.configurations.compile
     }
 }
