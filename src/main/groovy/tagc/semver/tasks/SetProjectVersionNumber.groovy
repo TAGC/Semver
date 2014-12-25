@@ -8,15 +8,16 @@ import org.gradle.api.tasks.TaskAction
 
 import tagc.semver.Version
 
-class GetProjectVersionTask extends DefaultTask {
+class SetProjectVersionNumber extends DefaultTask {
     
     private static final String MASTER_BRANCH = "master"
     
-    @Input private final File versionFile
+    @Input File versionFile
     private final Grgit repo
     
-    GetProjectVersionTask() {
-        this.description = "Returns the current semantic version number of the project"
+    SetProjectVersionNumber() {
+        this.group = 'semver'
+        this.description = "Sets the semantic version number of the project."
         this.repo = Grgit.open(project.file('.'))
     }
     
@@ -32,7 +33,7 @@ class GetProjectVersionTask extends DefaultTask {
     }
     
     private Version readRawVersion() {
-        def versionFile = getVersionFile()
+        versionFile = new File(getVersionFile())
         if (!versionFile.exists()) {
             throw new GradleException("Missing version file: $versionFile.canonicalPath")
         }

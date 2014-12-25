@@ -3,6 +3,8 @@ package tagc.semver
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 
+import tagc.semver.tasks.SetProjectVersionNumber
+
 class SemVerPlugin implements Plugin<Project> {
     private static final String EXTENSION_NAME = 'semver'
     
@@ -13,11 +15,12 @@ class SemVerPlugin implements Plugin<Project> {
     }
     
     private void addTasks(Project project) {
-        project.tasks.withType(GetProjectVersionNumber) {
+        project.tasks.withType(SetProjectVersionNumber) {
             def extension = project.extensions.findByName(EXTENSION_NAME)
             conventionMapping.versionFile = { extension.versionFile }
         }
         
-        project.task('GetProjectVersionNumber', type: GetProjectVersionNumber)
+        project.task('SetProjectVersion', type: SetProjectVersionNumber)
+        //project.configurations.compile
     }
 }
