@@ -10,6 +10,11 @@
 // Apply the groovy plugin to add support for Groovy
 apply plugin: 'groovy'
 apply plugin: 'eclipse'
+apply plugin: 'maven'
+
+archivesBaseName = 'semver-plugin'
+group = 'tagc'
+version = '0.1.0'
 
 // In this section you declare where to find the dependencies of your project
 repositories {
@@ -18,10 +23,19 @@ repositories {
     jcenter()
 }
 
+// Maven artifact repository
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            repository(url: "file://$projectDir/../repo")
+        }
+    }
+}   
+
 // In this section you declare the dependencies for your production and test code
 dependencies {
     // We use the latest groovy 2.x version for building this library
-    compile 'org.codehaus.groovy:groovy-all:2.3.7'
+    compile 'org.codehaus.groovy:groovy-all:2.3.6'
 
     // Gradle API
     compile gradleApi()
