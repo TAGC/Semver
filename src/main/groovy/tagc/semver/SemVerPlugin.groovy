@@ -6,6 +6,13 @@ import org.gradle.api.Task
 
 import tagc.semver.tasks.SetProjectVersionNumber
 
+/**
+ * An {@link org.gradle.api.Plugin} class that handles the application of semantic
+ * versioning logic to an {@link org.gradle.api.Project}
+ * 
+ * @author davidfallah
+ * @since v0.1.0
+ */
 class SemVerPlugin implements Plugin<Project> {
     private static final String EXTENSION_NAME = 'semver'
 

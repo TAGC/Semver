@@ -42,6 +42,9 @@ dependencies {
 
     // Git gradle plugin
     compile 'org.ajoberstar:gradle-git:0.12.0'
+    
+    // jcip annotations
+    compile 'net.jcip:jcip-annotations:1.0'
 
     // Git gradle plugin.
     //compile 'org.ajoberstar:gradle-git:0.12.0'

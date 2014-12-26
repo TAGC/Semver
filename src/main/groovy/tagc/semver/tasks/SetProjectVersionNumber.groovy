@@ -12,6 +12,16 @@ import org.gradle.api.tasks.TaskAction
 
 import tagc.semver.Version
 
+/**
+ * An {@link org.gradle.api.Task} that sets the {@code project.version} property of the
+ * {@link org.gradle.api.Project} based on semantic versioning.
+ * <p>
+ * This task relies on the project being maintained as a Git repository in order to determine
+ * if the current version is a snapshot or release version. 
+ * 
+ * @author davidfallah
+ * @since v0.1.0
+ */
 class SetProjectVersionNumber extends DefaultTask {
 
     private static final String MASTER_BRANCH = "master"
@@ -25,6 +35,9 @@ class SetProjectVersionNumber extends DefaultTask {
         this.description = "Sets the semantic version number of the project."
     }
 
+    /**
+     * Task action - sets the project version number at execution time.
+     */
     @TaskAction
     void start() {
         try {
