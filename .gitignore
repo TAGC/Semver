@@ -28,6 +28,8 @@ Temporary Items
 .gradle
 build/
 
+# Ignore gradle.properties to be safe
+gradle.properties
 
 # Ignore Gradle GUI config
 gradle-app.setting

@@ -1,4 +1,4 @@
-package tagc.semver.tasks
+package com.github.tagc.semver.tasks
 
 import java.util.regex.Matcher
 import java.util.regex.Pattern
@@ -10,7 +10,7 @@ import org.gradle.api.GradleException
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.TaskAction
 
-import tagc.semver.Version
+import com.github.tagc.semver.Version
 
 /**
  * An {@link org.gradle.api.Task} that sets the {@code project.version} property of the

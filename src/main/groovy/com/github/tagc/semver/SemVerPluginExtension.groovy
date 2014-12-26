@@ -1,4 +1,4 @@
-package tagc.semver
+package com.github.tagc.semver
 
 /**
  * Plugin extension for {@link tagc.semver.SemVerPlugin SemVerPlugin}.

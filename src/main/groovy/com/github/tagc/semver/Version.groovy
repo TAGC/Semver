@@ -1,4 +1,4 @@
-package tagc.semver
+package com.github.tagc.semver
 
 import net.jcip.annotations.Immutable
 
@@ -15,7 +15,7 @@ import net.jcip.annotations.Immutable
 class Version implements Comparable<Version> {
 
     /**
-     * Version builder - allows for {@link tagc.semver.Version Version} construction parameters to be
+     * Version builder - allows for {@link com.github.tagc.semver.Version Version} construction parameters to be
      * selected incrementally.
      * 
      * @author davidfallah

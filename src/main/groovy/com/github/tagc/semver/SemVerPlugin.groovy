@@ -1,10 +1,10 @@
-package tagc.semver
+package com.github.tagc.semver
 
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
 
-import tagc.semver.tasks.SetProjectVersionNumber
+import com.github.tagc.semver.tasks.SetProjectVersionNumber;
 
 /**
  * An {@link org.gradle.api.Plugin} class that handles the application of semantic

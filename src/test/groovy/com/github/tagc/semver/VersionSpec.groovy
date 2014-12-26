@@ -1,4 +1,6 @@
-package tagc.semver
+package com.github.tagc.semver
+
+import com.github.tagc.semver.Version;
 
 import spock.lang.Specification
 

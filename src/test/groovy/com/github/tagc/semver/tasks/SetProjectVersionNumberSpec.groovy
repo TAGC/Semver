@@ -1,10 +1,12 @@
-package tagc.semver.tasks
+package com.github.tagc.semver.tasks
 
 import org.ajoberstar.grgit.Grgit
 import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.testfixtures.ProjectBuilder
+
+import com.github.tagc.semver.tasks.SetProjectVersionNumber;
 
 import spock.lang.Specification
 
