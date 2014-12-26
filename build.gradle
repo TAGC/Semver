@@ -11,6 +11,7 @@
 apply plugin: 'groovy'
 apply plugin: 'eclipse'
 apply plugin: 'maven'
+apply plugin: 'distribution'
 
 archivesBaseName = 'semver-plugin'
 group = 'tagc'
@@ -21,6 +22,44 @@ repositories {
     // Use 'jcenter' for resolving your dependencies.
     // You can declare any Maven/Ivy/file repository here.
     jcenter()
+}
+
+task sourcesJar(type: Jar) {
+    baseName archivesBaseName
+    classifier 'sources'
+    from sourceSets.main.allSource
+}
+
+task groovydocJar(type: Jar, dependsOn: groovydoc) {
+    baseName archivesBaseName
+    classifier 'groovydoc'
+    from groovydoc.destinationDir
+}
+
+artifacts {
+    archives sourcesJar
+    archives groovydocJar
+}
+
+distributions {
+    main {
+        baseName archivesBaseName
+
+        contents {
+            from { libsDir }
+        }
+    }
+
+    docs {
+        baseName = "$archivesBaseName-docs"
+
+        contents {
+            from(libsDir) {
+                include sourcesJar.archiveName
+                include groovydocJar.archiveName
+            }
+        }
+    }
 }
 
 // Maven artifact repository
