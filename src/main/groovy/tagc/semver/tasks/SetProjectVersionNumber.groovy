@@ -40,6 +40,8 @@ class SetProjectVersionNumber extends DefaultTask {
         } else {
             project.version = rawVersion.toDevelop().toString()
         }
+        
+        logger.quiet "Set project version to $project.version"
     }
 
     private Version readRawVersion() {
@@ -62,10 +64,12 @@ class SetProjectVersionNumber extends DefaultTask {
     }
 
     private boolean isOnMasterBranch() {
-        getCurrentBranch() == MASTER_BRANCH
+        def currentBranch = getCurrentBranch()
+        logger.quiet "Current Git branch: $currentBranch"
+        currentBranch == MASTER_BRANCH
     }
 
     private String getCurrentBranch() {
-        repo.branch.current
+        repo.branch.current.name
     }
 }
