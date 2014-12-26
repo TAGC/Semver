@@ -1,5 +1,6 @@
 Semver
 ======
+[![Build Status](https://travis-ci.org/TAGC/Semver.svg)](https://travis-ci.org/TAGC/Semver)
 
 A simple semantic versioning Gradle plugin for Git-controlled projects.
 
