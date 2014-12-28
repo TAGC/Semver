@@ -164,7 +164,7 @@ bintray {
 
     publications = ['plugin']
     publish = true
-    
+
     pkg {
         repo = 'gradle-plugins'
         name = 'gradle-semver-plugin'
