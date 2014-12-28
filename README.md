@@ -61,7 +61,7 @@ The following workflow is recommended for use with this plugin:
 
 You can use the command `bumpversion major|minor|patch` to bump your project version. This will update the version string stored in `version.properties` (or any other file you prefer), which can then be accessed and processed by the SemVer plugin. If you're on any branch but **master**, this plugin will append `-SNAPSHOT` to that string and save it to your project's `project.version` property, as described above.
 
-### Credits
+### Acknowledgements
 
 The development of this project has been largely based on work done by:
  - [Andrew Oberstar](https://github.com/ajoberstar) for his [Gradle-Git](https://github.com/ajoberstar/gradle-git) project, which this plugin relies on to query the current Git branch.
