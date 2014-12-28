@@ -53,7 +53,7 @@ class SetProjectVersionNumber extends DefaultTask {
         } else {
             project.version = rawVersion.toDevelop().toString()
         }
-        
+
         logger.info "Set project version to $project.version"
     }
 
