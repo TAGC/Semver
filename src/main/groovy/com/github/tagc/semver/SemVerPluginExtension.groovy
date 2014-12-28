@@ -1,7 +1,7 @@
 package com.github.tagc.semver
 
 /**
- * Plugin extension for {@link tagc.semver.SemVerPlugin SemVerPlugin}.
+ * Plugin extension for {@link com.github.tagc.semver.SemVerPlugin SemVerPlugin}.
  * <p>
  * This extension allows for configuration of the semantic versioning plugin
  * from Gradle build scripts.

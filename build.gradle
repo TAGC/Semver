@@ -12,7 +12,7 @@ apply plugin: 'com.jfrog.bintray'
 archivesBaseName = 'semver-plugin'
 group = 'com.github.tagc'
 version = '0.1.0'
-description = 'Semantic versioning plugin for managing project version numbers that are maintained as Git repositories'
+description = 'Semantic versioning plugin for managing the version numbering of Git-controlled projects'
 
 // Project dependencies
 repositories {
