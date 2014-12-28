@@ -11,7 +11,10 @@ buildscript {
         // Bintray plugin
         classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.0'
 
-        classpath(group: 'org.jfrog.buildinfo', name: 'build-info-extractor-gradle', version: '2.2.5')
+        classpath 'org.jfrog.buildinfo:build-info-extractor-gradle:2.2.5'
+
+        // A previous version of our plugin
+        classpath 'com.github.tagc:semver-plugin:0.2.1'
     }
 }
 
@@ -23,6 +26,7 @@ apply plugin: 'distribution'
 apply plugin: 'maven-publish'
 apply plugin: 'com.jfrog.bintray'
 apply plugin: 'artifactory'
+apply plugin: 'semver' //Plugin applies itself!
 
 // Artifact meta-data
 archivesBaseName = 'semver-plugin'
@@ -30,13 +34,11 @@ group = 'com.github.tagc'
 description = 'Semantic versioning plugin for managing the version numbering of Git-controlled projects'
 
 // Set version
-def versionProps = new Properties()
-versionProps.load(new FileInputStream("$projectDir/version.properties"))
-project.setProperty('version', versionProps.'project.version')
-// For snapshots, uncomment following line
-project.version += '-SNAPSHOT'
+semver {
+    versionFilePath = 'version.properties'
+}
 
-task printVersion(description: 'Prints the current project version.') << { println "Version: $project.version" }
+task printVersion(description: 'Prints the current project version.', dependsOn: 'setProjectVersionNumber') << { println "Version: $project.version" }
 
 // Project dependencies
 repositories { jcenter() }
