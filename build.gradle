@@ -11,8 +11,17 @@ apply plugin: 'com.jfrog.bintray'
 // Artifact meta-data
 archivesBaseName = 'semver-plugin'
 group = 'com.github.tagc'
-version = '0.1.0'
+//version = '0.1.0'
 description = 'Semantic versioning plugin for managing the version numbering of Git-controlled projects'
+
+// Set version
+def versionProps = new Properties() 
+versionProps.load(new FileInputStream("$projectDir/version.properties")) 
+project.setProperty('version', versionProps.'project.version') 
+
+task printVersion(description: 'Prints the current project version.') << {
+    println "Version: $project.version"
+}
 
 // Project dependencies
 repositories {
