@@ -11,7 +11,6 @@ apply plugin: 'com.jfrog.bintray'
 // Artifact meta-data
 archivesBaseName = 'semver-plugin'
 group = 'com.github.tagc'
-//version = '0.1.0'
 description = 'Semantic versioning plugin for managing the version numbering of Git-controlled projects'
 
 // Set version
