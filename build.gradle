@@ -26,17 +26,20 @@ apply plugin: 'distribution'
 apply plugin: 'maven-publish'
 apply plugin: 'com.jfrog.bintray'
 apply plugin: 'artifactory'
-apply plugin: 'semver' //Plugin applies itself!
+//apply plugin: 'semver' //Plugin applies itself!
 
 // Artifact meta-data
 archivesBaseName = 'semver-plugin'
 group = 'com.github.tagc'
 description = 'Semantic versioning plugin for managing the version numbering of Git-controlled projects'
 
+// Temp.
+version = '0.2.2'
+
 // Set version
-semver {
-    versionFilePath = 'version.properties'
-}
+//semver {
+//    versionFilePath = 'version.properties'
+//}
 
 task printVersion(description: 'Prints the current project version.', dependsOn: 'setProjectVersionNumber') << { println "Version: $project.version" }
 

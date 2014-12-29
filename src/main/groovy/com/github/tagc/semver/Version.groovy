@@ -1,5 +1,8 @@
 package com.github.tagc.semver
 
+import java.util.regex.Matcher
+import java.util.regex.Pattern
+
 import net.jcip.annotations.Immutable
 
 /**
@@ -13,6 +16,41 @@ import net.jcip.annotations.Immutable
  */
 @Immutable
 class Version implements Comparable<Version> {
+
+
+    /**
+     * Version parser - parses strings and constructs {@link com.github.tagc.semver.Version Version}
+     * instances from them.
+     * 
+     * @author davidfallah
+     * @since 0.2.1
+     */
+    static class Parser {
+        private static final Pattern VERSION_PATTERN = ~/(\d+)\.(\d+).(\d+)/
+        private static final Parser INSTANCE = new Parser()
+        
+        public static Parser getInstance() {
+            return INSTANCE
+        }
+        
+        private Parser() {
+            
+        }
+
+        public Version parse(String input) {
+            Matcher m = input =~ VERSION_PATTERN
+
+            if(!m) {
+                throw new IllegalArgumentException("Input ($input) does not represent a valid Version instance")
+            }
+
+            def builder = new Version.Builder()
+            builder.setMajor(m[0][1].toInteger())
+            builder.setMinor(m[0][2].toInteger())
+            builder.setPatch(m[0][3].toInteger())
+            builder.getVersion()
+        }
+    }
 
     /**
      * Version builder - allows for {@link com.github.tagc.semver.Version Version} construction parameters to be
