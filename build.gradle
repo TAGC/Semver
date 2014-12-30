@@ -62,6 +62,26 @@ dependencies {
     testCompile 'junit:junit:4.11'
 }
 
+// Integration tests.
+sourceSets {
+    integrationTest {
+        groovy.srcDir file('src/integTest/groovy')
+        resources.srcDir file('src/integTest/resources')
+        compileClasspath = sourceSets.main.output + configurations.testRuntime
+        runtimeClasspath = output + compileClasspath
+    }
+}
+
+task integrationTest(type: Test) {
+    description = 'Runs the integration tests.'
+    group = 'verification'
+    testClassesDir = sourceSets.integrationTest.output.classesDir
+    classpath = sourceSets.integrationTest.runtimeClasspath
+}
+
+integrationTest.reports.html.destination = file("$buildDir/reports/intTests")
+
+check.dependsOn integrationTest
 
 // Additional artifact declarations
 task sourcesJar(type: Jar) {
