@@ -11,4 +11,5 @@ package com.github.tagc.semver
  */
 class SemVerPluginExtension {
     String versionFilePath
+    Version.Category snapshotBump
 }

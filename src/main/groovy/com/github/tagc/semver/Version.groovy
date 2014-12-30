@@ -19,6 +19,31 @@ import net.jcip.annotations.Immutable
 class Version implements Comparable<Version> {
 
     /**
+     * Version category enumeration - enumerates the {@code major}, {@code minor} and {@code patch}
+     * segments of version strings.
+     * 
+     * @author davidfallah
+     * @since 0.3.1
+     */
+    static enum Category {
+        /**
+         * Patch category (incremented for minor bug fixes that have no affect on public API).
+         */
+        PATCH,
+
+        /**
+         * Minor category (incremented for minor feature additions or major bug fixes. Backwards
+         * compatibility is maintained).  
+         */
+        MINOR,
+        
+        /**
+         * Major category (incremented for major, breaking changes).
+         */
+        MAJOR
+    }
+
+    /**
      * Version parser - parses strings and constructs {@link com.github.tagc.semver.Version Version}
      * instances from them.
      * 
@@ -30,7 +55,7 @@ class Version implements Comparable<Version> {
         private static final Pattern WHITESPACE = ~/\s*/
         private static final Pattern VERSION_PATTERN = ~/(\d+)\.(\d+).(\d+)/
         private static final Pattern SHORT_VERSION_PATTERN = ~/(\d+)\.(\d+)/
-        
+
         private static final Pattern RELEASE_VERSION_PATTERN = ~/$WHITESPACE$VERSION_PATTERN$WHITESPACE/
         private static final Pattern RELEASE_SHORT_VERSION_PATTERN = ~/$WHITESPACE$SHORT_VERSION_PATTERN$WHITESPACE/
         private static final Pattern SNAPSHOT_VERSION_PATTERN = ~/$WHITESPACE$VERSION_PATTERN$SNAPSHOT_IDENTIFIER$WHITESPACE/
@@ -180,6 +205,37 @@ class Version implements Comparable<Version> {
      * @return an incremented {@code Version}
      */
     Version incrementPatch() {
+        new Version(major, minor, patch+1, release)
+    }
+    
+    /**
+     * Returns a new instance of {@code Version} with bumped major number.
+     * <p>
+     * The minor and patch number are reset to 0.
+     * 
+     * @return a bumped {@code Version}
+     */
+    Version bumpMajor() {
+        new Version(major+1, 0, 0, release)
+    }
+    
+    /**
+     * Returns a new instance of {@code Version} with bumped minor number.
+     * <p>
+     * The patch number is reset to 0.
+     *
+     * @return a bumped {@code Version}
+     */
+    Version bumpMinor() {
+        new Version(major, minor+1, 0, release)
+    }
+    
+    /**
+     * Returns a new instance of {@code Version} with bumped patch number.
+     *
+     * @return a bumped {@code Version}
+     */
+    Version bumpPatch() {
         new Version(major, minor, patch+1, release)
     }
 
