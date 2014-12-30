@@ -1,6 +1,5 @@
 package com.github.tagc.semver
 
-import java.util.regex.Matcher
 import java.util.regex.Pattern
 
 import org.ajoberstar.grgit.Grgit
@@ -45,9 +44,9 @@ class SemVerPlugin implements Plugin<Project> {
         def rawVersion = readRawVersion(project)
 
         if (isOnMasterBranch()) {
-            project.version = rawVersion.toRelease().toString()
+            project.version = rawVersion.toRelease()
         } else {
-            project.version = rawVersion.toDevelop().toString()
+            project.version = rawVersion.toDevelop()
         }
 
         logger.info "Set project version to $project.version"
@@ -65,17 +64,7 @@ class SemVerPlugin implements Plugin<Project> {
             throw new GradleException("Missing version file: $versionFile.canonicalPath")
         }
 
-        Matcher m = versionFile.text =~ VERSION_PATTERN
-
-        if(!m) {
-            throw new GradleException("Cannot extract version information from specified version file")
-        }
-
-        def builder = new Version.Builder()
-        builder.setMajor(m[0][1].toInteger())
-        builder.setMinor(m[0][2].toInteger())
-        builder.setPatch(m[0][3].toInteger())
-        builder.getVersion()
+        Version.Parser.getInstance().parse(versionFile.text)
     }
 
     private boolean isOnMasterBranch() {

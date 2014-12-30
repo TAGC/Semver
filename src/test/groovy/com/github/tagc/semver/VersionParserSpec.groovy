@@ -10,7 +10,7 @@ class VersionParserSpec extends Specification {
 
     private static final Parser PARSER = Version.Parser.getInstance()
 
-    def "Valid version representations should be parsed successfully"() {
+    def "Valid version representation should be parsed successfully"() {
         expect:
         PARSER.parse(input) == version
 
@@ -26,12 +26,12 @@ class VersionParserSpec extends Specification {
         ' 1.3.5-SNAPSHOT '  | new Version(1,3,5,false)
     }
 
-    def "Invalid version representations should cause an exception to be thrown"() {
+    def "Invalid version representation (#input) should cause an exception to be thrown"() {
         when:
-        PARSER.parser(input)
+        PARSER.parse(input)
 
         then:
-        thrown(InvalidArgumentException)
+        thrown(IllegalArgumentException)
 
         where:
         input << [
@@ -39,7 +39,6 @@ class VersionParserSpec extends Specification {
             '1,2,3',
             '2.4.-1',
             '3-4-9',
-            '1.2',
             '1.4.5-SNPSHOT',
             '1.4.5-SNAPSHOTasd'
         ]
