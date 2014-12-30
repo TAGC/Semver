@@ -140,7 +140,7 @@ publishing {
 // Bintray configuration
 
 // Do not permit snapshot versions to be uploaded to Bintray.
-project.tasks.bintrayUpload.onlyIf { !project.version.endsWith('-SNAPSHOT') }
+project.tasks.bintrayUpload.onlyIf { !project.version.toString().endsWith('-SNAPSHOT') }
 
 bintray {
     user = bintrayUsername
@@ -163,7 +163,12 @@ bintray {
         ]
         publicDownloadNumbers = true
 
-        version { name = project.version }
+        version {
+            project.afterEvaluate {
+                assert project.version
+                name = project.version
+            }
+        }
     }
 }
 
@@ -173,7 +178,10 @@ artifactory {
     contextUrl = 'http://oss.jfrog.org/artifactory'
     publish {
         repository {
-            repoKey = project.version.endsWith('-SNAPSHOT') ? artifactorySnapshotRepoKey : artifactoryReleaseRepoKey
+            project.afterEvaluate {
+                assert project.version
+                repoKey = project.version.toString().endsWith('-SNAPSHOT') ? artifactorySnapshotRepoKey : artifactoryReleaseRepoKey
+            }
             username = bintrayUsername
             password = bintrayApiKey
         }
