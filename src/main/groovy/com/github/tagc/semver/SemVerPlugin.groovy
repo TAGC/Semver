@@ -80,10 +80,14 @@ class SemVerPlugin implements Plugin<Project> {
         Version.Parser.getInstance().parse(versionFile.text)
     }
 
+    /*
+     * By default, bump by patch.
+     */
     private Version getAppropriateSnapshotVersion(Project project, Version currVersion, Version.Category snapshotBump) {
         assert currVersion : "Null currVersion is illegal"
         assert project : "Null project is illegal"
         switch(snapshotBump) {
+            case null:
             case Version.Category.PATCH:
                 return currVersion.bumpPatch().toDevelop()
             case Version.Category.MINOR:

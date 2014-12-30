@@ -79,6 +79,8 @@ task integrationTest(type: Test) {
     classpath = sourceSets.integrationTest.runtimeClasspath
 }
 
+integrationTest.reports.html.destination = file("$buildDir/reports/intTests")
+
 check.dependsOn integrationTest
 
 // Additional artifact declarations
