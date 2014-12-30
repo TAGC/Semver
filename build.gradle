@@ -3,7 +3,6 @@
 // Buildscript dependencies
 buildscript {
     repositories {
-        mavenLocal()
         jcenter()
     }
     dependencies {
@@ -16,7 +15,7 @@ buildscript {
         classpath 'org.jfrog.buildinfo:build-info-extractor-gradle:2.2.5'
 
         // A previous version of our plugin
-        classpath 'com.github.tagc:semver-plugin:0.2.2'
+        classpath 'com.github.tagc:semver-plugin:0.3.0'
     }
 }
 
