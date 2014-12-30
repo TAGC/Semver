@@ -40,7 +40,7 @@ semver {
     versionFilePath = 'version.properties'
 }
 
-task printVersion(description: 'Prints the current project version.', dependsOn: 'setProjectVersionNumber') << { println "Version: $project.version" }
+task printVersion(description: 'Prints the current project version.') << { println "Version: $project.version" }
 
 // Project dependencies
 repositories { jcenter() }
