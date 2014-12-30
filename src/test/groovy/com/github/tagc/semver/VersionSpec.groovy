@@ -1,11 +1,9 @@
 package com.github.tagc.semver
 
-import com.github.tagc.semver.Version;
-
 import spock.lang.Specification
 
 class VersionSpec extends Specification {
-    
+
     def "Version should be constructable by major and retain state"() {
         given:
         def version = new Version(1)
@@ -39,7 +37,7 @@ class VersionSpec extends Specification {
         def releaseVersion = new Version(1,2,3,true)
 
         expect:
-        !devVersion.isRelease() 
+        !devVersion.isRelease()
         releaseVersion.isRelease()
     }
 
@@ -155,23 +153,32 @@ class VersionSpec extends Specification {
         oldVersion < newVersion
     }
 
-    def "Versions with equal major, minor and patch should be equal"() {
+    def "Snapshot versions should not be considered equal to release versions"() {
         given:
         def devVersion = new Version(1,2,3,false)
         def releaseVersion = new Version(1,2,3,true)
 
         expect:
-        devVersion == releaseVersion
+        devVersion != releaseVersion
+    }
+
+    def "Snapshot versions should be considered newer than release versions with same specifier"() {
+        given:
+        def devVersion = new Version(1,2,3,false)
+        def releaseVersion = new Version(1,2,3,true)
+
+        expect:
+        devVersion > releaseVersion
     }
 
     def "Equal versions should have the same hash code"() {
         given:
-        def devVersion = new Version(1,2,3,false)
-        def releaseVersion = new Version(1,2,3,true)
+        def aVersion = new Version(1,2,3,false)
+        def anotherVersion = new Version(1,2,3,false)
 
-        assert devVersion == releaseVersion
+        assert aVersion == anotherVersion
 
         expect:
-        devVersion.hashCode() == releaseVersion.hashCode()
+        aVersion.hashCode() == anotherVersion.hashCode()
     }
 }

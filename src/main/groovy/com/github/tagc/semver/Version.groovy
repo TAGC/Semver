@@ -1,6 +1,10 @@
 package com.github.tagc.semver
 
+import java.util.regex.Matcher
+import java.util.regex.Pattern
+
 import net.jcip.annotations.Immutable
+
 
 /**
  * Represents a semantic version number for a project.
@@ -13,6 +17,103 @@ import net.jcip.annotations.Immutable
  */
 @Immutable
 class Version implements Comparable<Version> {
+
+    /**
+     * Version parser - parses strings and constructs {@link com.github.tagc.semver.Version Version}
+     * instances from them.
+     * 
+     * @author davidfallah
+     * @since 0.2.1
+     */
+    @Immutable
+    static class Parser {
+        private static final Pattern WHITESPACE = ~/\s*/
+        private static final Pattern VERSION_PATTERN = ~/(\d+)\.(\d+).(\d+)/
+        private static final Pattern SHORT_VERSION_PATTERN = ~/(\d+)\.(\d+)/
+        
+        private static final Pattern RELEASE_VERSION_PATTERN = ~/$WHITESPACE$VERSION_PATTERN$WHITESPACE/
+        private static final Pattern RELEASE_SHORT_VERSION_PATTERN = ~/$WHITESPACE$SHORT_VERSION_PATTERN$WHITESPACE/
+        private static final Pattern SNAPSHOT_VERSION_PATTERN = ~/$WHITESPACE$VERSION_PATTERN$SNAPSHOT_IDENTIFIER$WHITESPACE/
+        private static final Pattern SNAPSHOT_SHORT_VERSION_PATTERN = ~/$WHITESPACE$SHORT_VERSION_PATTERN$SNAPSHOT_IDENTIFIER$WHITESPACE/
+        private static final Parser INSTANCE = new Parser()
+
+        public static Parser getInstance() {
+            return INSTANCE
+        }
+
+        private Parser() {
+        }
+
+        /**
+         * Parses the specified input string and tries to construct an instance of {@code Version} from it.
+         * 
+         * @param input a string representing a version specifier
+         * @param strict set {@code true} if the parse attempt should succeed only if the entire string can be parsed
+         * @return an instance of {@code Version} if the input could be parsed
+         * @throw IllegalArgumentException if the input could not be parsed
+         */
+        Version parse(String input, boolean strict=false) {
+            Version version
+
+            if((version = tryParseFullSnapshotVersion(input, strict)) != null) return version
+            if((version = tryParseShortSnapshotVersion(input, strict)) != null) return version
+            if((version = tryParseFullReleaseVersion(input, strict)) != null) return version
+            if((version = tryParseShortReleaseVersion(input, strict)) != null) return version
+
+            throw new IllegalArgumentException("Version parser: unable to parse input: $input")
+        }
+
+        private Version tryParseFullSnapshotVersion(String input, boolean strict) {
+            Matcher m = checkInputAgainstPattern(input, SNAPSHOT_VERSION_PATTERN, strict)
+            if(!m) return null
+
+            def builder = new Version.Builder()
+            builder.setMajor(m[0][1].toInteger())
+            builder.setMinor(m[0][2].toInteger())
+            builder.setPatch(m[0][3].toInteger())
+            builder.setRelease(false)
+            builder.getVersion()
+        }
+
+        private Version tryParseShortSnapshotVersion(String input, boolean strict) {
+            Matcher m = checkInputAgainstPattern(input, SNAPSHOT_SHORT_VERSION_PATTERN, strict)
+            if(!m) return null
+
+            def builder = new Version.Builder()
+            builder.setMajor(m[0][1].toInteger())
+            builder.setMinor(m[0][2].toInteger())
+            builder.setRelease(false)
+            builder.getVersion()
+        }
+
+        private Version tryParseFullReleaseVersion(String input, boolean strict) {
+            Matcher m = checkInputAgainstPattern(input, RELEASE_VERSION_PATTERN, strict)
+            if(!m) return null
+
+            def builder = new Version.Builder()
+            builder.setMajor(m[0][1].toInteger())
+            builder.setMinor(m[0][2].toInteger())
+            builder.setPatch(m[0][3].toInteger())
+            builder.setRelease(true)
+            builder.getVersion()
+        }
+
+        private Version tryParseShortReleaseVersion(String input, boolean strict) {
+            Matcher m = checkInputAgainstPattern(input, RELEASE_SHORT_VERSION_PATTERN, strict)
+            if(!m) return null
+
+            def builder = new Version.Builder()
+            builder.setMajor(m[0][1].toInteger())
+            builder.setMinor(m[0][2].toInteger())
+            builder.setRelease(true)
+            builder.getVersion()
+        }
+
+        private Matcher checkInputAgainstPattern(String input, Pattern pattern, boolean strict) {
+            if(strict && !(input ==~ pattern)) return null
+            input =~ pattern
+        }
+    }
 
     /**
      * Version builder - allows for {@link com.github.tagc.semver.Version Version} construction parameters to be
@@ -36,6 +137,8 @@ class Version implements Comparable<Version> {
             new Version(major, minor, patch, release)
         }
     }
+
+    private static final String SNAPSHOT_IDENTIFIER = '-SNAPSHOT'
 
     final int major = 0
     final int minor = 0
@@ -104,6 +207,7 @@ class Version implements Comparable<Version> {
         if (! (o instanceof Version)) return false
         if (this.major != o.major) return false
         if (this.minor != o.minor) return false
+        if (this.release != o.release) return false
 
         this.patch == o.patch
     }
@@ -114,6 +218,7 @@ class Version implements Comparable<Version> {
         result = 31 * result + major
         result = 31 * result + minor
         result = 31 * result + patch
+        result = 31 * result + (release ? 1 : 0)
 
         return result
     }
@@ -122,7 +227,11 @@ class Version implements Comparable<Version> {
     int compareTo(Version that) {
         if (this.major == that.major) {
             if (this.minor == that.minor) {
-                return this.patch <=> that.patch
+                if(this.patch == that.patch) {
+                    return -(this.release <=> that.release)
+                } else {
+                    return this.patch <=> that.patch
+                }
             } else {
                 return this.minor <=> that.minor
             }
@@ -133,6 +242,6 @@ class Version implements Comparable<Version> {
 
     @Override
     String toString() {
-        "$major.$minor.$patch${release? '': '-SNAPSHOT'}"
+        "$major.$minor.$patch${release? '': SNAPSHOT_IDENTIFIER}"
     }
 }

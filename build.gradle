@@ -1,5 +1,25 @@
 // Gradle build script for SemVer plugin project.
 
+// Buildscript dependencies
+buildscript {
+    repositories {
+        mavenLocal()
+        jcenter()
+    }
+    dependencies {
+        // Git gradle plugin
+        classpath 'org.ajoberstar:gradle-git:0.12.0'
+
+        // Bintray plugin
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.0'
+
+        classpath 'org.jfrog.buildinfo:build-info-extractor-gradle:2.2.5'
+
+        // A previous version of our plugin
+        classpath 'com.github.tagc:semver-plugin:0.2.2'
+    }
+}
+
 // Plugins
 apply plugin: 'groovy'
 apply plugin: 'eclipse'
@@ -7,6 +27,8 @@ apply plugin: 'maven'
 apply plugin: 'distribution'
 apply plugin: 'maven-publish'
 apply plugin: 'com.jfrog.bintray'
+apply plugin: 'artifactory'
+apply plugin: 'semver' //Plugin applies itself!
 
 // Artifact meta-data
 archivesBaseName = 'semver-plugin'
@@ -14,18 +36,14 @@ group = 'com.github.tagc'
 description = 'Semantic versioning plugin for managing the version numbering of Git-controlled projects'
 
 // Set version
-def versionProps = new Properties() 
-versionProps.load(new FileInputStream("$projectDir/version.properties")) 
-project.setProperty('version', versionProps.'project.version') 
-
-task printVersion(description: 'Prints the current project version.') << {
-    println "Version: $project.version"
+semver {
+    versionFilePath = 'version.properties'
 }
+
+task printVersion(description: 'Prints the current project version.') << { println "Version: $project.version" }
 
 // Project dependencies
-repositories {
-    jcenter()
-}
+repositories { jcenter() }
 
 dependencies {
     // We use the latest groovy 2.x version for building this library
@@ -36,7 +54,7 @@ dependencies {
 
     // Git gradle plugin
     compile 'org.ajoberstar:gradle-git:0.12.0'
-    
+
     // jcip annotations
     compile 'net.jcip:jcip-annotations:1.0'
 
@@ -45,19 +63,6 @@ dependencies {
     testCompile 'junit:junit:4.11'
 }
 
-buildscript {
-    repositories {
-        jcenter()
-        mavenCentral()
-    }
-    dependencies {
-        // Git gradle plugin
-        classpath 'org.ajoberstar:gradle-git:0.12.0'
-
-        // Bintray plugin 
-        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.0'
-    }
-}
 
 // Additional artifact declarations
 task sourcesJar(type: Jar) {
@@ -82,9 +87,7 @@ distributions {
     main {
         baseName archivesBaseName
 
-        contents {
-            from { libsDir }
-        }
+        contents { from { libsDir } }
     }
 
     docs {
@@ -100,9 +103,8 @@ distributions {
 }
 
 ext {
-    artifactoryBaseUrl = 'http://localhost:8081/artifactory'
-    artifactorySnapshotRepoUrl = "$artifactoryBaseUrl/libs-snapshot-local"
-    artifactoryReleaseRepoUrl = "$artifactoryBaseUrl/libs-release-local"
+    artifactorySnapshotRepoKey = "oss-snapshot-local"
+    artifactoryReleaseRepoKey = "oss-release-local"
 }
 
 // Maven publications
@@ -111,13 +113,13 @@ publishing {
         plugin(MavenPublication) {
             from components.java
             artifactId archivesBaseName
-            
+
             pom.withXml {
                 def root = asNode()
                 root.appendNode('name', 'Gradle SemVer plugin')
                 root.appendNode('description', description)
                 root.appendNode('inceptionYear', '2014')
-                
+
                 def license = root.appendNode('licenses').appendNode('license')
                 license.appendNode('name', 'MIT License')
                 license.appendNode('url', 'http://www.opensource.org/licenses/mit-license.php')
@@ -133,29 +135,12 @@ publishing {
             artifact groovydocJar
         }
     }
-
-    repositories {
-        maven {
-            name 'myLocal'
-            url "file://$projectDir/../repo"
-        }
-
-        maven {
-            name 'remoteArtifactory'
-            url project.version.endsWith('-SNAPSHOT') ? artifactorySnapshotRepoUrl : artifactoryReleaseRepoUrl
-
-            credentials {
-                username = artifactoryUsername
-                password = artifactoryPassword
-            }
-        }
-    }
 }
 
 // Bintray configuration
 
 // Do not permit snapshot versions to be uploaded to Bintray.
-project.tasks.bintrayUpload.onlyIf { !project.version.endsWith('-SNAPSHOT') }
+project.tasks.bintrayUpload.onlyIf { !project.version.toString().endsWith('-SNAPSHOT') }
 
 bintray {
     user = bintrayUsername
@@ -172,11 +157,40 @@ bintray {
         issueTrackerUrl = 'https://github.com/TAGC/Semver/issues'
         vcsUrl = 'https://github.com/TAGC/Semver.git'
         licenses = ['MIT']
-        labels = ['gradle', 'semantic-versioning']
+        labels = [
+            'gradle',
+            'semantic-versioning'
+        ]
         publicDownloadNumbers = true
 
         version {
-            name = project.version
+            project.afterEvaluate {
+                assert project.version
+                name = project.version
+            }
+        }
+    }
+}
+
+// Artifactory configuration
+
+artifactory {
+    contextUrl = 'http://oss.jfrog.org/artifactory'
+    publish {
+        repository {
+            project.afterEvaluate {
+                assert project.version
+                repoKey = project.version.toString().endsWith('-SNAPSHOT') ? artifactorySnapshotRepoKey : artifactoryReleaseRepoKey
+            }
+            username = bintrayUsername
+            password = bintrayApiKey
+        }
+        defaults {
+            publishConfigs('archives')
+            publishPom = true 
+            publishIvy = false
+            publishBuildInfo = true
+            publishArtifacts = true
         }
     }
 }
