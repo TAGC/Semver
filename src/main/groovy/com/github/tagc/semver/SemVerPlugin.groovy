@@ -53,7 +53,9 @@ class SemVerPlugin implements Plugin<Project> {
     }
 
     private Version readRawVersion(Project project) {
-        final String versionFilePath = project."$EXTENSION_NAME".versionFilePath
+        def extension = project.extensions.findByName(EXTENSION_NAME)
+        println "Extension=$extension"
+        final String versionFilePath = extension.versionFilePath
         
         if (!versionFilePath) {
             throw new GradleException("Version file has not been specified")
