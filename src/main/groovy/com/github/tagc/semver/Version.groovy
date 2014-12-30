@@ -48,22 +48,23 @@ class Version implements Comparable<Version> {
          * Parses the specified input string and tries to construct an instance of {@code Version} from it.
          * 
          * @param input a string representing a version specifier
+         * @param strict set {@code true} if the parse attempt should succeed only if the entire string can be parsed
          * @return an instance of {@code Version} if the input could be parsed
          * @throw IllegalArgumentException if the input could not be parsed
          */
-        Version parse(String input) {
+        Version parse(String input, boolean strict=false) {
             Version version
 
-            if((version = tryParseFullSnapshotVersion(input)) != null) return version
-            if((version = tryParseShortSnapshotVersion(input)) != null) return version
-            if((version = tryParseFullReleaseVersion(input)) != null) return version
-            if((version = tryParseShortReleaseVersion(input)) != null) return version
+            if((version = tryParseFullSnapshotVersion(input, strict)) != null) return version
+            if((version = tryParseShortSnapshotVersion(input, strict)) != null) return version
+            if((version = tryParseFullReleaseVersion(input, strict)) != null) return version
+            if((version = tryParseShortReleaseVersion(input, strict)) != null) return version
 
             throw new IllegalArgumentException("Version parser: unable to parse input: $input")
         }
 
-        private Version tryParseFullSnapshotVersion(String input) {
-            Matcher m = checkInputAgainstPattern(input, SNAPSHOT_VERSION_PATTERN)
+        private Version tryParseFullSnapshotVersion(String input, boolean strict) {
+            Matcher m = checkInputAgainstPattern(input, SNAPSHOT_VERSION_PATTERN, strict)
             if(!m) return null
 
             def builder = new Version.Builder()
@@ -74,8 +75,8 @@ class Version implements Comparable<Version> {
             builder.getVersion()
         }
 
-        private Version tryParseShortSnapshotVersion(String input) {
-            Matcher m = checkInputAgainstPattern(input, SNAPSHOT_SHORT_VERSION_PATTERN)
+        private Version tryParseShortSnapshotVersion(String input, boolean strict) {
+            Matcher m = checkInputAgainstPattern(input, SNAPSHOT_SHORT_VERSION_PATTERN, strict)
             if(!m) return null
 
             def builder = new Version.Builder()
@@ -85,8 +86,8 @@ class Version implements Comparable<Version> {
             builder.getVersion()
         }
 
-        private Version tryParseFullReleaseVersion(String input) {
-            Matcher m = checkInputAgainstPattern(input, RELEASE_VERSION_PATTERN)
+        private Version tryParseFullReleaseVersion(String input, boolean strict) {
+            Matcher m = checkInputAgainstPattern(input, RELEASE_VERSION_PATTERN, strict)
             if(!m) return null
 
             def builder = new Version.Builder()
@@ -97,8 +98,8 @@ class Version implements Comparable<Version> {
             builder.getVersion()
         }
 
-        private Version tryParseShortReleaseVersion(String input) {
-            Matcher m = checkInputAgainstPattern(input, RELEASE_SHORT_VERSION_PATTERN)
+        private Version tryParseShortReleaseVersion(String input, boolean strict) {
+            Matcher m = checkInputAgainstPattern(input, RELEASE_SHORT_VERSION_PATTERN, strict)
             if(!m) return null
 
             def builder = new Version.Builder()
@@ -108,8 +109,8 @@ class Version implements Comparable<Version> {
             builder.getVersion()
         }
 
-        private Matcher checkInputAgainstPattern(String input, Pattern pattern) {
-            if(!(input ==~ pattern)) return null
+        private Matcher checkInputAgainstPattern(String input, Pattern pattern, boolean strict) {
+            if(strict && !(input ==~ pattern)) return null
             input =~ pattern
         }
     }

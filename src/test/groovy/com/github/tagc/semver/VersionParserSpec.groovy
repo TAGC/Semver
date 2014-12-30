@@ -9,10 +9,25 @@ import com.github.tagc.semver.Version.Parser
 class VersionParserSpec extends Specification {
 
     private static final Parser PARSER = Version.Parser.getInstance()
+    
+    def "Version information should be extracted from files if parsing is not strict"() {
+        given:
+        def versionFileText = "version='$versionString'"
+        
+        expect:
+        PARSER.parse(versionFileText, false) == version
+        
+        where:
+        versionString      | version
+        '0.1.2-SNAPSHOT'   | new Version(0,1,2,false)
+        '1.2.4'            | new Version(1,2,4,true)
+        '1.3-SNAPSHOT'     | new Version(1,3,0,false)
+        '0.4'              | new Version(0,4,0,true)
+    }
 
     def "Valid version representation should be parsed successfully"() {
         expect:
-        PARSER.parse(input) == version
+        PARSER.parse(input, true) == version
 
         where:
         input               | version
@@ -28,7 +43,7 @@ class VersionParserSpec extends Specification {
 
     def "Invalid version representation (#input) should cause an exception to be thrown"() {
         when:
-        PARSER.parse(input)
+        PARSER.parse(input, true)
 
         then:
         thrown(IllegalArgumentException)
