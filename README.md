@@ -6,6 +6,8 @@ A simple semantic versioning Gradle plugin for Git-controlled projects.
 
 This plugin has been primarily developed just so that I get experience with developing Gradle plugins.
 
+**Note!** This plugin has been altered significantly between versions 0.2 and 0.3, so a lot of this documentation is out of date. I will try to update the documentation as soon as possible.
+
 ### Setup
 
 To configure your project to use this plugin, add the following to your Gradle build script:
