@@ -2,7 +2,9 @@
 
 // Buildscript dependencies
 buildscript {
-    repositories { jcenter() //mavenCentral()
+    repositories {
+        mavenLocal()
+        jcenter()
     }
     dependencies {
         // Git gradle plugin
@@ -14,7 +16,7 @@ buildscript {
         classpath 'org.jfrog.buildinfo:build-info-extractor-gradle:2.2.5'
 
         // A previous version of our plugin
-        classpath 'com.github.tagc:semver-plugin:0.2.1'
+        classpath 'com.github.tagc:semver-plugin:0.2.2'
     }
 }
 
@@ -26,20 +28,17 @@ apply plugin: 'distribution'
 apply plugin: 'maven-publish'
 apply plugin: 'com.jfrog.bintray'
 apply plugin: 'artifactory'
-//apply plugin: 'semver' //Plugin applies itself!
+apply plugin: 'semver' //Plugin applies itself!
 
 // Artifact meta-data
 archivesBaseName = 'semver-plugin'
 group = 'com.github.tagc'
 description = 'Semantic versioning plugin for managing the version numbering of Git-controlled projects'
 
-// Temp.
-version = '0.2.2'
-
 // Set version
-//semver {
-//    versionFilePath = 'version.properties'
-//}
+semver {
+    versionFilePath = 'version.properties'
+}
 
 task printVersion(description: 'Prints the current project version.', dependsOn: 'setProjectVersionNumber') << { println "Version: $project.version" }
 
