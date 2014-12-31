@@ -10,7 +10,8 @@ class VersionSpec extends Specification {
         new Version(1,2,3),
         new Version(0,0,0),
         new Version(5,4,3),
-        new Version(1,16,2)
+        new Version(1,16,2),
+        new Version(4,5,8),
         ]
 
     def "Version should be constructable by major and retain state"() {

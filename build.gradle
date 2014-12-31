@@ -12,6 +12,9 @@ buildscript {
 
         classpath 'org.jfrog.buildinfo:build-info-extractor-gradle:2.2.5'
 
+        // Cobertura plugin
+        classpath "net.saliman:gradle-cobertura-plugin:2.2.5"
+
         // A previous version of our plugin
         classpath 'com.github.tagc:semver-plugin:0.4.0'
     }
@@ -26,6 +29,7 @@ apply plugin: 'maven-publish'
 apply plugin: 'com.jfrog.bintray'
 apply plugin: 'artifactory'
 apply plugin: 'sonar-runner'
+apply plugin: 'net.saliman.cobertura'
 apply plugin: 'semver' //Plugin applies itself!
 
 // Artifact meta-data
@@ -60,6 +64,15 @@ dependencies {
     // We use the awesome Spock testing and specification framework
     testCompile 'org.spockframework:spock-core:0.7-groovy-2.0'
     testCompile 'junit:junit:4.11'
+}
+
+configurations.all {
+    resolutionStrategy {
+        // Cobertura includes an ASM version that can't handle Java 8, ASM 5.0.3
+        //handles Java8
+        force 'org.ow2.asm:asm:5.0.3'
+        forcedModules = [ 'org.ow2.asm:asm:5.0.3' ]
+    }
 }
 
 // Integration tests.
@@ -227,3 +240,6 @@ sonarRunner {
         property 'source-encoding', 'UTF-8'
     }
 }
+
+// Cobertura
+check.dependsOn 'cobertura'
