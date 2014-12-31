@@ -2,9 +2,7 @@
 
 // Buildscript dependencies
 buildscript {
-    repositories {
-        jcenter()
-    }
+    repositories { jcenter() }
     dependencies {
         // Git gradle plugin
         classpath 'org.ajoberstar:gradle-git:0.12.0'
@@ -27,6 +25,7 @@ apply plugin: 'distribution'
 apply plugin: 'maven-publish'
 apply plugin: 'com.jfrog.bintray'
 apply plugin: 'artifactory'
+apply plugin: 'sonar-runner'
 apply plugin: 'semver' //Plugin applies itself!
 
 // Artifact meta-data
@@ -35,9 +34,7 @@ group = 'com.github.tagc'
 description = 'Semantic versioning plugin for managing the version numbering of Git-controlled projects'
 
 // Set version
-semver {
-    versionFilePath = 'version.properties'
-}
+semver { versionFilePath = 'version.properties' }
 
 task printVersion(description: 'Prints the current project version.') << { println "Version: $project.version" }
 
@@ -62,6 +59,26 @@ dependencies {
     testCompile 'junit:junit:4.11'
 }
 
+// Integration tests.
+sourceSets {
+    integrationTest {
+        groovy.srcDir file('src/integTest/groovy')
+        resources.srcDir file('src/integTest/resources')
+        compileClasspath = sourceSets.main.output + configurations.testRuntime
+        runtimeClasspath = output + compileClasspath
+    }
+}
+
+task integrationTest(type: Test) {
+    description = 'Runs the integration tests.'
+    group = 'verification'
+    testClassesDir = sourceSets.integrationTest.output.classesDir
+    classpath = sourceSets.integrationTest.runtimeClasspath
+}
+
+integrationTest.reports.html.destination = file("$buildDir/reports/intTests")
+
+check.dependsOn integrationTest
 
 // Additional artifact declarations
 task sourcesJar(type: Jar) {
@@ -172,7 +189,6 @@ bintray {
 }
 
 // Artifactory configuration
-
 artifactory {
     contextUrl = 'http://oss.jfrog.org/artifactory'
     publish {
@@ -186,10 +202,25 @@ artifactory {
         }
         defaults {
             publishConfigs('archives')
-            publishPom = true 
+            publishPom = true
             publishIvy = false
             publishBuildInfo = true
             publishArtifacts = true
         }
+    }
+}
+
+// SonarQube
+sonarRunner {
+    sonarProperties {
+        property 'sonar.host.url', 'http://54.72.57.177:9000'
+        property 'sonar.jdbc.url', 'jdbc:mysql://54.72.57.177:3306/sonar?useUnicode=true&characterEncoding=utf8&rewriteBatchedStatements=true&useConfigs=maxPerformance'
+        property 'sonar.jdbc.driverClassName', 'com.mysql.jdbc.Driver'
+        property 'sonar.jdbc.username', "${sonarJDBCUsername}"
+        property 'sonar.jdbc.password', "${sonarJDBCPassword}"
+        property 'sonar.login', "${sonarLogin}"
+        property 'sonar.password', "${sonarPassword}"
+        property 'sonar.language', 'grvy'
+        property 'source-encoding', 'UTF-8'
     }
 }

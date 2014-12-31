@@ -1,8 +1,17 @@
 package com.github.tagc.semver
 
 import spock.lang.Specification
+import spock.lang.Unroll
 
+@Unroll
 class VersionSpec extends Specification {
+    
+    static def exampleVersions = [
+        new Version(1,2,3),
+        new Version(0,0,0),
+        new Version(5,4,3),
+        new Version(1,16,2)
+        ]
 
     def "Version should be constructable by major and retain state"() {
         given:
@@ -59,40 +68,88 @@ class VersionSpec extends Specification {
         version.isRelease()
     }
 
-    def "Incrementing major number should return new version with incremented major"() {
+    def "Incrementing major of version #currMajor-#currMinor-#currPatch should return appropriate bumped version"() {
         given:
-        def version = new Version(1,2,3)
-
-        when:
-        def newVersion = version.incrementMajor()
-        def oldMajor = version.getMajor()
-
-        then:
-        newVersion.getMajor() == oldMajor + 1
+        def currVersion = new Version(currMajor, currMinor, currPatch)
+        
+        expect:
+        currVersion.incrementMajor() == new Version(currMajor+1, currMinor, currPatch)
+        
+        where:
+        version << exampleVersions
+        currMajor = version.major
+        currMinor = version.minor
+        currPatch = version.patch
     }
 
-    def "Incrementing minor number should return new version with incremented minor"() {
+    def "Incrementing minor of version #currMajor-#currMinor-#currPatch should return appropriate bumped version"() {
         given:
-        def version = new Version(1,2,3)
-
-        when:
-        def newVersion = version.incrementMinor()
-        def oldMinor = version.getMinor()
-
-        then:
-        newVersion.getMinor() == oldMinor + 1
+        def currVersion = new Version(currMajor, currMinor, currPatch)
+        
+        expect:
+        currVersion.incrementMinor() == new Version(currMajor, currMinor+1, currPatch)
+        
+        where:
+        version << exampleVersions
+        currMajor = version.major
+        currMinor = version.minor
+        currPatch = version.patch
     }
 
-    def "Incrementing patch number should return new version with incremented minor"() {
+    def "Incrementing patch of version #currMajor-#currMinor-#currPatch should return appropriate bumped version"() {
         given:
-        def version = new Version(1,2,3)
-
-        when:
-        def newVersion = version.incrementPatch()
-        def oldPatch = version.getPatch()
-
-        then:
-        newVersion.getPatch() == oldPatch + 1
+        def currVersion = new Version(currMajor, currMinor, currPatch)
+        
+        expect:
+        currVersion.incrementPatch() == new Version(currMajor, currMinor, currPatch+1)
+        
+        where:
+        version << exampleVersions
+        currMajor = version.major
+        currMinor = version.minor
+        currPatch = version.patch
+    }
+    
+    def "Bumping major of version #currMajor-#currMinor-#currPatch should return appropriate bumped version"() {
+        given:
+        def currVersion = new Version(currMajor, currMinor, currPatch)
+        
+        expect:
+        currVersion.bumpMajor() == new Version(currMajor+1, 0, 0)
+        
+        where:
+        version << exampleVersions
+        currMajor = version.major
+        currMinor = version.minor
+        currPatch = version.patch
+    }
+    
+    def "Bumping minor of version #currMajor-#currMinor-#currPatch should return appropriate bumped version"() {
+        given:
+        def currVersion = new Version(currMajor, currMinor, currPatch)
+        
+        expect:
+        currVersion.bumpMinor() == new Version(currMajor, currMinor+1, 0)
+        
+        where:
+        version << exampleVersions
+        currMajor = version.major
+        currMinor = version.minor
+        currPatch = version.patch
+    }
+    
+    def "Bumping patch of version #currMajor-#currMinor-#currPatch should return appropriate bumped version"() {
+        given:
+        def currVersion = new Version(currMajor, currMinor, currPatch)
+        
+        expect:
+        currVersion.bumpPatch() == new Version(currMajor, currMinor, currPatch+1)
+        
+        where:
+        version << exampleVersions
+        currMajor = version.major
+        currMinor = version.minor
+        currPatch = version.patch
     }
 
     def "Switching to release should return new version with release state"() {
