@@ -13,7 +13,7 @@ buildscript {
         classpath 'org.jfrog.buildinfo:build-info-extractor-gradle:2.2.5'
 
         // A previous version of our plugin
-        classpath 'com.github.tagc:semver-plugin:0.3.0'
+        classpath 'com.github.tagc:semver-plugin:0.4.0'
     }
 }
 
@@ -34,7 +34,10 @@ group = 'com.github.tagc'
 description = 'Semantic versioning plugin for managing the version numbering of Git-controlled projects'
 
 // Set version
-semver { versionFilePath = 'version.properties' }
+semver {
+    versionFilePath = 'version.properties'
+    snapshotBump = 'PATCH'    
+}
 
 task printVersion(description: 'Prints the current project version.') << { println "Version: $project.version" }
 
