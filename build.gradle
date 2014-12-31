@@ -29,6 +29,7 @@ apply plugin: 'maven-publish'
 apply plugin: 'com.jfrog.bintray'
 apply plugin: 'artifactory'
 apply plugin: 'sonar-runner'
+apply plugin: 'codenarc'
 apply plugin: 'net.saliman.cobertura'
 apply plugin: 'semver' //Plugin applies itself!
 
@@ -70,8 +71,8 @@ configurations.all {
     resolutionStrategy {
         // Cobertura includes an ASM version that can't handle Java 8, ASM 5.0.3
         //handles Java8
-        force 'org.ow2.asm:asm:5.0.3'
-        forcedModules = [ 'org.ow2.asm:asm:5.0.3' ]
+        //force 'org.ow2.asm:asm:5.0.3'
+        //forcedModules = [ 'org.ow2.asm:asm:5.0.3' ]
     }
 }
 
@@ -238,8 +239,29 @@ sonarRunner {
         property 'sonar.password', "${sonarPassword}"
         property 'sonar.language', 'grvy'
         property 'source-encoding', 'UTF-8'
+        property 'sonar.groovy.codenarc.reportPath', "$buildDir/reports/codenarc/main.xml"
+        property 'sonar.groovy.cobertura.reportPath', "$buildDir/reports/cobertura/coverage.xml"
     }
 }
 
+project.tasks.findByName('sonarRunner').dependsOn 'check'
+
 // Cobertura
 check.dependsOn 'cobertura'
+
+cobertura {
+    coverageFormats = [ 'html', 'xml' ]
+}
+
+// Codenarc
+codenarc {
+    configFile = new File("$projectDir/config/codenarc/rules.groovy")
+    ignoreFailures = true
+}
+
+tasks.withType(CodeNarc) {
+    reports {
+        xml.enabled = true
+        html.enabled = true
+    }
+}
