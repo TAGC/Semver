@@ -2,8 +2,6 @@ package com.github.tagc.semver
 
 import groovy.transform.PackageScope
 
-import java.util.regex.Pattern
-
 import org.ajoberstar.grgit.Grgit
 import org.eclipse.jgit.errors.RepositoryNotFoundException
 import org.gradle.api.GradleException
@@ -22,7 +20,6 @@ class SemVerPlugin implements Plugin<Project> {
     @PackageScope static final String EXTENSION_NAME = 'semver'
 
     private static final String MASTER_BRANCH = "master"
-    private static final Pattern VERSION_PATTERN = ~/(\d+)\.(\d+).(\d+)/
 
     private Grgit repo
     private Logger logger
