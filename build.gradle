@@ -31,6 +31,7 @@ apply plugin: 'artifactory'
 apply plugin: 'sonar-runner'
 apply plugin: 'codenarc'
 //apply plugin: 'net.saliman.cobertura'
+apply plugin: "jacoco"
 apply plugin: 'semver' //Plugin applies itself!
 
 // Artifact meta-data
@@ -91,6 +92,11 @@ task integrationTest(type: Test) {
     group = 'verification'
     testClassesDir = sourceSets.integrationTest.output.classesDir
     classpath = sourceSets.integrationTest.runtimeClasspath
+    
+    jacoco {
+        destinationFile = file("$buildDir/jacoco/integrationTest.exec")
+        classDumpFile = file("$buildDir/classes/integrationTest")
+     }
 }
 
 integrationTest.reports.html.destination = file("$buildDir/reports/intTests")
@@ -103,11 +109,26 @@ task copyDoc(type: Copy, description: "Copies documentation from build directory
     into "$projectDir/docs"
 }
 
-task copyHealth(type: Copy, description: "Copies project health data to project root directory.") {
-    from "$buildDir/reports/codenarc"
-    into "$projectDir/health/codenarc"
-    include '*.html'
+task deleteDoc(type: Delete, description: "Deletes documentation folder.") {
+	delete "$projectDir/docs"
 }
+
+task copyHealth(description: "Copies project health data to project root directory.") << {
+    def dirMap = ["reports/codenarc":"codenarc", "reports/jacoco/test/html":"jacoco"]
+    dirMap.each { source, dest ->
+        copy {
+            from "$buildDir/$source"
+            into "$projectDir/health/$dest"
+            exclude '*.xml'
+        }
+    }
+}
+
+task deleteHealth(type: Delete, description: "Deletes project health folder") {
+	delete "$projectDir/health"
+}
+
+clean.finalizedBy([deleteDoc, deleteHealth])
 
 groovydoc.finalizedBy(copyDoc)
 check.finalizedBy(copyHealth)
@@ -280,3 +301,15 @@ tasks.withType(CodeNarc) {
         html.enabled = true
     }
 }
+
+// Jacoco
+jacocoTestReport {
+    executionData test, integrationTest
+    
+    reports {
+        xml.enabled true
+        html.enabled true
+    }
+}
+
+check.finalizedBy(jacocoTestReport)
