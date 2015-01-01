@@ -170,6 +170,12 @@ task generateReadme(description: "Generates the README file", group: "documentat
 
 build.dependsOn generateReadme
 
+// License generation
+task addLicenseHeaders(type: Exec, description: 'Adds license headers to sources files') {
+    executable 'sh'
+    args '-c', 'copyright-header --license-file LICENSE_HEADER -a src/main/groovy/:src/main/java/ -o . -c GroovyLicenseSyntax.yml'
+}
+
 // Additional artifact declarations
 task sourcesJar(type: Jar) {
     baseName archivesBaseName
