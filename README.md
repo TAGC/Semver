@@ -85,7 +85,7 @@ This project is continuously analysed by Jacoco (to calculate test code coverage
 - Present code coverage: 68.3%
 - Present high priority issues: 0
 - Present medium priority issues: 27
-- Present low priority issues: 75
+- Present low priority issues: 78
 
 More detailed information about code coverage can be found in the [Jacoco report](http://cdn.rawgit.com/tagc/semver/develop/health/jacoco/index.html).
 
