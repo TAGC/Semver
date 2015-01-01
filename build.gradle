@@ -1,5 +1,6 @@
 // Gradle build script for SemVer plugin project.
 import groovy.text.SimpleTemplateEngine
+import org.ajoberstar.grgit.Grgit
 
 // Buildscript dependencies
 buildscript {
@@ -142,12 +143,18 @@ task generateReadme(description: "Generates the README file", group: "documentat
         def templateFile = new File("$projectDir/README_Template")
         assert (templateFile.isFile())
         
+        def repo = Grgit.open(project.file("$projectDir"))
+        def currentBranch = repo.branch.current.name
+        if (currentBranch != 'master') currentBranch = 'develop'
+        
+        
         def template = templateFile.text
         def binding = [
             "jacocoCoverage":"$project.ext.jacocoCoverage",
             "p1Issues":"$project.ext.codenarcP1",
             "p2Issues":"$project.ext.codenarcP2",
-            "p3Issues":"$project.ext.codenarcP3"
+            "p3Issues":"$project.ext.codenarcP3",
+            "gitBranch":"$currentBranch"
         ]
         
         def engine = new SimpleTemplateEngine()

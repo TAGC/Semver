@@ -87,9 +87,9 @@ This project is continuously analysed by Jacoco (to calculate test code coverage
 - Present medium priority issues: ${p2Issues}
 - Present low priority issues: ${p3Issues}
 
-More detailed information about code coverage can be found in the [Jacoco report](health/jacoco/index.html).
+More detailed information about code coverage can be found in the [Jacoco report](http://cdn.rawgit.com/tagc/semver/$gitBranch/health/jacoco/index.html).
 
-More detailed information about coding issues can be found in the [CodeNarc report](health/codenarc/main.html).
+More detailed information about coding issues can be found in the [CodeNarc report](http://cdn.rawgit.com/tagc/semver/$gitBranch/health/codenarc/main.html).
 
 Acknowledgements
 ---
