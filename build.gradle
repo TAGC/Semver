@@ -1,4 +1,5 @@
 // Gradle build script for SemVer plugin project.
+import groovy.text.SimpleTemplateEngine
 
 // Buildscript dependencies
 buildscript {
@@ -133,6 +134,35 @@ clean.finalizedBy([deleteDoc, deleteHealth])
 groovydoc.finalizedBy(copyDoc)
 check.finalizedBy(copyHealth)
 
+// README generation.
+task generateReadme(description: "Generates the README file", group: "documentation") {
+    dependsOn 'check'
+    
+    doLast {
+        def templateFile = new File("$projectDir/README_Template")
+        assert (templateFile.isFile())
+        
+        def template = templateFile.text
+        def binding = [
+            "jacocoCoverage":"$project.ext.jacocoCoverage",
+            "p1Issues":"$project.ext.codenarcP1",
+            "p2Issues":"$project.ext.codenarcP2",
+            "p3Issues":"$project.ext.codenarcP3"
+        ]
+        
+        def engine = new SimpleTemplateEngine()
+        def result = engine.createTemplate(template).make(binding).toString()
+        
+        // Save back to README.md
+        def readmeFile = new File("$projectDir/README.md")
+        def w = readmeFile.newWriter()
+        w << result
+        w.close()
+    }
+}
+
+build.dependsOn generateReadme
+
 // Additional artifact declarations
 task sourcesJar(type: Jar) {
     baseName archivesBaseName
@@ -174,6 +204,7 @@ distributions {
 ext {
     artifactorySnapshotRepoKey = "oss-snapshot-local"
     artifactoryReleaseRepoKey = "oss-release-local"
+    unknownPropertyDefault = 'Unknown'
 }
 
 // Maven publications
@@ -302,16 +333,20 @@ tasks.withType(CodeNarc) {
     }
 }
 
-check << {
-    saveCodenarcData()
+codenarcMain {
+    outputs.upToDateWhen { false }
+    
+    doLast {
+        saveCodenarcData()
+    }
 }
 
 def saveCodenarcData() {
     def codenarcReport = new File('./build/reports/codenarc/main.xml')
     if (!codenarcReport.isFile()) {
-        project.ext.codenarcP1 = 'Unknown'
-        project.ext.codenarcP2 = 'Unknown'
-        project.ext.codenarcP3 = 'Unknown'
+        project.ext.codenarcP1 = "$unknownPropertyDefault"
+        project.ext.codenarcP2 = "$unknownPropertyDefault"
+        project.ext.codenarcP3 = "$unknownPropertyDefault"
         return
     }
 
@@ -345,7 +380,7 @@ jacocoTestReport << {
 def saveJacocoTestCoverage() {
     def coverageFile = new File("${jacoco.reportsDir}/test/jacocoTestReport.xml")
     if (!coverageFile.isFile()) {
-        project.ext.jacocoCoverage = 'Unknown'
+        project.ext.jacocoCoverage = "$unknownPropertyDefault"
         return
     }
 
