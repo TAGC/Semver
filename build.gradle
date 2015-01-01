@@ -302,6 +302,30 @@ tasks.withType(CodeNarc) {
     }
 }
 
+check << {
+    saveCodenarcData()
+}
+
+def saveCodenarcData() {
+    def codenarcReport = new File('./build/reports/codenarc/main.xml')
+    if (!codenarcReport.isFile()) {
+        project.ext.codenarcP1 = 'Unknown'
+        project.ext.codenarcP2 = 'Unknown'
+        project.ext.codenarcP3 = 'Unknown'
+        return
+    }
+
+    def pattern = ~/(?s)<CodeNarc.+>/
+    def xml = (codenarcReport.text =~ pattern)[0]
+
+    def parser = new XmlSlurper()
+    def rootNode = parser.parseText(xml)
+
+    project.ext.codenarcP1 = rootNode.PackageSummary.@priority1.text()
+    project.ext.codenarcP2 = rootNode.PackageSummary.@priority2.text()
+    project.ext.codenarcP3 = rootNode.PackageSummary.@priority3.text()
+}
+
 // Jacoco
 jacocoTestReport {
     executionData test, integrationTest
@@ -313,3 +337,31 @@ jacocoTestReport {
 }
 
 check.finalizedBy(jacocoTestReport)
+
+jacocoTestReport << {
+    saveJacocoTestCoverage()
+}
+
+def saveJacocoTestCoverage() {
+    def coverageFile = new File("${jacoco.reportsDir}/test/jacocoTestReport.xml")
+    if (!coverageFile.isFile()) {
+        project.ext.jacocoCoverage = 'Unknown'
+        return
+    }
+
+    def pattern = ~/<report.+>/
+    def xml = (coverageFile.text =~ pattern)[0]
+
+    def parser = new XmlSlurper()
+    def rootNode = parser.parseText(xml)
+
+    def instructionCounter = rootNode.counter.find { it.@type.text() == 'INSTRUCTION' }
+
+    def instructionsMissed = instructionCounter.@missed.text().toInteger()
+    def instructionsCovered = instructionCounter.@covered.text().toInteger()
+
+    def totalInstructions = instructionsMissed + instructionsCovered
+    def coverage = instructionsCovered / totalInstructions
+    
+    project.ext.jacocoCoverage = sprintf('%.1f%%', coverage*100)
+}
