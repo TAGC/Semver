@@ -27,7 +27,7 @@ class Version implements Comparable<Version> {
      */
     static enum Category {
         /**
-         * Patch category (incremented for minor bug fixes that have no affect on public API).
+         * Patch category (incremented for minor bug fixes that have no effect on public API).
          */
         PATCH,
 

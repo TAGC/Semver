@@ -13,7 +13,7 @@ buildscript {
         classpath 'org.jfrog.buildinfo:build-info-extractor-gradle:2.2.5'
 
         // Cobertura plugin
-        classpath "net.saliman:gradle-cobertura-plugin:2.2.5"
+        //classpath "net.saliman:gradle-cobertura-plugin:2.2.5"
 
         // A previous version of our plugin
         classpath 'com.github.tagc:semver-plugin:0.4.0'
@@ -30,7 +30,7 @@ apply plugin: 'com.jfrog.bintray'
 apply plugin: 'artifactory'
 apply plugin: 'sonar-runner'
 apply plugin: 'codenarc'
-apply plugin: 'net.saliman.cobertura'
+//apply plugin: 'net.saliman.cobertura'
 apply plugin: 'semver' //Plugin applies itself!
 
 // Artifact meta-data
@@ -96,6 +96,21 @@ task integrationTest(type: Test) {
 integrationTest.reports.html.destination = file("$buildDir/reports/intTests")
 
 check.dependsOn integrationTest
+
+// Copy tasks
+task copyDoc(type: Copy, description: "Copies documentation from build directory to project root directory.") {
+    from "$buildDir/docs"
+    into "$projectDir/docs"
+}
+
+task copyHealth(type: Copy, description: "Copies project health data to project root directory.") {
+    from "$buildDir/reports/codenarc"
+    into "$projectDir/health/codenarc"
+    include '*.html'
+}
+
+groovydoc.finalizedBy(copyDoc)
+check.finalizedBy(copyHealth)
 
 // Additional artifact declarations
 task sourcesJar(type: Jar) {
@@ -247,11 +262,11 @@ sonarRunner {
 project.tasks.findByName('sonarRunner').dependsOn 'check'
 
 // Cobertura
-check.dependsOn 'cobertura'
+//check.dependsOn 'cobertura'
 
-cobertura {
-    coverageFormats = [ 'html', 'xml' ]
-}
+//cobertura {
+//    coverageFormats = [ 'html', 'xml' ]
+//}
 
 // Codenarc
 codenarc {
