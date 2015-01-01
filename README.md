@@ -6,9 +6,10 @@ A simple semantic versioning Gradle plugin for Git-controlled projects.
 
 This plugin has been primarily developed just so that I get experience with developing Gradle plugins.
 
-**Note!** This plugin has been altered significantly between versions 0.2 and 0.3, so a lot of this documentation is out of date. I will try to update the documentation as soon as possible.
+As of v0.3.0, this plugin now depends on itself for its own version numbering management. If you would like a practical example demonstrating usage of this plugin, just look in this project's build script!
 
-### Setup
+Setup
+---
 
 To configure your project to use this plugin, add the following to your Gradle build script:
 
@@ -27,18 +28,31 @@ buildscript {
 
 semver {
     versionFilePath = 'version.properties' // Or whatever other file stores version information
+
+    // Optional
+    snapshotBump = 'PATCH' // Or 'MINOR' or 'MAJOR'
 }
 ```
 
 The `versionFilePath` property must point to a file that stores the 'raw' version string for your project in the form `<major>.<minor>.<patch>`, e.g. `version='1.2.3'` or simply `1.2.3`.
 
-### Description
+The `snapshotBump` property is optional and specifies what snapshot versions the plugin should derive from the latest released versions. For instance, if the last released version of a project was `v0.1.0` and `snapshotBump=PATCH` was specified, any development work will be treated as `v0.1.1-SNAPSHOT`. If `snapshotBump=MINOR` is specified instead, development work will be treated as `v0.2.0-SNAPSHOT`, and for `snapshotBump=MAJOR` it would be treated as `v1.0.0-SNAPSHOT`. This helps reconcile the differences between workflow strategies such as [Git Flow](http://nvie.com/posts/a-successful-git-branching-model/) which expect release versions to be decided only as releases are about to be made with [Maven's philosophy of always deciding on (or guessing) what the next release version will be](http://docs.oracle.com/middleware/1212/core/MAVEN/maven_version.htm#MAVEN401). Predict whether your next release will introduce minor bug fixes, new (but backwards-compatible) features, or breaking changes, and set `snapshotBump` accordingly. By default (when this property is not explicitly set), `snapshotBump` will be treated as set to `PATCH`.
+
+Description
+---
 
 This plugin is designed to be applied to projects that are using Gradle as a build automation tool and Git for source code management. The plugin will attempt to extract a 'raw' semantic version from a specified file (e.g. `1.2.3`) and then perform either of two actions:
   - if the plugin detects that you are currently on the **master** Git branch, it will save that version string as-is to your project's `project.version` property.
-  - if the plugin detects that you are currently on any other Git branch, it will append `-SNAPSHOT` to the version string and apply the result to your project's `project.version` property (e.g. `1.2.3-SNAPSHOT`).
+  - if the plugin detects that you are currently on any other Git branch, it will generate an appropriately-bumped version with '-SNAPSHOT' appended to the corresponding version string (e.g. `1.2.4-SNAPSHOT`). This is then applied to your project's `project.version` property.
 
-This behaviour is performed during the execution stage of the build lifecycle through the `:setProjectVersionNumber` task. The plugin will set `:compileJava` and `:compileGroovy` to depend on this task if they exist.
+This behaviour is performed during the configuration stage of the build lifecycle to allow the `project.version` property to be evaluated properly by other parts of the project's build script. If you find that `version.property` is being evaluated as `unspecified` in other parts of your build script, you can try wrapping instances of it in a `project.afterEvaluate` closure, as follows:
+
+```
+project.afterEvaluate {
+    assert project.version
+    version = project.version
+}
+```
 
 ##### Recommended Usage
 
@@ -63,7 +77,8 @@ The following workflow is recommended for use with this plugin:
 
 You can use the command `bumpversion major|minor|patch` to bump your project version. This will update the version string stored in `version.properties` (or any other file you prefer), which can then be accessed and processed by the SemVer plugin. If you're on any branch but **master**, this plugin will append `-SNAPSHOT` to that string and save it to your project's `project.version` property, as described above.
 
-### Acknowledgements
+Acknowledgements
+---
 
 The development of this project has been largely based on work done by:
  - [Andrew Oberstar](https://github.com/ajoberstar) for his [Gradle-Git](https://github.com/ajoberstar/gradle-git) project, which this plugin relies on to query the current Git branch.
