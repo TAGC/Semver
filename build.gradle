@@ -226,10 +226,10 @@ publishing {
                 root.appendNode('name', 'Gradle SemVer plugin')
                 root.appendNode('description', description)
                 root.appendNode('inceptionYear', '2014')
-
+                
                 def license = root.appendNode('licenses').appendNode('license')
-                license.appendNode('name', 'MIT License')
-                license.appendNode('url', 'http://www.opensource.org/licenses/mit-license.php')
+                license.appendNode('name', 'The Apache Software License, Version 2.0')
+                license.appendNode('url', 'http://www.apache.org/licenses/LICENSE-2.0.txt')
                 license.appendNode('distribution', 'repo')
 
                 def developer = root.appendNode('developers').appendNode('developer')
@@ -263,7 +263,7 @@ bintray {
         websiteUrl = 'https://github.com/TAGC/Semver'
         issueTrackerUrl = 'https://github.com/TAGC/Semver/issues'
         vcsUrl = 'https://github.com/TAGC/Semver.git'
-        licenses = ['MIT']
+        licenses = ['Apache-2.0']
         labels = [
             'gradle',
             'semantic-versioning'
