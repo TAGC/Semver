@@ -134,7 +134,7 @@ class SemVerPluginSpec extends Specification {
         versionFilePath << versionFiles
         expectedVersion << expectedPatchSnapshots
     }
-    
+
     /*
      * By default assume bump patch.
      */

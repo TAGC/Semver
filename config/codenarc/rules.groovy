@@ -16,7 +16,7 @@ ruleset {
         AssignmentInConditional
         BigDecimalInstantiation
         BitwiseOperatorInConditional
-        BlankLineBeforePackage
+        //BlankLineBeforePackage
         BooleanGetBoolean
         BooleanMethodReturnsNull
         BracesForClass
@@ -128,7 +128,7 @@ ruleset {
         ForStatementBraces
         GStringAsMapKey
         GStringExpressionWithinString
-        GetterMethodCouldBeProperty
+        //GetterMethodCouldBeProperty
         GrailsDomainHasEquals
         GrailsDomainHasToString
         GrailsDomainReservedSqlKeywordName
@@ -305,7 +305,7 @@ ruleset {
         UnnecessaryPackageReference
         UnnecessaryParenthesesForMethodCallWithClosure
         UnnecessaryPublicModifier
-        UnnecessaryReturnKeyword
+        //UnnecessaryReturnKeyword
         UnnecessarySelfAssignment
         UnnecessarySemicolon
         UnnecessaryStringInstantiation
@@ -332,7 +332,7 @@ ruleset {
         UseCollectMany
         UseCollectNested
         UseOfNotifyMethod
-        VariableName
+        //VariableName
         VectorIsObsolete
         VolatileArrayField
         VolatileLongOrDoubleField

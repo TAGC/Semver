@@ -21,7 +21,7 @@ package com.github.tagc.semver
  * <p>
  * This extension allows for configuration of the semantic versioning plugin
  * from Gradle build scripts.
- * 
+ *
  * @author davidfallah
  * @since v0.1.0
  */
