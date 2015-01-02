@@ -91,6 +91,11 @@ More detailed information about code coverage can be found in the [Jacoco report
 
 More detailed information about coding issues can be found in the [CodeNarc report](http://cdn.rawgit.com/tagc/semver/develop/health/codenarc/main.html).
 
+Documentation
+---
+
+You can access the documentation for this project from [here](http://cdn.rawgit.com/tagc/semver/develop/docs/groovydoc/index.html).
+
 Acknowledgements
 ---
 
