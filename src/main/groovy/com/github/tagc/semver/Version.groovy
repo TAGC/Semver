@@ -65,7 +65,6 @@ class Version implements Comparable<Version> {
      * @author davidfallah
      * @since 0.2.1
      */
-    @Immutable
     static class Parser {
         private static final Pattern WHITESPACE = ~/\s*/
         private static final Pattern VERSION_PATTERN = ~/(\d+)\.(\d+).(\d+)/
@@ -96,6 +95,9 @@ class Version implements Comparable<Version> {
          */
         static Parser getInstance() {
             return INSTANCE
+        }
+
+        private Parser() {
         }
 
         /**
@@ -295,34 +297,31 @@ class Version implements Comparable<Version> {
         new Version(major, minor, patch, false)
     }
 
-    @Override
-    boolean equals(Object o) {
-        if (o == null) {
-            return false
-        } else if (! (o instanceof Version)) {
-            return false
-        } else if (this.major != o.major) {
-            return false
-        } else if (this.minor != o.minor) {
-            return false
-        } else if (this.release != o.release) {
-            return false
-        }
-
-        this.patch == o.patch
-    }
-
-    @Override
-    int hashCode() {
-        final int factor = 31
-        def result = 17
-        result = factor * result + major
-        result = factor * result + minor
-        result = factor * result + patch
-        result = factor * result + (release ? 1 : 0)
-
-        return result
-    }
+    /*   @Override
+     boolean equals(Object o) {
+     if (o == null) {
+     return false
+     } else if (! (o instanceof Version)) {
+     return false
+     } else if (this.major != o.major) {
+     return false
+     } else if (this.minor != o.minor) {
+     return false
+     } else if (this.release != o.release) {
+     return false
+     }
+     this.patch == o.patch
+     }
+     @Override
+     int hashCode() {
+     final int factor = 31
+     def result = 17
+     result = factor * result + major
+     result = factor * result + minor
+     result = factor * result + patch
+     result = factor * result + (release ? 1 : 0)
+     return result
+     }*/
 
     @Override
     int compareTo(Version that) {

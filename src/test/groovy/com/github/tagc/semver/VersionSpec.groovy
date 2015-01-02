@@ -217,15 +217,6 @@ class VersionSpec extends Specification {
         oldVersion < newVersion
     }
 
-    def "Snapshot versions should not be considered equal to release versions"() {
-        given:
-        def devVersion = new Version(major:1, minor:2, patch:3, release:false)
-        def releaseVersion = new Version(major:1, minor:2, patch:3, release:true)
-
-        expect:
-        devVersion != releaseVersion
-    }
-
     def "Snapshot versions should be considered newer than release versions with same specifier"() {
         given:
         def devVersion = new Version(major:1, minor:2, patch:3, release:false)
@@ -244,5 +235,93 @@ class VersionSpec extends Specification {
 
         expect:
         aVersion.hashCode() == anotherVersion.hashCode()
+    }
+
+    def "Non-Version object should not be equal to #version"() {
+        expect:
+        !version.equals(new Object())
+
+        where:
+        version << exampleVersions
+    }
+
+    def "Null object should not be equal to #version"() {
+        expect:
+        !version.equals(null)
+
+        where:
+        version << exampleVersions
+    }
+
+    def "Versions should be equal if they have the same major, minor, patch and release status"(
+            int major, int minor, int patch, boolean release) {
+
+        def version1 = new Version(major, minor, patch, release)
+        def version2 = new Version(major, minor, patch, release)
+
+        expect:
+        version1.equals(version2)
+        version2.equals(version1)
+
+        where:
+        major << (1..5)
+        minor << (1..5)
+        patch << (1..5)
+        release << [true,false,true,false,true]
+    }
+
+    def "Versions should not be equal if they differ by major number"() {
+        def version1 = new Version(major+1, minor, patch, release)
+        def version2 = new Version(major, minor, patch, release)
+
+        expect:
+        !version1.equals(version2)
+        !version2.equals(version1)
+
+        where:
+        major << (1..5)
+        minor << (1..5)
+        patch << (1..5)
+        release << [true,false,true,false,true]
+    }
+
+    def "Versions should not be equal if they differ by minor number"() {
+        def version1 = new Version(major, minor+1, patch, release)
+        def version2 = new Version(major, minor, patch, release)
+
+        expect:
+        !version1.equals(version2)
+        !version2.equals(version1)
+
+        where:
+        major << (1..5)
+        minor << (1..5)
+        patch << (1..5)
+        release << [true,false,true,false,true]
+    }
+
+    def "Versions should not be equal if they differ by patch number"() {
+        def version1 = new Version(major, minor, patch+1, release)
+        def version2 = new Version(major, minor, patch, release)
+
+        expect:
+        !version1.equals(version2)
+        !version2.equals(version1)
+
+        where:
+        major << (1..5)
+        minor << (1..5)
+        patch << (1..5)
+        release << [true,false,true,false,true]
+    }
+
+    def "Snapshot versions should not be considered equal to release versions"() {
+        given:
+        def devVersion = new Version(major:1, minor:2, patch:3, release:false)
+        def releaseVersion = new Version(major:1, minor:2, patch:3, release:true)
+
+        expect:
+        !devVersion.equals(releaseVersion)
+        !releaseVersion.equals(devVersion)
     }
 }

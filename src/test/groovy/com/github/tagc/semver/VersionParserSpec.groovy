@@ -47,7 +47,7 @@ class VersionParserSpec extends Specification {
         ' 1.3.5-SNAPSHOT '  | new Version(1,3,5,false)
     }
 
-    def "Invalid version representation (#input) should cause an exception to be thrown"() {
+    def "Invalid version representation (#input) should cause an exception to be thrown (strict)"() {
         when:
         PARSER.parse(input, true)
 
@@ -62,6 +62,24 @@ class VersionParserSpec extends Specification {
             '3-4-9',
             '1.4.5-SNPSHOT',
             '1.4.5-SNAPSHOTasd'
+        ]
+    }
+
+    def "Invalid version representation (#input) should cause an exception to be thrown (non-strict)"() {
+        when:
+        PARSER.parse(input, false)
+
+        then:
+        thrown(IllegalArgumentException)
+
+        where:
+        input << [
+            '1,2,a',
+            '1-2-3',
+            'wasadg',
+            'v3 9 1',
+            'test123',
+            '13-SNAPSHOT'
         ]
     }
 }
