@@ -73,7 +73,7 @@ ruleset {
         DuplicateListLiteral
         DuplicateMapKey
         DuplicateMapLiteral
-        DuplicateNumberLiteral
+        //DuplicateNumberLiteral
         DuplicateSetValue
         DuplicateStringLiteral
         ElseBlockBraces
@@ -186,7 +186,7 @@ ruleset {
         LoggingSwallowsStacktrace
         LongLiteralWithLowerCaseL
         MethodCount
-        MethodName
+        //MethodName
         MethodSize
         MisorderedStaticImports
         MissingBlankLineAfterImports

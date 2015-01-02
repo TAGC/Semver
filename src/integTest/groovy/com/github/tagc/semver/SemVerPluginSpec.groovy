@@ -9,6 +9,12 @@ import org.gradle.testfixtures.ProjectBuilder
 import spock.lang.Specification
 import spock.lang.Unroll
 
+/**
+ * Test specification for {@link com.github.tagc.semver.SemVerPlugin SemVerPlugin}.
+ *
+ * @author davidfallah
+ * @since 0.3.1
+ */
 @Unroll
 class SemVerPluginSpec extends Specification {
 
@@ -19,27 +25,27 @@ class SemVerPluginSpec extends Specification {
     /*
      *  Test data
      */
-    static def versionFiles = [
+    static versionFiles = [
         'v0_0_0.properties',
         'v1_2_3.properties'
     ]
 
-    static def expectedReleases = [
+    static expectedReleases = [
         new Version(0,0,0,true),
         new Version(1,2,3,true)
     ]
 
-    static def expectedPatchSnapshots = [
+    static expectedPatchSnapshots = [
         new Version(0,0,1,false),
         new Version(1,2,4,false)
     ]
 
-    static def expectedMinorSnapshots = [
+    static expectedMinorSnapshots = [
         new Version(0,1,0,false),
         new Version(1,3,0,false)
     ]
 
-    static def expectedMajorSnapshots = [
+    static expectedMajorSnapshots = [
         new Version(1,0,0,false),
         new Version(2,0,0,false)
     ]
@@ -65,7 +71,7 @@ class SemVerPluginSpec extends Specification {
 
     def "Release version for version data in #versionFilePath should be #expectedVersion"() {
         given:
-        URL url = getVersionFileAsResource(project, versionFilePath)
+        URL url = getVersionFileAsResource(versionFilePath)
 
         when:
         evaluateProjectForReleaseTests(project, url)
@@ -83,7 +89,7 @@ class SemVerPluginSpec extends Specification {
 
     def "Snapshot version for version data in #versionFilePath should be #expectedVersion when bumping by major"() {
         given:
-        URL url = getVersionFileAsResource(project, versionFilePath)
+        URL url = getVersionFileAsResource(versionFilePath)
 
         when:
         evaluateProjectForSnapshotTests(project, url, Version.Category.MAJOR)
@@ -101,7 +107,7 @@ class SemVerPluginSpec extends Specification {
 
     def "Snapshot version for version data in #versionFilePath should be #expectedVersion when bumping by minor"() {
         given:
-        URL url = getVersionFileAsResource(project, versionFilePath)
+        URL url = getVersionFileAsResource(versionFilePath)
 
         when:
         evaluateProjectForSnapshotTests(project, url, Version.Category.MINOR)
@@ -119,7 +125,7 @@ class SemVerPluginSpec extends Specification {
 
     def "Snapshot version for version data in #versionFilePath should be #expectedVersion when bumping by patch"() {
         given:
-        URL url = getVersionFileAsResource(project, versionFilePath)
+        URL url = getVersionFileAsResource(versionFilePath)
 
         when:
         evaluateProjectForSnapshotTests(project, url, Version.Category.PATCH)
@@ -140,7 +146,7 @@ class SemVerPluginSpec extends Specification {
      */
     def "Snapshot version for version data in #versionFilePath should be #expectedVersion by default"() {
         given:
-        URL url = getVersionFileAsResource(project, versionFilePath)
+        URL url = getVersionFileAsResource(versionFilePath)
 
         when:
         evaluateProjectForSnapshotTests(project, url, null)
@@ -156,38 +162,38 @@ class SemVerPluginSpec extends Specification {
         expectedVersion << expectedPatchSnapshots
     }
 
-    private URL getVersionFileAsResource(Project project, String versionFilePath) {
-        Thread.currentThread().getContextClassLoader().getResource(versionFilePath)
+    private URL getVersionFileAsResource(String versionFilePath) {
+        Thread.currentThread().contextClassLoader.getResource(versionFilePath)
     }
 
     private void evaluateProjectForReleaseTests(Project project, URL url) {
-        createGitDirectory(project)
+        initialiseGitDirectory(project)
         plugin.apply(project)
-        project.semver.versionFilePath = url.getPath()
+        project.semver.versionFilePath = url.path
         project.evaluate()
     }
 
     private void evaluateProjectForSnapshotTests(Project project, URL url, Version.Category bump) {
-        createGitDirectory(project)
+        initialiseGitDirectory(project)
         checkoutBranch(project, 'develop')
         plugin.apply(project)
-        project.semver.versionFilePath = url.getPath()
+        project.semver.versionFilePath = url.path
         project.semver.snapshotBump = bump
         project.evaluate()
     }
 
-    private void createGitDirectory(Project project) {
-        Grgit.init(dir: project.projectDir)
+    private void initialiseGitDirectory(Project project) {
+        Grgit.init(dir:project.projectDir)
     }
 
     private void checkoutBranch(Project project, String branch) {
         Grgit grgit = Grgit.open(project.projectDir)
         try {
-            grgit.checkout(branch: branch, createBranch: true)
+            grgit.checkout(branch:branch, createBranch:true)
         } catch (GrgitException e) {
-            grgit.add(patterns: ['.'], update: true)
-            grgit.commit(message: "Initial commit")
-            grgit.checkout(branch: branch, createBranch: true)
+            grgit.add(patterns:['.'], update:true)
+            grgit.commit(message:'Initial commit')
+            grgit.checkout(branch:branch, createBranch:true)
         }
     }
 

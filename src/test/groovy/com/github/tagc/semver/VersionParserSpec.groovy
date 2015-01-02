@@ -5,18 +5,24 @@ import spock.lang.Unroll
 
 import com.github.tagc.semver.Version.Parser
 
+/**
+ * Test specification for {@link com.github.tagc.semver.Version.Parser Version.Parser}.
+ *
+ * @author davidfallah
+ * @since 0.2.1
+ */
 @Unroll
 class VersionParserSpec extends Specification {
 
     private static final Parser PARSER = Version.Parser.getInstance()
-    
+
     def "Version information should be extracted from files if parsing is not strict"() {
         given:
         def versionFileText = "version='$versionString'"
-        
+
         expect:
         PARSER.parse(versionFileText, false) == version
-        
+
         where:
         versionString      | version
         '0.1.2-SNAPSHOT'   | new Version(0,1,2,false)

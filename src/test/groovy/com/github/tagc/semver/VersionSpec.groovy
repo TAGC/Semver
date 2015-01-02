@@ -3,48 +3,54 @@ package com.github.tagc.semver
 import spock.lang.Specification
 import spock.lang.Unroll
 
+/**
+ * Test specification for {@link com.github.tagc.semver.Version Version}.
+ *
+ * @author davidfallah
+ * @since 0.1.0
+ */
 @Unroll
 class VersionSpec extends Specification {
 
-    static def exampleVersions = [
-        new Version(major: 1, minor: 2, patch: 3),
-        new Version(major: 0, minor: 0, patch: 0),
-        new Version(major: 5, minor: 4, patch: 3),
-        new Version(major: 1, minor: 16, patch: 2),
-        new Version(major: 4, minor: 5, patch: 8),
+    static exampleVersions = [
+        new Version(major:1, minor:2, patch:3),
+        new Version(major:0, minor:0, patch:0),
+        new Version(major:5, minor:4, patch:3),
+        new Version(major:1, minor:16, patch:2),
+        new Version(major:4, minor:5, patch:8),
         ]
 
     def "Version should be constructable by major and retain state"() {
         given:
-        def version = new Version(major: 1)
+        def version = new Version(major:1)
 
         expect:
-        version.getMajor() == 1
+        version.major == 1
     }
 
     def "Version should be constructable by major and minor and retain state"() {
         given:
-        def version = new Version(major: 1, minor: 2)
+        def version = new Version(major:1, minor:2)
 
         expect:
-        version.getMajor() == 1
-        version.getMinor() == 2
+        version.major == 1
+        version.minor == 2
     }
 
     def "Version should be constructable by major, minor and patch and retain state"() {
         given:
-        def version = new Version(major: 1, minor: 2, patch: 3)
+        def version = new Version(major:1, minor:2, patch:3)
 
         expect:
-        version.getMajor() == 1
-        version.getMinor() == 2
-        version.getPatch() == 3
+        version.major == 1
+        version.minor == 2
+        version.patch == 3
     }
 
     def "Version should be constructable with major, minor, patch and release and retain state"() {
         given:
-        def devVersion = new Version(major: 1, minor: 2, patch: 3, release: false)
-        def releaseVersion = new Version(major: 1, minor: 2, patch: 3, release: true)
+        def devVersion = new Version(major:1, minor:2, patch:3, release:false)
+        def releaseVersion = new Version(major:1, minor:2, patch:3, release:true)
 
         expect:
         !devVersion.isRelease()
@@ -63,18 +69,18 @@ class VersionSpec extends Specification {
 
         then:
         def version = builder.getVersion()
-        version.getMajor() == 1
-        version.getMinor() == 2
-        version.getPatch() == 3
+        version.major == 1
+        version.minor == 2
+        version.patch == 3
         version.isRelease()
     }
 
     def "Incrementing major of version #currMajor-#currMinor-#currPatch should return appropriate bumped version"() {
         given:
-        def currVersion = new Version(major: currMajor, minor: currMinor, patch: currPatch)
+        def currVersion = new Version(major:currMajor, minor:currMinor, patch:currPatch)
 
         expect:
-        currVersion.incrementMajor() == new Version(major: currMajor+1, minor: currMinor, patch: currPatch)
+        currVersion.incrementMajor() == new Version(major:currMajor + 1, minor:currMinor, patch:currPatch)
 
         where:
         version << exampleVersions
@@ -85,10 +91,10 @@ class VersionSpec extends Specification {
 
     def "Incrementing minor of version #currMajor-#currMinor-#currPatch should return appropriate bumped version"() {
         given:
-        def currVersion = new Version(major: currMajor, minor: currMinor, patch: currPatch)
+        def currVersion = new Version(major:currMajor, minor:currMinor, patch:currPatch)
 
         expect:
-        currVersion.incrementMinor() == new Version(major: currMajor, minor: currMinor+1, patch: currPatch)
+        currVersion.incrementMinor() == new Version(major:currMajor, minor:currMinor + 1, patch:currPatch)
 
         where:
         version << exampleVersions
@@ -99,10 +105,10 @@ class VersionSpec extends Specification {
 
     def "Incrementing patch of version #currMajor-#currMinor-#currPatch should return appropriate bumped version"() {
         given:
-        def currVersion = new Version(major: currMajor, minor: currMinor, patch: currPatch)
+        def currVersion = new Version(major:currMajor, minor:currMinor, patch:currPatch)
 
         expect:
-        currVersion.incrementPatch() == new Version(major: currMajor, minor: currMinor, patch: currPatch+1)
+        currVersion.incrementPatch() == new Version(major:currMajor, minor:currMinor, patch:currPatch + 1)
 
         where:
         version << exampleVersions
@@ -113,10 +119,10 @@ class VersionSpec extends Specification {
 
     def "Bumping major of version #currMajor-#currMinor-#currPatch should return appropriate bumped version"() {
         given:
-        def currVersion = new Version(major: currMajor, minor: currMinor, patch: currPatch)
+        def currVersion = new Version(major:currMajor, minor:currMinor, patch:currPatch)
 
         expect:
-        currVersion.bumpMajor() == new Version(major: currMajor+1, minor: 0, patch: 0)
+        currVersion.bumpMajor() == new Version(major:currMajor + 1, minor:0, patch:0)
 
         where:
         version << exampleVersions
@@ -127,10 +133,10 @@ class VersionSpec extends Specification {
 
     def "Bumping minor of version #currMajor-#currMinor-#currPatch should return appropriate bumped version"() {
         given:
-        def currVersion = new Version(major: currMajor, minor: currMinor, patch: currPatch)
+        def currVersion = new Version(major:currMajor, minor:currMinor, patch:currPatch)
 
         expect:
-        currVersion.bumpMinor() == new Version(major: currMajor, minor: currMinor+1, patch: 0)
+        currVersion.bumpMinor() == new Version(major:currMajor, minor:currMinor + 1, patch:0)
 
         where:
         version << exampleVersions
@@ -141,10 +147,10 @@ class VersionSpec extends Specification {
 
     def "Bumping patch of version #currMajor-#currMinor-#currPatch should return appropriate bumped version"() {
         given:
-        def currVersion = new Version(major: currMajor, minor: currMinor, patch: currPatch)
+        def currVersion = new Version(major:currMajor, minor:currMinor, patch:currPatch)
 
         expect:
-        currVersion.bumpPatch() == new Version(major: currMajor, minor: currMinor, patch: currPatch+1)
+        currVersion.bumpPatch() == new Version(major:currMajor, minor:currMinor, patch:currPatch + 1)
 
         where:
         version << exampleVersions
@@ -155,7 +161,7 @@ class VersionSpec extends Specification {
 
     def "Switching to release should return new version with release state"() {
         given:
-        def devVersion = new Version(major: 1, minor: 2, patch: 3, release: false)
+        def devVersion = new Version(major:1, minor:2, patch:3, release:false)
 
         when:
         def releaseVersion = devVersion.toRelease()
@@ -166,7 +172,7 @@ class VersionSpec extends Specification {
 
     def "Switching to develop should return new version with develop state"() {
         given:
-        def releaseVersion = new Version(major: 1, minor: 2, patch: 3, release: true)
+        def releaseVersion = new Version(major:1, minor:2, patch:3, release:true)
 
         when:
         def devVersion = releaseVersion.toDevelop()
@@ -177,7 +183,7 @@ class VersionSpec extends Specification {
 
     def "Non-release versions should have -SNAPSHOT in printed representation"() {
         given:
-        def version = new Version(major: 1, minor: 2, patch: 3, release: false)
+        def version = new Version(major:1, minor:2, patch:3, release:false)
 
         expect:
         version ==~ ".*-SNAPSHOT\$"
@@ -186,8 +192,8 @@ class VersionSpec extends Specification {
     // Comparison and equality tests.
     def "Versions should compare lexicographically based on major number"() {
         given:
-        def oldVersion = new Version(major: 1, minor: 0, patch: 0)
-        def newVersion = new Version(major: 2, minor: 0, patch: 0)
+        def oldVersion = new Version(major:1, minor:0, patch:0)
+        def newVersion = new Version(major:2, minor:0, patch:0)
 
         expect:
         oldVersion < newVersion
@@ -195,8 +201,8 @@ class VersionSpec extends Specification {
 
     def "Versions should compare lexicographically based on minor number"() {
         given:
-        def oldVersion = new Version(major: 1, minor: 0, patch: 0)
-        def newVersion = new Version(major: 1, minor: 1, patch: 0)
+        def oldVersion = new Version(major:1, minor:0, patch:0)
+        def newVersion = new Version(major:1, minor:1, patch:0)
 
         expect:
         oldVersion < newVersion
@@ -204,8 +210,8 @@ class VersionSpec extends Specification {
 
     def "Versions should compare lexicographically based on patch number"() {
         given:
-        def oldVersion = new Version(major: 1, minor: 0, patch: 0)
-        def newVersion = new Version(major: 1, minor: 0, patch: 1)
+        def oldVersion = new Version(major:1, minor:0, patch:0)
+        def newVersion = new Version(major:1, minor:0, patch:1)
 
         expect:
         oldVersion < newVersion
@@ -213,8 +219,8 @@ class VersionSpec extends Specification {
 
     def "Snapshot versions should not be considered equal to release versions"() {
         given:
-        def devVersion = new Version(major: 1, minor: 2, patch: 3, release: false)
-        def releaseVersion = new Version(major: 1, minor: 2, patch: 3, release: true)
+        def devVersion = new Version(major:1, minor:2, patch:3, release:false)
+        def releaseVersion = new Version(major:1, minor:2, patch:3, release:true)
 
         expect:
         devVersion != releaseVersion
@@ -222,8 +228,8 @@ class VersionSpec extends Specification {
 
     def "Snapshot versions should be considered newer than release versions with same specifier"() {
         given:
-        def devVersion = new Version(major: 1, minor: 2, patch: 3, release: false)
-        def releaseVersion = new Version(major: 1, minor: 2, patch: 3, release: true)
+        def devVersion = new Version(major:1, minor:2, patch:3, release:false)
+        def releaseVersion = new Version(major:1, minor:2, patch:3, release:true)
 
         expect:
         devVersion > releaseVersion
@@ -231,8 +237,8 @@ class VersionSpec extends Specification {
 
     def "Equal versions should have the same hash code"() {
         given:
-        def aVersion = new Version(major: 1, minor: 2, patch: 3, release: false)
-        def anotherVersion = new Version(major: 1, minor: 2, patch: 3, release: false)
+        def aVersion = new Version(major:1, minor:2, patch:3, release:false)
+        def anotherVersion = new Version(major:1, minor:2, patch:3, release:false)
 
         assert aVersion == anotherVersion
 

@@ -225,7 +225,7 @@ class Version implements Comparable&lt;Version&gt; {
      * @return an incremented {@code Version}
      */
     Version incrementMajor() {
-<span class="pc bpc" id="L228" title="3 of 6 branches missed.">        new Version(major+1, minor, patch, release)</span>
+<span class="pc bpc" id="L228" title="3 of 6 branches missed.">        new Version(major + 1, minor, patch, release)</span>
     }
 
     /**
@@ -234,7 +234,7 @@ class Version implements Comparable&lt;Version&gt; {
      * @return an incremented {@code Version}
      */
     Version incrementMinor() {
-<span class="pc bpc" id="L237" title="3 of 6 branches missed.">        new Version(major, minor+1, patch, release)</span>
+<span class="pc bpc" id="L237" title="3 of 6 branches missed.">        new Version(major, minor + 1, patch, release)</span>
     }
 
     /**
@@ -243,7 +243,7 @@ class Version implements Comparable&lt;Version&gt; {
      * @return an incremented {@code Version}
      */
     Version incrementPatch() {
-<span class="pc bpc" id="L246" title="3 of 6 branches missed.">        new Version(major, minor, patch+1, release)</span>
+<span class="pc bpc" id="L246" title="3 of 6 branches missed.">        new Version(major, minor, patch + 1, release)</span>
     }
 
     /**
@@ -254,7 +254,7 @@ class Version implements Comparable&lt;Version&gt; {
      * @return a bumped {@code Version}
      */
     Version bumpMajor() {
-<span class="pc bpc" id="L257" title="3 of 6 branches missed.">        new Version(major+1, 0, 0, release)</span>
+<span class="pc bpc" id="L257" title="3 of 6 branches missed.">        new Version(major + 1, 0, 0, release)</span>
     }
 
     /**
@@ -265,7 +265,7 @@ class Version implements Comparable&lt;Version&gt; {
      * @return a bumped {@code Version}
      */
     Version bumpMinor() {
-<span class="pc bpc" id="L268" title="3 of 6 branches missed.">        new Version(major, minor+1, 0, release)</span>
+<span class="pc bpc" id="L268" title="3 of 6 branches missed.">        new Version(major, minor + 1, 0, release)</span>
     }
 
     /**
@@ -274,7 +274,7 @@ class Version implements Comparable&lt;Version&gt; {
      * @return a bumped {@code Version}
      */
     Version bumpPatch() {
-<span class="pc bpc" id="L277" title="3 of 6 branches missed.">        new Version(major, minor, patch+1, release)</span>
+<span class="pc bpc" id="L277" title="3 of 6 branches missed.">        new Version(major, minor, patch + 1, release)</span>
     }
 
     /**
@@ -328,7 +328,7 @@ class Version implements Comparable&lt;Version&gt; {
     int compareTo(Version that) {
 <span class="pc bpc" id="L329" title="5 of 10 branches missed.">        if (this.major == that.major) {</span>
 <span class="pc bpc" id="L330" title="2 of 4 branches missed.">            if (this.minor == that.minor) {</span>
-<span class="pc bpc" id="L331" title="2 of 4 branches missed.">                if(this.patch == that.patch) {</span>
+<span class="pc bpc" id="L331" title="2 of 4 branches missed.">                if (this.patch == that.patch) {</span>
 <span class="pc" id="L332">                    return -(this.release &lt;=&gt; that.release)</span>
                 }
 
@@ -343,7 +343,7 @@ class Version implements Comparable&lt;Version&gt; {
 
     @Override
     String toString() {
-<span class="pc bpc" id="L346" title="1 of 2 branches missed.">        &quot;$major.$minor.$patch${release? '': SNAPSHOT_IDENTIFIER}&quot;</span>
+<span class="pc bpc" id="L346" title="1 of 2 branches missed.">        &quot;$major.$minor.$patch${release ? '' : SNAPSHOT_IDENTIFIER}&quot;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.1.201405082137</span></div></body></html>
