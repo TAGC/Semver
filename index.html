@@ -8,6 +8,13 @@
 
     <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
 
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <script>
+    $(function(){
+      $("#projectHealth").load("build/generic/projectHealth.html");
+    });
+    </script>
+
     <title>Semver</title>
   </head>
 
@@ -123,12 +130,7 @@ tag = False
 
 <p>This project is continuously analysed by Jacoco (to calculate test code coverage) and CodeNarc (to identify coding issues).</p>
 
-<ul>
-<li>Present code coverage: 43.6%</li>
-<li>Present high priority issues: 0</li>
-<li>Present medium priority issues: 1</li>
-<li>Present low priority issues: 1</li>
-</ul>
+<div id="projectHealth"></div>
 
 <p>More detailed information about code coverage can be found in the <a href="build/reports/jacoco/test/html/index.html">Jacoco report</a>.</p>
 
