@@ -105,36 +105,6 @@ integrationTest.reports.html.destination = file("$buildDir/reports/intTests")
 
 check.dependsOn integrationTest
 
-// Copy tasks
-task copyDoc(type: Copy, description: "Copies documentation from build directory to project root directory.") {
-    from "$buildDir/docs"
-    into "$projectDir/docs"
-}
-
-task deleteDoc(type: Delete, description: "Deletes documentation folder.") {
-	delete "$projectDir/docs"
-}
-
-task copyHealth(description: "Copies project health data to project root directory.") << {
-    def dirMap = ["reports/codenarc":"codenarc", "reports/jacoco/test/html":"jacoco"]
-    dirMap.each { source, dest ->
-        copy {
-            from "$buildDir/$source"
-            into "$projectDir/health/$dest"
-            exclude '*.xml'
-        }
-    }
-}
-
-task deleteHealth(type: Delete, description: "Deletes project health folder") {
-	delete "$projectDir/health"
-}
-
-clean.finalizedBy([deleteDoc, deleteHealth])
-
-groovydoc.finalizedBy(copyDoc)
-check.finalizedBy(copyHealth)
-
 // Documentation generation.
 def getDocumentationTemplateBinding() {
     return [

@@ -87,14 +87,14 @@ This project is continuously analysed by Jacoco (to calculate test code coverage
 - Present medium priority issues: 1
 - Present low priority issues: 1
 
-More detailed information about code coverage can be found in the [Jacoco report](http://tagc.github.io/Semver/build/reports/jacoco/test/html/index.html).
+More detailed information about code coverage can be found in the [Jacoco report](http://tagc.github.io/Semver/jacoco/index.html).
 
-More detailed information about coding issues can be found in the [CodeNarc report](http://tagc.github.io/Semver/build/reports/codenarc/main.html).
+More detailed information about coding issues can be found in the [CodeNarc report](http://tagc.github.io/Semver/codenarc/main.html).
 
 Documentation
 ---
 
-You can access the documentation for this project from [here](http://tagc.github.io/Semver/build/docs/groovydoc/index.html).
+You can access the documentation for this project from [here](http://tagc.github.io/Semver/groovydoc/index.html).
 
 Acknowledgements
 ---
