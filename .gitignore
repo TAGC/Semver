@@ -39,6 +39,7 @@ gradle-app.setting
 *.pydevproject
 .metadata
 .gradle
+.project
 bin/
 tmp/
 *.tmp
