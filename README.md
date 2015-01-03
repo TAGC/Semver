@@ -82,10 +82,10 @@ Project Health Metrics
 
 This project is continuously analysed by Jacoco (to calculate test code coverage) and CodeNarc (to identify coding issues).
 
-- Present code coverage: 52.8%
+- Present code coverage: 43.6%
 - Present high priority issues: 0
 - Present medium priority issues: 1
-- Present low priority issues: 0
+- Present low priority issues: 1
 
 More detailed information about code coverage can be found in the [Jacoco report](http://cdn.rawgit.com/tagc/semver/develop/health/jacoco/index.html).
 

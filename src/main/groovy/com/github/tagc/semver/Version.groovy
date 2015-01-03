@@ -141,7 +141,7 @@ class Version implements Comparable<Version> {
 
         private Version tryParseShortSnapshotVersion(String input, boolean strict) {
             Matcher m = checkInputAgainstPattern(input, SNAPSHOT_SHORT_VERSION_PATTERN, strict)
-            if (!m) {
+            if(!m) {
                 return null
             }
 

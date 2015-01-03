@@ -126,7 +126,7 @@ class Version implements Comparable&lt;Version&gt; {
 
         private Version tryParseFullSnapshotVersion(String input, boolean strict) {
 <span class="pc bpc" id="L128" title="2 of 4 branches missed.">            Matcher m = checkInputAgainstPattern(input, SNAPSHOT_VERSION_PATTERN, strict)</span>
-<span class="fc bfc" id="L129" title="All 4 branches covered.">            if (!m) {</span>
+<span class="fc bfc" id="L129" title="All 4 branches covered.">            if(!m) {</span>
 <span class="fc" id="L130">                return null</span>
             }
 
@@ -342,7 +342,7 @@ class Version implements Comparable&lt;Version&gt; {
 
     @Override
     String toString() {
-<span class="pc bfc" id="L345" title="All 2 branches covered.">        &quot;$major.$minor.$patch${release ? '' : SNAPSHOT_IDENTIFIER}&quot;</span>
+<span class="pc bpc" id="L345" title="1 of 2 branches missed.">        &quot;$major.$minor.$patch${release ? '' : SNAPSHOT_IDENTIFIER}&quot;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.1.201405082137</span></div></body></html>
