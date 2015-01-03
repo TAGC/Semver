@@ -1,0 +1,6 @@
+<ul>
+<li>Present code coverage: ${jacocoCoverage}</li>
+<li>Present high priority issues: ${p1Issues}</li>
+<li>Present medium priority issues: ${p2Issues}</li>
+<li>Present low priority issues: ${p3Issues}</li>
+</ul>

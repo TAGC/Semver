@@ -87,14 +87,14 @@ This project is continuously analysed by Jacoco (to calculate test code coverage
 - Present medium priority issues: ${p2Issues}
 - Present low priority issues: ${p3Issues}
 
-More detailed information about code coverage can be found in the [Jacoco report](http://cdn.rawgit.com/tagc/semver/$gitBranch/health/jacoco/index.html).
+More detailed information about code coverage can be found in the [Jacoco report](http://tagc.github.io/Semver/build/reports/jacoco/test/html/index.html).
 
-More detailed information about coding issues can be found in the [CodeNarc report](http://cdn.rawgit.com/tagc/semver/$gitBranch/health/codenarc/main.html).
+More detailed information about coding issues can be found in the [CodeNarc report](http://tagc.github.io/Semver/build/reports/codenarc/main.html).
 
 Documentation
 ---
 
-You can access the documentation for this project from [here](http://cdn.rawgit.com/tagc/semver/$gitBranch/docs/groovydoc/index.html).
+You can access the documentation for this project from [here](http://tagc.github.io/Semver/build/docs/groovydoc/index.html).
 
 Acknowledgements
 ---

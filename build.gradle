@@ -135,27 +135,26 @@ clean.finalizedBy([deleteDoc, deleteHealth])
 groovydoc.finalizedBy(copyDoc)
 check.finalizedBy(copyHealth)
 
-// README generation.
-task generateReadme(description: "Generates the README file", group: "documentation") {
+// Documentation generation.
+def getDocumentationTemplateBinding() {
+    return [
+        "jacocoCoverage":"$project.ext.jacocoCoverage",
+        "p1Issues":"$project.ext.codenarcP1",
+        "p2Issues":"$project.ext.codenarcP2",
+        "p3Issues":"$project.ext.codenarcP3",
+    ]
+}
+
+task generateDocumentation(description: "Generates the README file and project health HTML file from templates.", group: "documentation") {
     dependsOn 'check'
     
+    // README generation.
     doLast {
-        def templateFile = new File("$projectDir/README_Template")
+        def templateFile = new File("$projectDir/config/templates/README_Template")
         assert (templateFile.isFile())
         
-        def repo = Grgit.open(project.file("$projectDir"))
-        def currentBranch = repo.branch.current.name
-        if (currentBranch != 'master') currentBranch = 'develop'
-        
-        
+        def binding = getDocumentationTemplateBinding()
         def template = templateFile.text
-        def binding = [
-            "jacocoCoverage":"$project.ext.jacocoCoverage",
-            "p1Issues":"$project.ext.codenarcP1",
-            "p2Issues":"$project.ext.codenarcP2",
-            "p3Issues":"$project.ext.codenarcP3",
-            "gitBranch":"$currentBranch"
-        ]
         
         def engine = new SimpleTemplateEngine()
         def result = engine.createTemplate(template).make(binding).toString()
@@ -166,9 +165,28 @@ task generateReadme(description: "Generates the README file", group: "documentat
         w << result
         w.close()
     }
+    
+    // project health HTML file generation.
+    doLast {
+        def templateFile = new File("$projectDir/config/templates/html/projectHealthTemplate")
+        assert (templateFile.isFile())
+        
+        def binding = getDocumentationTemplateBinding()
+        def template = templateFile.text
+        
+        def engine = new SimpleTemplateEngine()
+        def result = engine.createTemplate(template).make(binding).toString()
+        
+        // Save back to README.md
+        def projectHealthOutputFile = new File("$buildDir/generic/projectHealth.html")
+        projectHealthOutputFile.getParentFile().mkdirs();
+        def w = projectHealthOutputFile.newWriter()
+        w << result
+        w.close()
+    }
 }
 
-build.dependsOn generateReadme
+build.dependsOn generateDocumentation
 
 // License generation
 task addLicenseHeaders(type: Exec, description: 'Adds license headers to sources files') {

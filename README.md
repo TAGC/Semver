@@ -82,19 +82,19 @@ Project Health Metrics
 
 This project is continuously analysed by Jacoco (to calculate test code coverage) and CodeNarc (to identify coding issues).
 
-- Present code coverage: 43.6%
+- Present code coverage: 52.8%
 - Present high priority issues: 0
 - Present medium priority issues: 1
 - Present low priority issues: 1
 
-More detailed information about code coverage can be found in the [Jacoco report](http://cdn.rawgit.com/tagc/semver/develop/health/jacoco/index.html).
+More detailed information about code coverage can be found in the [Jacoco report](http://tagc.github.io/Semver/build/reports/jacoco/test/html/index.html).
 
-More detailed information about coding issues can be found in the [CodeNarc report](http://cdn.rawgit.com/tagc/semver/develop/health/codenarc/main.html).
+More detailed information about coding issues can be found in the [CodeNarc report](http://tagc.github.io/Semver/build/reports/codenarc/main.html).
 
 Documentation
 ---
 
-You can access the documentation for this project from [here](http://cdn.rawgit.com/tagc/semver/develop/docs/groovydoc/index.html).
+You can access the documentation for this project from [here](http://tagc.github.io/Semver/build/docs/groovydoc/index.html).
 
 Acknowledgements
 ---
