@@ -1,0 +1,158 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Semver by TAGC</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <script src="javascripts/scale.fix.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1>Semver</h1>
+        <p>A simple semantic versioning Gradle plugin for Git-controlled projects</p>
+        <p class="view"><a href="https://github.com/TAGC/Semver">View the Project on GitHub <small>TAGC/Semver</small></a></p>
+        <ul>
+          <li><a href="https://github.com/TAGC/Semver/zipball/master">Download <strong>ZIP File</strong></a></li>
+          <li><a href="https://github.com/TAGC/Semver/tarball/master">Download <strong>TAR Ball</strong></a></li>
+          <li><a href="https://github.com/TAGC/Semver">View On <strong>GitHub</strong></a></li>
+        </ul>
+      </header>
+      <section>
+        <h1>
+<a id="semver" class="anchor" href="#semver" aria-hidden="true"><span class="octicon octicon-link"></span></a>Semver</h1>
+
+<p><a href="https://travis-ci.org/TAGC/Semver"><img src="https://travis-ci.org/TAGC/Semver.svg" alt="Build Status"></a> <a href="https://bintray.com/tagc/gradle-plugins/gradle-semver-plugin/_latestVersion"> <img src="https://api.bintray.com/packages/tagc/gradle-plugins/gradle-semver-plugin/images/download.svg" alt="Download"> </a></p>
+
+<p>A simple semantic versioning Gradle plugin for Git-controlled projects.</p>
+
+<p>This plugin has been primarily developed just so that I get experience with developing Gradle plugins.</p>
+
+<p>As of v0.3.0, this plugin now depends on itself for its own version numbering management. If you would like a practical example demonstrating usage of this plugin, just look in this project's build script!</p>
+
+<h2>
+<a id="setup" class="anchor" href="#setup" aria-hidden="true"><span class="octicon octicon-link"></span></a>Setup</h2>
+
+<p>To configure your project to use this plugin, add the following to your Gradle build script:</p>
+
+<pre><code>apply plugin: 'semver'
+
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        // Replace &lt;version&gt; with preferred plugin version
+        classpath 'com.github.tagc:semver-plugin:&lt;version&gt;'
+    }
+}
+
+semver {
+    versionFilePath = 'version.properties' // Or whatever other file stores version information
+
+    // Optional
+    snapshotBump = 'PATCH' // Or 'MINOR' or 'MAJOR'
+}
+</code></pre>
+
+<p>The <code>versionFilePath</code> property must point to a file that stores the 'raw' version string for your project in the form <code>&lt;major&gt;.&lt;minor&gt;.&lt;patch&gt;</code>, e.g. <code>version='1.2.3'</code> or simply <code>1.2.3</code>.</p>
+
+<p>The <code>snapshotBump</code> property is optional and specifies what snapshot versions the plugin should derive from the latest released versions. For instance, if the last released version of a project was <code>v0.1.0</code> and <code>snapshotBump=PATCH</code> was specified, any development work will be treated as <code>v0.1.1-SNAPSHOT</code>. If <code>snapshotBump=MINOR</code> is specified instead, development work will be treated as <code>v0.2.0-SNAPSHOT</code>, and for <code>snapshotBump=MAJOR</code> it would be treated as <code>v1.0.0-SNAPSHOT</code>. This helps reconcile the differences between workflow strategies such as <a href="http://nvie.com/posts/a-successful-git-branching-model/">Git Flow</a> which expect release versions to be decided only as releases are about to be made with <a href="http://docs.oracle.com/middleware/1212/core/MAVEN/maven_version.htm#MAVEN401">Maven's philosophy of always deciding on (or guessing) what the next release version will be</a>. Predict whether your next release will introduce minor bug fixes, new (but backwards-compatible) features, or breaking changes, and set <code>snapshotBump</code> accordingly. By default (when this property is not explicitly set), <code>snapshotBump</code> will be treated as set to <code>PATCH</code>.</p>
+
+<h2>
+<a id="description" class="anchor" href="#description" aria-hidden="true"><span class="octicon octicon-link"></span></a>Description</h2>
+
+<p>This plugin is designed to be applied to projects that are using Gradle as a build automation tool and Git for source code management. The plugin will attempt to extract a 'raw' semantic version from a specified file (e.g. <code>1.2.3</code>) and then perform either of two actions:</p>
+
+<ul>
+<li>if the plugin detects that you are currently on the <strong>master</strong> Git branch, it will save that version string as-is to your project's <code>project.version</code> property.</li>
+<li>if the plugin detects that you are currently on any other Git branch, it will generate an appropriately-bumped version with '-SNAPSHOT' appended to the corresponding version string (e.g. <code>1.2.4-SNAPSHOT</code>). This is then applied to your project's <code>project.version</code> property.</li>
+</ul>
+
+<p>This behaviour is performed during the configuration stage of the build lifecycle to allow the <code>project.version</code> property to be evaluated properly by other parts of the project's build script. If you find that <code>version.property</code> is being evaluated as <code>unspecified</code> in other parts of your build script, you can try wrapping instances of it in a <code>project.afterEvaluate</code> closure, as follows:</p>
+
+<pre><code>project.afterEvaluate {
+    assert project.version
+    version = project.version
+}
+</code></pre>
+
+<h5>
+<a id="recommended-usage" class="anchor" href="#recommended-usage" aria-hidden="true"><span class="octicon octicon-link"></span></a>Recommended Usage</h5>
+
+<p>The following workflow is recommended for use with this plugin:</p>
+
+<ol>
+<li>Download and install <a href="https://pypi.python.org/pypi/bumpversion/0.5.0">bumpversion</a>. This can be done from terminal via the Python package installer (pip).</li>
+<li>
+<p>Add a <code>.bumpversion.cfg</code> to your project directory, such as the following:</p>
+
+<pre><code>[bumpversion]
+current_version = 0.1.0
+commit = False
+tag = False
+
+[bumpversion:file:version.properties]
+</code></pre>
+</li>
+<li>
+<p>Add a <code>version.properties</code> file to your project directory, such as the following:</p>
+
+<pre><code>version='0.1.0'
+</code></pre>
+</li>
+<li>Adopt the <a href="http://nvie.com/posts/a-successful-git-branching-model/">Git Flow workflow strategy</a> or something similar, where release versions are committed on <strong>master</strong> and snapshot versions are pulled from other branches. The <a href="https://github.com/nvie/gitflow">Git Flow Github project</a> can facilitate this workflow strategy by providing Git flow commands to the terminal.</li>
+</ol>
+
+<p>You can use the command <code>bumpversion major|minor|patch</code> to bump your project version. This will update the version string stored in <code>version.properties</code> (or any other file you prefer), which can then be accessed and processed by the SemVer plugin. If you're on any branch but <strong>master</strong>, this plugin will append <code>-SNAPSHOT</code> to that string and save it to your project's <code>project.version</code> property, as described above.</p>
+
+<h2>
+<a id="project-health-metrics" class="anchor" href="#project-health-metrics" aria-hidden="true"><span class="octicon octicon-link"></span></a>Project Health Metrics</h2>
+
+<p>This project is continuously analysed by Jacoco (to calculate test code coverage) and CodeNarc (to identify coding issues).</p>
+
+<ul>
+<li>Present code coverage: 43.6%</li>
+<li>Present high priority issues: 0</li>
+<li>Present medium priority issues: 1</li>
+<li>Present low priority issues: 1</li>
+</ul>
+
+<p>More detailed information about code coverage can be found in the <a href="http://cdn.rawgit.com/tagc/semver/develop/health/jacoco/index.html">Jacoco report</a>.</p>
+
+<p>More detailed information about coding issues can be found in the <a href="http://cdn.rawgit.com/tagc/semver/develop/health/codenarc/main.html">CodeNarc report</a>.</p>
+
+<h2>
+<a id="documentation" class="anchor" href="#documentation" aria-hidden="true"><span class="octicon octicon-link"></span></a>Documentation</h2>
+
+<p>You can access the documentation for this project from <a href="http://cdn.rawgit.com/tagc/semver/develop/docs/groovydoc/index.html">here</a>.</p>
+
+<h2>
+<a id="acknowledgements" class="anchor" href="#acknowledgements" aria-hidden="true"><span class="octicon octicon-link"></span></a>Acknowledgements</h2>
+
+<p>The development of this project has been largely based on work done by:</p>
+
+<ul>
+<li>
+<a href="https://github.com/ajoberstar">Andrew Oberstar</a> for his <a href="https://github.com/ajoberstar/gradle-git">Gradle-Git</a> project, which this plugin relies on to query the current Git branch.</li>
+<li>
+<a href="http://www.gradleware.com/team/benjamin-muschko/">Benjamin Muschko</a> for his book, <em>Gradle in Action</em>, from which I've been trying to learn Gradle.</li>
+</ul>
+      </section>
+    </div>
+    <footer>
+      <p>Project maintained by <a href="https://github.com/TAGC">TAGC</a></p>
+      <p>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></p>
+    </footer>
+    <!--[if !IE]><script>fixScale(document);</script><![endif]-->
+    
+  </body>
+</html>
