@@ -25,6 +25,8 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.slf4j.Logger
 
+import com.github.tagc.semver.tasks.PrintVersionTask
+
 /**
  * An {@link org.gradle.api.Plugin} class that handles the application of semantic
  * versioning logic to an {@link org.gradle.api.Project}
@@ -35,7 +37,12 @@ import org.slf4j.Logger
 class SemVerPlugin implements Plugin<Project> {
     @PackageScope static final String EXTENSION_NAME = 'semver'
 
+    private static final String PRINT_VERSION_TASK_NAME = 'printVersion'
     private static final String MASTER_BRANCH = 'master'
+
+    static String getPrintVersionTaskName() {
+        return PRINT_VERSION_TASK_NAME
+    }
 
     private Grgit repo
     private Logger logger
@@ -48,8 +55,13 @@ class SemVerPlugin implements Plugin<Project> {
 
         logger = project.logger
         project.extensions.create(EXTENSION_NAME, SemVerPluginExtension)
+        addTasks(project)
 
         project.afterEvaluate { setVersionProjectNumber(project) }
+    }
+
+    private void addTasks(Project project) {
+        project.task(getPrintVersionTaskName(), type:PrintVersionTask)
     }
 
     private void setVersionProjectNumber(Project project) {

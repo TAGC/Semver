@@ -61,12 +61,20 @@ class SemVerPluginSpec extends Specification {
     /*
      * Tests
      */
-    def "SemVer plugin extension should exist after applying project"() {
+    def "SemVer plugin extension should exist after applying plugin"() {
         assert project.extensions.findByName(EXTENSION_NAME) == null
         plugin.apply(project)
 
         expect:
         project.extensions.findByName(EXTENSION_NAME) != null
+    }
+
+    def "PrintVersion task should exist after applying plugin"() {
+        assert project.tasks.findByName(SemVerPlugin.getPrintVersionTaskName()) == null
+        plugin.apply(project)
+
+        expect:
+        project.tasks.findByName(SemVerPlugin.getPrintVersionTaskName()) != null
     }
 
     def "Release version for version data in #versionFilePath should be #expectedVersion"() {
