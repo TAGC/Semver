@@ -1,12 +1,10 @@
-Semver
-======
+<img src="https://docs.google.com/drawings/d/1MMJypd9RZKUI0X8dnWBfSfQmg93O2Xkb9NRDN3xtaX8/pub?w=404&amp;h=414">
+
+A simple semantic versioning Gradle plugin for Git-controlled projects. You can use this plugin to help Gradle keep track of which version to consider the current state of your project as. This plugin has been primarily developed just so that I get experience with developing Gradle plugins.
+
+As of v0.3.0, this plugin now depends on itself for its own version numbering management. The logo is meant to represent a very minimalist Ouroboros based on this fact - and by minimalist, I mean I suck at art. If you would like a practical example demonstrating usage of this plugin, just look in this project's build script!
+
 [![Build Status](https://travis-ci.org/TAGC/Semver.svg)](https://travis-ci.org/TAGC/Semver) [ ![Download](https://api.bintray.com/packages/tagc/gradle-plugins/gradle-semver-plugin/images/download.svg) ](https://bintray.com/tagc/gradle-plugins/gradle-semver-plugin/_latestVersion)
-
-A simple semantic versioning Gradle plugin for Git-controlled projects.
-
-This plugin has been primarily developed just so that I get experience with developing Gradle plugins.
-
-As of v0.3.0, this plugin now depends on itself for its own version numbering management. If you would like a practical example demonstrating usage of this plugin, just look in this project's build script!
 
 Setup
 ---
@@ -87,14 +85,15 @@ This project is continuously analysed by Jacoco (to calculate test code coverage
 - Present medium priority issues: ${p2Issues}
 - Present low priority issues: ${p3Issues}
 
-More detailed information about code coverage can be found in the [Jacoco report](http://tagc.github.io/Semver/health/jacoco/index.html).
+More detailed information about code coverage can be found in the [Jacoco report](http://tagc.github.io/Semver/health/jacoco/index.html)*.
 
-More detailed information about coding issues can be found in the [CodeNarc report](http://tagc.github.io/Semver/health/codenarc/main.html).
+More detailed information about coding issues can be found in the [CodeNarc report](http://tagc.github.io/Semver/health/codenarc/main.html)*.
+
 
 Documentation
 ---
 
-You can access the documentation for this project from [here](http://tagc.github.io/Semver/groovydoc/index.html).
+You can access the documentation for this project from [here](http://tagc.github.io/Semver/docs/groovydoc/index.html)*.
 
 Acknowledgements
 ---
@@ -102,3 +101,5 @@ Acknowledgements
 The development of this project has been largely based on work done by:
  - [Andrew Oberstar](https://github.com/ajoberstar) for his [Gradle-Git](https://github.com/ajoberstar/gradle-git) project, which this plugin relies on to query the current Git branch.
  - [Benjamin Muschko](http://www.gradleware.com/team/benjamin-muschko/) for his book, *Gradle in Action*, from which I've been trying to learn Gradle.
+
+<sub>*Note: The reports and documentation may not be kept up to date, and some of the information kept in this README may not match up with the information provided in them. I'm intending to improve the automation in this area to help keep everything consistent.</sub>
