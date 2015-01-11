@@ -159,10 +159,12 @@ task generateDocumentation(description: "Generates the README file and project h
 build.dependsOn generateDocumentation
 
 // License generation
-task addLicenseHeaders(type: Exec, description: 'Adds license headers to sources files') {
+task addLicenseHeaders(type:Exec, description: 'Adds license headers to sources files.') {
     executable 'sh'
-    args '-c', 'copyright-header --license-file LICENSE_HEADER -a src/main/groovy/:src/main/java/ -o . -c GroovyLicenseSyntax.yml'
+    args '-c', 'copyright-header --license-file LICENSE_HEADER -a src/ -o . -c GroovyLicenseSyntax.yml'
 }
+
+classes.dependsOn(addLicenseHeaders)
 
 // Additional artifact declarations
 task sourcesJar(type: Jar) {
