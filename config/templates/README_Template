@@ -1,4 +1,4 @@
-<img src='http://tagc.github.io/Semver/images/semverLogo.svg' height='250px'/>
+<img src='http://tagc.github.io/Semver/images/semverLogo.svg' height='150px'/>
 
 A simple semantic versioning Gradle plugin for Git-controlled projects. You can use this plugin to help Gradle keep track of which version to consider the current state of your project as. This plugin has been primarily developed just so that I get experience with developing Gradle plugins.
 
