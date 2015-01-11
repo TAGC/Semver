@@ -1,4 +1,4 @@
-<img src="https://docs.google.com/drawings/d/1MMJypd9RZKUI0X8dnWBfSfQmg93O2Xkb9NRDN3xtaX8/pub?w=404&amp;h=414">
+<img src="https://docs.google.com/drawings/d/1MMJypd9RZKUI0X8dnWBfSfQmg93O2Xkb9NRDN3xtaX8/pub?w=250&amp;h=250">
 
 A simple semantic versioning Gradle plugin for Git-controlled projects. You can use this plugin to help Gradle keep track of which version to consider the current state of your project as. This plugin has been primarily developed just so that I get experience with developing Gradle plugins.
 
