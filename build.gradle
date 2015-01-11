@@ -164,8 +164,6 @@ task addLicenseHeaders(type:Exec, description: 'Adds license headers to sources 
     args '-c', 'copyright-header --license-file config/license/LICENSE_HEADER -a src/ -o . -c config/license/GroovyLicenseSyntax.yml'
 }
 
-classes.dependsOn(addLicenseHeaders)
-
 // Additional artifact declarations
 task sourcesJar(type: Jar) {
     baseName archivesBaseName
