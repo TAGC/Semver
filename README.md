@@ -1,8 +1,8 @@
-<img src='http://tagc.github.io/Semver/images/semverLogo.svg' height='150px'/>
+<img src='http://tagc.github.io/Semver/images/semverLogo.svg' height='175px'/>
 
 A simple semantic versioning Gradle plugin for Git-controlled projects. You can use this plugin to help Gradle keep track of which version to consider the current state of your project as. This plugin has been primarily developed just so that I get experience with developing Gradle plugins.
 
-As of v0.3.0, this plugin now depends on itself for its own version numbering management. The logo is meant to represent a very minimalist Ouroboros based on this fact - and by minimalist, I mean I suck at art. If you would like a practical example demonstrating usage of this plugin, just look in this project's build script!
+As of v0.3.0, this plugin now depends on itself for its own version numbering management. If you would like a practical example demonstrating usage of this plugin, just look in this project's build script!
 
 [![Build Status](https://travis-ci.org/TAGC/Semver.svg)](https://travis-ci.org/TAGC/Semver) [ ![Download](https://api.bintray.com/packages/tagc/gradle-plugins/gradle-semver-plugin/images/download.svg) ](https://bintray.com/tagc/gradle-plugins/gradle-semver-plugin/_latestVersion)
 
