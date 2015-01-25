@@ -78,22 +78,19 @@ You can use the command `bumpversion major|minor|patch` to bump your project ver
 Project Health Metrics
 ---
 
-This project is continuously analysed by Jacoco (to calculate test code coverage) and CodeNarc (to identify coding issues).
+This project is continuously analysed by Jacoco (to calculate test code coverage) and CodeNarc (to identify coding issues). These reports are generated in a separate build to the rest of the project, so they may not be fully up-to-date with the source code in this repository. Please check the generation date within the CodeNarc report linked below to see when these reports were generated. Both reports linked below were generated at the same time.
 
-- Present code coverage: 46.5%
-- Present high priority issues: 0
-- Present medium priority issues: 2
-- Present low priority issues: 3
+Information about code coverage can be found in the [Jacoco report](http://tagc.github.io/Semver/health/jacoco/index.html).
 
-More detailed information about code coverage can be found in the [Jacoco report](http://tagc.github.io/Semver/health/jacoco/index.html)*.
-
-More detailed information about coding issues can be found in the [CodeNarc report](http://tagc.github.io/Semver/health/codenarc/main.html)*.
+Information about coding issues can be found in the [CodeNarc report](http://tagc.github.io/Semver/health/codenarc/main.html).
 
 
 Documentation
 ---
 
-You can access the documentation for this project from [here](http://tagc.github.io/Semver/docs/groovydoc/index.html)*.
+The documentation for this project is generated in a separate build to the rest of the project, so it may not be fully up-to-date with the source code in this repository. The documentation is generated at the same time as the project health reports; review the CodeNarc report to find what time this documentation was generated.
+
+You can access the documentation for this project from [here](http://tagc.github.io/Semver/docs/groovydoc/index.html).
 
 Acknowledgements
 ---
@@ -101,5 +98,3 @@ Acknowledgements
 The development of this project has been largely based on work done by:
  - [Andrew Oberstar](https://github.com/ajoberstar) for his [Gradle-Git](https://github.com/ajoberstar/gradle-git) project, which this plugin relies on to query the current Git branch.
  - [Benjamin Muschko](http://www.gradleware.com/team/benjamin-muschko/) for his book, *Gradle in Action*, from which I've been trying to learn Gradle.
-
-<sub>*Note: The reports and documentation may not be kept up to date, and some of the information kept in this README may not match up with the information provided in them. I'm intending to improve the automation in this area to help keep everything consistent.</sub>

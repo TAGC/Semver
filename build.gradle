@@ -33,7 +33,8 @@ apply plugin: 'artifactory'
 apply plugin: 'sonar-runner'
 apply plugin: 'codenarc'
 //apply plugin: 'net.saliman.cobertura'
-apply plugin: "jacoco"
+apply plugin: 'jacoco'
+apply plugin: 'org.ajoberstar.github-pages'
 apply plugin: 'semver' //Plugin applies itself!
 
 // Artifact meta-data
@@ -163,6 +164,37 @@ task addLicenseHeaders(type:Exec, description: 'Adds license headers to sources 
     executable 'sh'
     args '-c', 'copyright-header --license-file config/license/LICENSE_HEADER -a src/ -o . -c config/license/GroovyLicenseSyntax.yml'
 }
+
+// Publishing gh-pages
+githubPages {
+    repoUri = 'git@github.com:TAGC/Semver.git'
+    commitMessage = 'Automated Github Pages update'
+}
+
+// Copy tasks
+task copyDoc(type: Copy, description: "Copies documentation from build directory to gh-pages source directory.", group: 'build') {
+    from "$buildDir/docs"
+    into "$projectDir/src/main/ghpages/docs"
+}
+ 
+task copyHealth(description: "Copies project health data to gh-pages source directory.", group: 'build') << {
+    def dirMap = ["reports/codenarc":"codenarc", "reports/jacoco/test/html":"jacoco"]
+    dirMap.each { source, dest ->
+        copy {
+            from "$buildDir/$source"
+            into "$projectDir/src/main/ghpages/health/$dest"
+            exclude '*.xml'
+        }
+    }
+   
+    // Copy projectHealth HTML file
+    copy {
+        from "$buildDir/generic/projectHealth.html"
+        into "$projectDir/health/html"
+    }
+}
+
+publishGhPages.dependsOn copyDoc, copyHealth
 
 // Additional artifact declarations
 task sourcesJar(type: Jar) {
