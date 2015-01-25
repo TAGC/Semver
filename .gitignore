@@ -25,6 +25,7 @@ Temporary Items
 
 ### Github Pages
 _site/
+src/main/ghpages/
 
 ### Gradle ###
 .gradle
