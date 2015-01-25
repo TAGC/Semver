@@ -42,26 +42,31 @@ class SemVerPluginSpec extends Specification {
      *  Test data
      */
     static versionFiles = [
+        'spaced v0_0_0.properties',
         'v0_0_0.properties',
         'v1_2_3.properties'
     ]
 
     static expectedReleases = [
         new Version(0,0,0,true),
+        new Version(0,0,0,true),
         new Version(1,2,3,true)
     ]
 
     static expectedPatchSnapshots = [
+        new Version(0,0,1,false),
         new Version(0,0,1,false),
         new Version(1,2,4,false)
     ]
 
     static expectedMinorSnapshots = [
         new Version(0,1,0,false),
+        new Version(0,1,0,false),
         new Version(1,3,0,false)
     ]
 
     static expectedMajorSnapshots = [
+        new Version(1,0,0,false),
         new Version(1,0,0,false),
         new Version(2,0,0,false)
     ]

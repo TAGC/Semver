@@ -91,7 +91,7 @@ class SemVerPlugin implements Plugin<Project> {
         assert project : 'Null project is illegal'
 
         def extension = project.extensions.findByName(EXTENSION_NAME)
-        final String versionFilePath = extension.versionFilePath
+        final String versionFilePath = URLDecoder.decode(extension.versionFilePath, 'UTF-8')
 
         if (!versionFilePath) {
             throw new GradleException('Version file has not been specified')
