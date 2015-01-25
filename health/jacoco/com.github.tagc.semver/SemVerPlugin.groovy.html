@@ -65,73 +65,73 @@ class SemVerPlugin implements Plugin&lt;Project&gt; {
     }
 
     private void setVersionProjectNumber(Project project) {
-<span class="nc bnc" id="L68" title="All 2 branches missed.">        assert project : 'Null project is illegal'</span>
+<span class="pc bpc" id="L68" title="1 of 2 branches missed.">        assert project : 'Null project is illegal'</span>
 
         try {
-<span class="nc" id="L71">            this.repo = Grgit.open(project.file(&quot;$project.projectDir&quot;))</span>
+<span class="pc" id="L71">            this.repo = Grgit.open(project.file(&quot;$project.projectDir&quot;))</span>
         } catch (RepositoryNotFoundException e) {
-<span class="nc" id="L73">            throw new GradleException('No Git repository can be found for this project')</span>
+<span class="pc" id="L73">            throw new GradleException('No Git repository can be found for this project')</span>
         }
 
-<span class="nc" id="L76">        def rawVersion = readRawVersion(project)</span>
+<span class="fc" id="L76">        def rawVersion = readRawVersion(project)</span>
 
-<span class="nc" id="L78">        def extension = project.extensions.findByName(EXTENSION_NAME)</span>
-<span class="nc" id="L79">        Version.Category snapshotBump = extension.snapshotBump</span>
+<span class="fc" id="L78">        def extension = project.extensions.findByName(EXTENSION_NAME)</span>
+<span class="fc" id="L79">        Version.Category snapshotBump = extension.snapshotBump</span>
 
-<span class="nc bnc" id="L81" title="All 8 branches missed.">        if (isOnMasterBranch()) {</span>
-<span class="nc" id="L82">            project.version = rawVersion.toRelease()</span>
+<span class="pc bpc" id="L81" title="4 of 8 branches missed.">        if (isOnMasterBranch()) {</span>
+<span class="pc" id="L82">            project.version = rawVersion.toRelease()</span>
         } else {
-<span class="nc" id="L84">            project.version = getAppropriateSnapshotVersion(project, rawVersion, snapshotBump)</span>
+<span class="pc" id="L84">            project.version = getAppropriateSnapshotVersion(project, rawVersion, snapshotBump)</span>
         }
 
-<span class="nc" id="L87">        logger.info &quot;Set project version to $project.version&quot;</span>
+<span class="fc" id="L87">        logger.info &quot;Set project version to $project.version&quot;</span>
     }
 
     private Version readRawVersion(Project project) {
-<span class="nc bnc" id="L91" title="All 2 branches missed.">        assert project : 'Null project is illegal'</span>
+<span class="pc bpc" id="L91" title="1 of 2 branches missed.">        assert project : 'Null project is illegal'</span>
 
-<span class="nc" id="L93">        def extension = project.extensions.findByName(EXTENSION_NAME)</span>
-<span class="nc" id="L94">        final String versionFilePath = extension.versionFilePath</span>
+<span class="fc" id="L93">        def extension = project.extensions.findByName(EXTENSION_NAME)</span>
+<span class="fc" id="L94">        final String versionFilePath = URLDecoder.decode(extension.versionFilePath, 'UTF-8')</span>
 
-<span class="nc bnc" id="L96" title="All 4 branches missed.">        if (!versionFilePath) {</span>
+<span class="pc bpc" id="L96" title="2 of 4 branches missed.">        if (!versionFilePath) {</span>
 <span class="nc" id="L97">            throw new GradleException('Version file has not been specified')</span>
         }
 
-<span class="nc" id="L100">        def versionFile = new File(versionFilePath)</span>
-<span class="nc bnc" id="L101" title="All 4 branches missed.">        if (!versionFile.exists()) {</span>
+<span class="fc" id="L100">        def versionFile = new File(versionFilePath)</span>
+<span class="pc bpc" id="L101" title="2 of 4 branches missed.">        if (!versionFile.exists()) {</span>
 <span class="nc" id="L102">            throw new GradleException(&quot;Missing version file: $versionFile.canonicalPath&quot;)</span>
         }
 
-<span class="nc" id="L105">        Version.Parser.instance.parse(versionFile.text)</span>
+<span class="pc" id="L105">        Version.Parser.instance.parse(versionFile.text)</span>
     }
 
     /*
      * By default, bump by patch.
      */
     private Version getAppropriateSnapshotVersion(Project project, Version currVersion, Version.Category snapshotBump) {
-<span class="nc bnc" id="L112" title="All 2 branches missed.">        assert currVersion : 'Null currVersion is illegal'</span>
-<span class="nc bnc" id="L113" title="All 2 branches missed.">        assert project : 'Null project is illegal'</span>
-<span class="nc" id="L114">        switch (snapshotBump) {</span>
-<span class="nc bnc" id="L115" title="All 4 branches missed.">            case null:</span>
+<span class="pc bpc" id="L112" title="1 of 2 branches missed.">        assert currVersion : 'Null currVersion is illegal'</span>
+<span class="pc bpc" id="L113" title="1 of 2 branches missed.">        assert project : 'Null project is illegal'</span>
+<span class="fc" id="L114">        switch (snapshotBump) {</span>
+<span class="fc bfc" id="L115" title="All 4 branches covered.">            case null:</span>
             case Version.Category.PATCH:
-<span class="nc" id="L117">                return currVersion.bumpPatch().toDevelop()</span>
-<span class="nc bnc" id="L118" title="All 2 branches missed.">            case Version.Category.MINOR:</span>
-<span class="nc" id="L119">                return currVersion.bumpMinor().toDevelop()</span>
-<span class="nc bnc" id="L120" title="All 2 branches missed.">            case Version.Category.MAJOR:</span>
-<span class="nc" id="L121">                return currVersion.bumpMajor().toDevelop()</span>
+<span class="pc" id="L117">                return currVersion.bumpPatch().toDevelop()</span>
+<span class="fc bfc" id="L118" title="All 2 branches covered.">            case Version.Category.MINOR:</span>
+<span class="pc" id="L119">                return currVersion.bumpMinor().toDevelop()</span>
+<span class="pc bpc" id="L120" title="1 of 2 branches missed.">            case Version.Category.MAJOR:</span>
+<span class="fc" id="L121">                return currVersion.bumpMajor().toDevelop()</span>
             default:
 <span class="nc" id="L123">                throw new AssertionError(&quot;Invalid version category provided: $snapshotBump&quot;)</span>
         }
     }
 
     private boolean isOnMasterBranch() {
-<span class="nc" id="L128">        logger.info &quot;Current Git branch: $currentBranch&quot;</span>
-<span class="nc bnc" id="L129" title="All 6 branches missed.">        currentBranch == MASTER_BRANCH</span>
+<span class="fc" id="L128">        logger.info &quot;Current Git branch: $currentBranch&quot;</span>
+<span class="pc bpc" id="L129" title="3 of 6 branches missed.">        currentBranch == MASTER_BRANCH</span>
     }
 
     private String getCurrentBranch() {
-<span class="nc bnc" id="L133" title="All 2 branches missed.">        assert repo : 'Repo does not exist'</span>
-<span class="nc" id="L134">        repo.branch.current.name</span>
+<span class="pc bpc" id="L133" title="1 of 2 branches missed.">        assert repo : 'Repo does not exist'</span>
+<span class="pc" id="L134">        repo.branch.current.name</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.1.201405082137</span></div></body></html>
