@@ -141,7 +141,7 @@ class Version implements Comparable&lt;Version&gt; {
 
         private Version tryParseShortSnapshotVersion(String input, boolean strict) {
 <span class="pc bpc" id="L143" title="2 of 4 branches missed.">            Matcher m = checkInputAgainstPattern(input, SNAPSHOT_SHORT_VERSION_PATTERN, strict)</span>
-<span class="fc bfc" id="L144" title="All 4 branches covered.">            if(!m) {</span>
+<span class="fc bfc" id="L144" title="All 4 branches covered.">            if (!m) {</span>
 <span class="fc" id="L145">                return null</span>
             }
 
