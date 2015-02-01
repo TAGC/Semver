@@ -26,6 +26,24 @@ package com.github.tagc.semver
  * @since v0.1.0
  */
 class SemVerPluginExtension {
+
+    /**
+     * The path to the file containing version data.
+     */
     String versionFilePath
+
+    /**
+     *  The category to assume the snapshot version should be bumped by
+     *
+     *  Example: if the in-development version will have significant but
+     *  non-breaking changes to its public API, {@code snapshotBump} should be
+     *  set to {@code true}.
+     */
     Version.Category snapshotBump
+
+    /**
+     * Whether or not to permit version bumping when the project is
+     * not on the Git master branch.
+     */
+    boolean forceBump
 }

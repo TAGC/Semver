@@ -64,15 +64,18 @@ class BumpVersionTaskSpec extends Specification {
         [category, versionFilePath, bumpedVersion] << getVersionTestData()
     }
 
-    def "Bumping project should cause exception to be thrown when not on master"() {
+    def "Bumping project should cause exception to be thrown when not on master and forceBump is false"() {
         given: "A copy of a file containing version data and its text"
         URL url = TestUtil.getVersionFileAsResource(versionFilePath)
         File versionFileCopy = project.file("build/temp/$versionFilePath")
         FileUtils.copyURLToFile(url, versionFileCopy)
         def originalText = versionFileCopy.text
 
-        when: "We invoke the appropriate version bump task for a project on the develop branch"
-        TestUtil.evaluateProjectForSnapshotTests(plugin, project, versionFileCopy.toURI().toURL(), category)
+        when: "We invoke the appropriate version bump task for a project on the develop branch with forceBump set false"
+        TestUtil.beginConfiguringProject(plugin, project, true)
+        TestUtil.configureProjectVersionPath(project, versionFileCopy.toURI().toURL())
+        TestUtil.configureProjectForceBump(project, false)
+        TestUtil.finishConfiguringProject(project)
         def bumpVersionTask = getBumpVersionTaskForCategory(project, category)
         bumpVersionTask.execute()
 
@@ -80,6 +83,32 @@ class BumpVersionTaskSpec extends Specification {
         TaskExecutionException e = thrown()
         e.cause in IllegalStateException
         versionFileCopy.text == originalText
+
+        cleanup:
+        assert TestUtil.cleanupGitDirectory(project)
+        versionFileCopy.delete()
+
+        where:
+        [category, versionFilePath, bumpedVersion] << getVersionTestData()
+    }
+
+    def "Bumping project by #category should update #versionFilePath to represent #bumpedVersion when not on master and forceBump is true"() {
+        given: "A copy of a file containing version data"
+        URL url = TestUtil.getVersionFileAsResource(versionFilePath)
+        File versionFileCopy = project.file("build/temp/$versionFilePath")
+        FileUtils.copyURLToFile(url, versionFileCopy)
+
+        when: "We invoke the appropriate version bump task for a project on the develop branch with forceBump set true"
+        TestUtil.beginConfiguringProject(plugin, project, true)
+        TestUtil.configureProjectVersionPath(project, versionFileCopy.toURI().toURL())
+        TestUtil.configureProjectForceBump(project, true)
+        TestUtil.finishConfiguringProject(project)
+        def bumpVersionTask = getBumpVersionTaskForCategory(project, category)
+        bumpVersionTask.execute()
+
+        then: "The version data kept within the file should have been updated"
+        notThrown(Exception)
+        Version.Parser.instance.parse(versionFileCopy) == bumpedVersion
 
         cleanup:
         assert TestUtil.cleanupGitDirectory(project)

@@ -95,6 +95,9 @@ class SemVerPlugin implements Plugin<Project> {
             task.conventionMapping.map('versionFileOut') {
                 project.file(URLDecoder.decode(extension.versionFilePath, 'UTF-8'))
             }
+            task.conventionMapping.map('forceBump') {
+                extension.forceBump
+            }
 
             printVersionTask.shouldRunAfter task
         }

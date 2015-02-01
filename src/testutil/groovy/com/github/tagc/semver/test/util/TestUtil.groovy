@@ -39,27 +39,53 @@ public class TestUtil {
         Thread.currentThread().contextClassLoader.getResource(versionFilePath)
     }
 
-    static void evaluateProjectForReleaseTests(Plugin plugin, Project project, URL url) {
+    static void evaluateProjectForReleaseTests(Plugin plugin, Project project, URL versionPathUrl) {
+        beginConfiguringProject(plugin, project, false)
+        configureProjectVersionPath(project, versionPathUrl)
+        finishConfiguringProject(project)
+    }
+
+    static void evaluateProjectForSnapshotTests(Plugin plugin, Project project, URL versionPathUrl, Version.Category snapshotBump) {
+        beginConfiguringProject(plugin, project, true)
+        configureProjectVersionPath(project, versionPathUrl)
+        configureProjectSnapshotBump(project, snapshotBump)
+        finishConfiguringProject(project)
+    }
+
+    static void beginConfiguringProject(Plugin plugin, Project project, boolean forSnapshots) {
         initialiseGitDirectory(project)
+        if (forSnapshots)
+        {
+            checkoutBranch(project, 'develop')
+        }
         plugin.apply(project)
-        project.semver.versionFilePath = url.path
+    }
+
+    static void finishConfiguringProject(Project project) {
         project.evaluate()
     }
 
-    static void evaluateProjectForSnapshotTests(Plugin plugin, Project project, URL url, Version.Category bump) {
-        initialiseGitDirectory(project)
-        checkoutBranch(project, 'develop')
-        plugin.apply(project)
-        project.semver.versionFilePath = url.path
-        project.semver.snapshotBump = bump
-        project.evaluate()
+    static void configureProjectVersionPath(Project project, URL versionPathUrl) {
+        project.semver.versionFilePath = versionPathUrl.path
     }
 
-    static void initialiseGitDirectory(Project project) {
+    static void configureProjectSnapshotBump(Project project, Version.Category snapshotBump) {
+        project.semver.snapshotBump = snapshotBump
+    }
+
+    static void configureProjectForceBump(Project project, boolean forceBump) {
+        project.semver.forceBump = forceBump
+    }
+
+    static boolean cleanupGitDirectory(Project project) {
+        new File("$project.projectDir/.git").deleteDir()
+    }
+
+    private static void initialiseGitDirectory(Project project) {
         Grgit.init(dir:project.projectDir)
     }
 
-    static void checkoutBranch(Project project, String branch) {
+    private static void checkoutBranch(Project project, String branch) {
         Grgit grgit = Grgit.open(project.projectDir)
         try {
             grgit.checkout(branch:branch, createBranch:true)
@@ -68,10 +94,6 @@ public class TestUtil {
             grgit.commit(message:'Initial commit')
             grgit.checkout(branch:branch, createBranch:true)
         }
-    }
-
-    static boolean cleanupGitDirectory(Project project) {
-        new File("$project.projectDir/.git").deleteDir()
     }
 }
 

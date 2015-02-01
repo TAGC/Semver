@@ -17,7 +17,9 @@
 package com.github.tagc.semver.tasks
 
 import org.gradle.api.DefaultTask
+import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
+import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
 
@@ -41,6 +43,10 @@ protected class AbstractBumpTask extends DefaultTask {
         this.bumpCategory = bumpCategory
     }
 
+    @Input
+    @Optional
+    def boolean forceBump
+
     @InputFile
     def File versionFileIn
 
@@ -52,7 +58,12 @@ protected class AbstractBumpTask extends DefaultTask {
         try {
             def branchDetector = new GitBranchDetector(project)
             if (!branchDetector.isOnMasterBranch()) {
-                throw new IllegalStateException("Cannot bump version when not on master branch")
+                if (isForceBump()) {
+                    logger.debug "On branch ${branchDetector.getBranch()} but forcing version bump anyway"
+                } else {
+                    throw new IllegalStateException(
+                        "Cannot bump version when not on master branch (set 'forceBump' true to override)")
+                }
             }
 
             def versionParser = Version.Parser.instance
