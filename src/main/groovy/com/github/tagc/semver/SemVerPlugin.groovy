@@ -27,6 +27,7 @@ import org.slf4j.Logger
 import com.github.tagc.semver.tasks.BumpMajorTask
 import com.github.tagc.semver.tasks.BumpMinorTask
 import com.github.tagc.semver.tasks.BumpPatchTask
+import com.github.tagc.semver.tasks.ChangeVersionTask
 import com.github.tagc.semver.tasks.PrintVersionTask
 
 /**
@@ -44,6 +45,7 @@ class SemVerPlugin implements Plugin<Project> {
     private static final String BUMP_MAJOR_TASK_NAME = 'bumpMajor'
     private static final String BUMP_MINOR_TASK_NAME = 'bumpMinor'
     private static final String BUMP_PATCH_TASK_NAME = 'bumpPatch'
+    private static final String CHANGE_VERSION_TASK_NAME = 'changeVersion'
 
     static String getPrintVersionTaskName() {
         return PRINT_VERSION_TASK_NAME
@@ -61,6 +63,10 @@ class SemVerPlugin implements Plugin<Project> {
         return BUMP_PATCH_TASK_NAME
     }
 
+    static String getChangeVersionTaskName() {
+        return CHANGE_VERSION_TASK_NAME
+    }
+
     private Logger logger
 
     @Override
@@ -73,13 +79,14 @@ class SemVerPlugin implements Plugin<Project> {
         project.extensions.create(EXTENSION_NAME, SemVerPluginExtension)
         addTasks(project)
 
-        project.afterEvaluate { setVersionProjectNumber(project) }
+        project.afterEvaluate {setVersionProjectNumber(project) }
     }
 
     private void addTasks(Project project) {
         def extension = project.extensions.findByName(EXTENSION_NAME)
 
         def printVersionTask = project.task(getPrintVersionTaskName(), type:PrintVersionTask)
+        def changeVersionTask = project.task(getChangeVersionTaskName(), type:ChangeVersionTask)
 
         def majorBumpTask = project.task(getBumpMajorTaskName(), type:BumpMajorTask)
         def minorBumpTask = project.task(getBumpMinorTaskName(), type:BumpMinorTask)
@@ -99,6 +106,7 @@ class SemVerPlugin implements Plugin<Project> {
             task.conventionMapping.map('forceBump') { extension.forceBump }
 
             printVersionTask.shouldRunAfter task
+            task.dependsOn changeVersionTask
         }
     }
 
