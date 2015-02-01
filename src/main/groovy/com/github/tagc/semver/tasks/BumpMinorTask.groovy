@@ -30,7 +30,7 @@ import com.github.tagc.semver.Version
  */
 class BumpMinorTask extends AbstractBumpTask {
 
-    public BumpMinorTask() {
+    BumpMinorTask() {
         super(Version.Category.MINOR)
         this.description = 'Performs a minor bump of the project version.'
     }

@@ -30,7 +30,7 @@ import com.github.tagc.semver.Version
  */
 class BumpMajorTask extends AbstractBumpTask {
 
-    public BumpMajorTask() {
+    BumpMajorTask() {
         super(Version.Category.MAJOR)
         this.description = 'Performs a major bump of the project version.'
     }

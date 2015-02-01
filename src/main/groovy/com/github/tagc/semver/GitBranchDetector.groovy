@@ -17,7 +17,6 @@
 package com.github.tagc.semver
 
 import org.ajoberstar.grgit.Grgit
-import org.ajoberstar.grgit.exception.GrgitException
 import org.gradle.api.Project
 
 /**
@@ -42,11 +41,7 @@ class GitBranchDetector {
      *         base directory to be opened
      */
     GitBranchDetector(Project project) {
-        try {
-            repo = Grgit.open(project.file("$project.projectDir"))
-        } catch (GrgitException e) {
-            throw e
-        }
+        repo = Grgit.open(project.file("$project.projectDir"))
     }
 
     /**
@@ -58,11 +53,7 @@ class GitBranchDetector {
      *         file location to be opened
      */
     GitBranchDetector(File repoDir) {
-        try {
-            repo = Grgit.open(repoDir)
-        } catch (GrgitException e) {
-            throw e
-        }
+        repo = Grgit.open(repoDir)
     }
 
     /**
@@ -82,6 +73,6 @@ class GitBranchDetector {
      * @return {@code true} if the currently checked-out branch is the master branch
      */
     boolean isOnMasterBranch() {
-        return getBranch() == MASTER_BRANCH
+        return branch == MASTER_BRANCH
     }
 }

@@ -341,7 +341,7 @@ class Version implements Comparable<Version> {
      * @return an incremented {@code Version}
      */
     Version incrementByCategory(Version.Category category) {
-        switch(category) {
+        switch (category) {
             case Version.Category.MAJOR:
                 return incrementMajor()
             case Version.Category.MINOR:
@@ -387,7 +387,7 @@ class Version implements Comparable<Version> {
      * @return a bumped {@code Version}
      */
     Version bumpByCategory(Version.Category category) {
-        switch(category) {
+        switch (category) {
             case Version.Category.MAJOR:
                 return bumpMajor()
             case Version.Category.MINOR:
@@ -448,31 +448,32 @@ class Version implements Comparable<Version> {
         new Version(major, minor, patch, false)
     }
 
-    /*   @Override
-     boolean equals(Object o) {
-     if (o == null) {
-     return false
-     } else if (! (o instanceof Version)) {
-     return false
-     } else if (this.major != o.major) {
-     return false
-     } else if (this.minor != o.minor) {
-     return false
-     } else if (this.release != o.release) {
-     return false
-     }
-     this.patch == o.patch
-     }
-     @Override
-     int hashCode() {
-     final int factor = 31
-     def result = 17
-     result = factor * result + major
-     result = factor * result + minor
-     result = factor * result + patch
-     result = factor * result + (release ? 1 : 0)
-     return result
-     }*/
+    @Override
+    boolean equals(Object o) {
+        if (o == null) {
+            return false
+        } else if (! (o instanceof Version)) {
+            return false
+        } else if (this.major != o.major) {
+            return false
+        } else if (this.minor != o.minor) {
+            return false
+        } else if (this.patch != o.patch) {
+            return false
+        }
+        this.release == o.release
+    }
+
+    @Override
+    int hashCode() {
+        final int factor = 31
+        def result = 17
+        result = factor * result + major
+        result = factor * result + minor
+        result = factor * result + patch
+        result = factor * result + (release ? 1 : 0)
+        return result
+    }
 
     @Override
     int compareTo(Version that) {

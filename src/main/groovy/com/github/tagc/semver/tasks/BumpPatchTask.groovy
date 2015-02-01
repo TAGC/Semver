@@ -30,7 +30,7 @@ import com.github.tagc.semver.Version
  */
 class BumpPatchTask extends AbstractBumpTask {
 
-    public BumpPatchTask() {
+    BumpPatchTask() {
         super(Version.Category.PATCH)
         this.description = 'Performs a patch bump of the project version.'
     }

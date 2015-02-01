@@ -29,14 +29,14 @@ import org.gradle.api.tasks.TaskAction
  */
 class PrintVersionTask extends DefaultTask {
 
-    public PrintVersionTask() {
+    PrintVersionTask() {
         this.group = 'semver'
         this.description = 'Prints the current project version.'
     }
 
     @TaskAction
     void start() {
-        println getOutput()
+        logger.quiet output
     }
 
     @PackageScope

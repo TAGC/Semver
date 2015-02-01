@@ -255,7 +255,7 @@ class VersionSpec extends Specification {
 
     def "Non-Version object should not be equal to #version"() {
         expect:
-        !version.equals(new Object())
+        version != new Object()
 
         where:
         version << exampleVersions
@@ -263,7 +263,7 @@ class VersionSpec extends Specification {
 
     def "Null object should not be equal to #version"() {
         expect:
-        !version.equals(null)
+        version != null
 
         where:
         version << exampleVersions
@@ -276,8 +276,8 @@ class VersionSpec extends Specification {
         def version2 = new Version(major, minor, patch, release)
 
         expect:
-        version1.equals(version2)
-        version2.equals(version1)
+        version1 == version2
+        version2 == version1
 
         where:
         major << (1..5)
@@ -291,8 +291,8 @@ class VersionSpec extends Specification {
         def version2 = new Version(major, minor, patch, release)
 
         expect:
-        !version1.equals(version2)
-        !version2.equals(version1)
+        version1 != version2
+        version2 != version1
 
         where:
         major << (1..5)
@@ -306,8 +306,8 @@ class VersionSpec extends Specification {
         def version2 = new Version(major, minor, patch, release)
 
         expect:
-        !version1.equals(version2)
-        !version2.equals(version1)
+        version1 != version2
+        version2 != version1
 
         where:
         major << (1..5)
@@ -321,8 +321,8 @@ class VersionSpec extends Specification {
         def version2 = new Version(major, minor, patch, release)
 
         expect:
-        !version1.equals(version2)
-        !version2.equals(version1)
+        version1 != version2
+        version2 != version1
 
         where:
         major << (1..5)
@@ -337,7 +337,7 @@ class VersionSpec extends Specification {
         def releaseVersion = new Version(major:1, minor:2, patch:3, release:true)
 
         expect:
-        !devVersion.equals(releaseVersion)
-        !releaseVersion.equals(devVersion)
+        devVersion != releaseVersion
+        releaseVersion != devVersion
     }
 }

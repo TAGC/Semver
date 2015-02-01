@@ -43,39 +43,45 @@ protected class AbstractBumpTask extends DefaultTask {
         this.bumpCategory = bumpCategory
     }
 
+    /**
+     * Whether to force a version update if not on
+     * the Git master branch.
+     */
     @Input
     @Optional
-    def boolean forceBump
+    boolean forceBump
 
+    /**
+     * The file to interpret the current version from.
+     */
     @InputFile
-    def File versionFileIn
+    File versionFileIn
 
+    /**
+     * The file to write the new version data to.
+     */
     @OutputFile
-    def File versionFileOut
+    File versionFileOut
 
     @TaskAction
     void start() {
-        try {
-            def branchDetector = new GitBranchDetector(project)
-            if (!branchDetector.isOnMasterBranch()) {
-                if (isForceBump()) {
-                    logger.debug "On branch ${branchDetector.getBranch()} but forcing version bump anyway"
-                } else {
-                    throw new IllegalStateException(
-                        "Cannot bump version when not on master branch (set 'forceBump' true to override)")
-                }
+        def branchDetector = new GitBranchDetector(project)
+        if (!branchDetector.isOnMasterBranch()) {
+            if (isForceBump()) {
+                logger.debug "On branch $branchDetector.branch but forcing version bump anyway"
+            } else {
+                throw new IllegalStateException(
+                "Cannot bump version when not on master branch (set 'forceBump' true to override)")
             }
-
-            def versionParser = Version.Parser.instance
-            def currVersion = versionParser.parse(getVersionFileIn())
-            def bumpedVersion = currVersion.bumpByCategory(bumpCategory)
-
-            getVersionFileOut().text = versionParser.parseAndReplace(getVersionFileIn(), bumpedVersion)
-            project.version = bumpedVersion
-
-            logger.debug "Bumping project version ($currVersion -> $bumpedVersion)"
-        } catch (IllegalArgumentException e) {
-            throw e
         }
+
+        def versionParser = Version.Parser.instance
+        def currVersion = versionParser.parse(getVersionFileIn())
+        def bumpedVersion = currVersion.bumpByCategory(bumpCategory)
+
+        getVersionFileOut().text = versionParser.parseAndReplace(getVersionFileIn(), bumpedVersion)
+        project.version = bumpedVersion
+
+        logger.debug "Bumping project version ($currVersion -> $bumpedVersion)"
     }
 }

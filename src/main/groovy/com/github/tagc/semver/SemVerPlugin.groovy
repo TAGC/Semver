@@ -39,6 +39,7 @@ import com.github.tagc.semver.tasks.PrintVersionTask
 class SemVerPlugin implements Plugin<Project> {
     @PackageScope static final String EXTENSION_NAME = 'semver'
 
+    private static final String UTF_8_ENCODING = 'UTF-8'
     private static final String PRINT_VERSION_TASK_NAME = 'printVersion'
     private static final String BUMP_MAJOR_TASK_NAME = 'bumpMajor'
     private static final String BUMP_MINOR_TASK_NAME = 'bumpMinor'
@@ -90,14 +91,12 @@ class SemVerPlugin implements Plugin<Project> {
             patchBumpTask
         ].each { task ->
             task.conventionMapping.map('versionFileIn') {
-                project.file(URLDecoder.decode(extension.versionFilePath, 'UTF-8'))
+                project.file(URLDecoder.decode(extension.versionFilePath, UTF_8_ENCODING))
             }
             task.conventionMapping.map('versionFileOut') {
-                project.file(URLDecoder.decode(extension.versionFilePath, 'UTF-8'))
+                project.file(URLDecoder.decode(extension.versionFilePath, UTF_8_ENCODING))
             }
-            task.conventionMapping.map('forceBump') {
-                extension.forceBump
-            }
+            task.conventionMapping.map('forceBump') { extension.forceBump }
 
             printVersionTask.shouldRunAfter task
         }
@@ -133,13 +132,13 @@ class SemVerPlugin implements Plugin<Project> {
         assert project : 'Null project is illegal'
 
         def extension = project.extensions.findByName(EXTENSION_NAME)
-        final String versionFilePath = URLDecoder.decode(extension.versionFilePath, 'UTF-8')
+        final String versionFilePath = URLDecoder.decode(extension.versionFilePath, UTF_8_ENCODING)
 
         if (!versionFilePath) {
             throw new GradleException('Version file has not been specified')
         }
 
-        def versionFile = new File(versionFilePath)
+        def versionFile = project.file(versionFilePath)
         if (!versionFile.exists()) {
             throw new GradleException("Missing version file: $versionFile.canonicalPath")
         }
@@ -153,10 +152,12 @@ class SemVerPlugin implements Plugin<Project> {
     private Version getAppropriateSnapshotVersion(Project project, Version currVersion, Version.Category snapshotBump) {
         assert currVersion : 'Null currVersion is illegal'
         assert project : 'Null project is illegal'
-        if (snapshotBump == null) {
-            snapshotBump = Version.Category.PATCH
+
+        Version.Category assumedSnapshotBump = snapshotBump
+        if (assumedSnapshotBump == null) {
+            assumedSnapshotBump = Version.Category.PATCH
         }
 
-        return currVersion.bumpByCategory(snapshotBump).toDevelop()
+        return currVersion.bumpByCategory(assumedSnapshotBump).toDevelop()
     }
 }
