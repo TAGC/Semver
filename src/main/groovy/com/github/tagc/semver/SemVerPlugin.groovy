@@ -71,8 +71,12 @@ class SemVerPlugin implements Plugin<Project> {
 
         project.task(getPrintVersionTaskName(), type:PrintVersionTask)
         project.task(getBumpMajorTaskName(), type:BumpMajorTask) {
-            conventionMapping.map('versionFileIn') { project.file(extension.versionFilePath) }
-            conventionMapping.map('versionFileOut') { project.file(extension.versionFilePath) }
+            conventionMapping.map('versionFileIn') {
+                project.file(URLDecoder.decode(extension.versionFilePath, 'UTF-8'))
+            }
+            conventionMapping.map('versionFileOut') {
+                project.file(URLDecoder.decode(extension.versionFilePath, 'UTF-8'))
+            }
         }
     }
 

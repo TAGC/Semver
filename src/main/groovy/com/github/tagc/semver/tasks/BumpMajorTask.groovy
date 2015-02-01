@@ -35,8 +35,13 @@ class BumpMajorTask extends DefaultTask {
     @TaskAction
     void start() {
         try {
-            def currVersion = Version.Parser.getInstance().parse(getVersionFileIn())
+            def versionParser = Version.Parser.getInstance()
+            def currVersion = versionParser.parse(getVersionFileIn())
             def bumpedVersion = currVersion.bumpMajor()
+
+            logger.info versionParser.parseAndReplace(getVersionFileIn(), bumpedVersion)
+            getVersionFileOut().text = versionParser.parseAndReplace(getVersionFileIn(), bumpedVersion)
+
             logger.debug "Bumping project version ($currVersion -> $bumpedVersion)"
         } catch (IllegalArgumentException e) {
             throw e

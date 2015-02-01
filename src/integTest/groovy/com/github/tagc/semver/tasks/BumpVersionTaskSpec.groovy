@@ -36,10 +36,12 @@ class BumpVersionTaskSpec extends Specification {
         bumpMajorTask.execute()
 
         then:
+        notThrown(Exception)
         Version.Parser.getInstance().parse(versionFileCopy) == bumpedVersion
 
         cleanup:
         assert TestUtil.cleanupGitDirectory(project)
+        versionFileCopy.delete()
 
         where:
         versionFilePath << TestSetup.getTestVersionFilePaths()
