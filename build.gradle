@@ -111,6 +111,7 @@ task integrationTest(type: Test) {
 integrationTest.reports.html.destination = file("$buildDir/reports/intTests")
 
 check.dependsOn integrationTest
+integrationTest.shouldRunAfter test
 
 // License generation
 task addLicenseHeaders(type:Exec, description: 'Adds license headers to sources files.') {

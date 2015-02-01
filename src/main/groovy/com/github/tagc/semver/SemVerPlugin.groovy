@@ -22,7 +22,7 @@ import org.ajoberstar.grgit.exception.GrgitException
 import org.gradle.api.GradleException
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.slf4j.Logger
+import org.gradle.api.logging.Logger
 
 import com.github.tagc.semver.tasks.BumpMajorTask
 import com.github.tagc.semver.tasks.BumpMinorTask
@@ -46,6 +46,7 @@ class SemVerPlugin implements Plugin<Project> {
     private static final String BUMP_MINOR_TASK_NAME = 'bumpMinor'
     private static final String BUMP_PATCH_TASK_NAME = 'bumpPatch'
     private static final String CHANGE_VERSION_TASK_NAME = 'changeVersion'
+    private static final String MODIFIES_VERSION_INDICATOR_PROPERTY = 'modifiesVersion'
 
     static String getPrintVersionTaskName() {
         return PRINT_VERSION_TASK_NAME
@@ -79,7 +80,21 @@ class SemVerPlugin implements Plugin<Project> {
         project.extensions.create(EXTENSION_NAME, SemVerPluginExtension)
         addTasks(project)
 
-        project.afterEvaluate {setVersionProjectNumber(project) }
+        project.afterEvaluate { setVersionProjectNumber(project) }
+
+        /*
+         * Ensure that at most one task modifies the project version.
+         */
+        project.gradle.taskGraph.whenReady { taskGraph ->
+            def numVersionModifierTasks = taskGraph.allTasks.findAll { task ->
+                task.hasProperty(MODIFIES_VERSION_INDICATOR_PROPERTY) \
+                    && task."$MODIFIES_VERSION_INDICATOR_PROPERTY"
+            }.size()
+
+            if (numVersionModifierTasks > 1) {
+                throw new GradleException('Only one task may modify the project version in a single build')
+            }
+        }
     }
 
     private void addTasks(Project project) {
@@ -104,6 +119,7 @@ class SemVerPlugin implements Plugin<Project> {
                 project.file(URLDecoder.decode(extension.versionFilePath, UTF_8_ENCODING))
             }
             task.conventionMapping.map('forceBump') { extension.forceBump }
+            task.ext."$MODIFIES_VERSION_INDICATOR_PROPERTY" = true
 
             printVersionTask.shouldRunAfter task
             task.dependsOn changeVersionTask
