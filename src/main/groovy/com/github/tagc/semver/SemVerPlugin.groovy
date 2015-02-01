@@ -25,6 +25,7 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.slf4j.Logger
 
+import com.github.tagc.semver.tasks.BumpMajorTask
 import com.github.tagc.semver.tasks.PrintVersionTask
 
 /**
@@ -38,10 +39,15 @@ class SemVerPlugin implements Plugin<Project> {
     @PackageScope static final String EXTENSION_NAME = 'semver'
 
     private static final String PRINT_VERSION_TASK_NAME = 'printVersion'
+    private static final String BUMP_MAJOR_TASK_NAME = 'bumpMajor'
     private static final String MASTER_BRANCH = 'master'
 
     static String getPrintVersionTaskName() {
         return PRINT_VERSION_TASK_NAME
+    }
+
+    static String getBumpMajorTaskName() {
+        return BUMP_MAJOR_TASK_NAME
     }
 
     private Grgit repo
@@ -61,7 +67,13 @@ class SemVerPlugin implements Plugin<Project> {
     }
 
     private void addTasks(Project project) {
+        def extension = project.extensions.findByName(EXTENSION_NAME)
+
         project.task(getPrintVersionTaskName(), type:PrintVersionTask)
+        project.task(getBumpMajorTaskName(), type:BumpMajorTask) {
+            conventionMapping.map('versionFileIn') { project.file(extension.versionFilePath) }
+            conventionMapping.map('versionFileOut') { project.file(extension.versionFilePath) }
+        }
     }
 
     private void setVersionProjectNumber(Project project) {

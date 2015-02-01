@@ -101,7 +101,21 @@ class Version implements Comparable<Version> {
         }
 
         /**
-         * Parses the specified input string and tries to construct an instance of {@code Version} from it.
+         * Parses the text within the given file and tries to construct an instance of
+         * {@code com.github.tagc.semver.Version} from it.
+         *
+         * @param inputFile a file containing text that represents a version specifier
+         * @param strict set {@code true} if the parse attempt should succeed only if the entire string can be parsed
+         * @return an instance of {@code Version} if the input could be parsed
+         * @throw IllegalArgumentException if the input could not be parsed
+         */
+        Version parse(File inputFile, boolean strict=false) {
+            parse(inputFile.text, strict)
+        }
+
+        /**
+         * Parses the specified input string and tries to construct an instance of
+         * {@code com.github.tagc.semver.Version} from it.
          *
          * @param input a string representing a version specifier
          * @param strict set {@code true} if the parse attempt should succeed only if the entire string can be parsed
