@@ -101,7 +101,49 @@ class Version implements Comparable<Version> {
         }
 
         /**
-         * Parses the specified input string and tries to construct an instance of {@code Version} from it.
+         * Parses the text within the file and replaces all occurrences of version data
+         * with new version data based on {@code newVersion}.
+         *
+         * This method will not modify the given file.
+         *
+         * @param inputFile a file containing text that represents a version specifier
+         * @param newVersion the version to replace the existing version data in the input with
+         * @return a copy of the file's text with the replacements made
+         * @throw IllegalArgumentException if the input could not be parsed
+         */
+        String parseAndReplace(File inputFile, boolean strict=false, Version newVersion) {
+            parseAndReplace(inputFile.text, strict, newVersion)
+        }
+
+        /**
+         * Parses the specified input string and replaces all occurrences of version data
+         * with new version data based on {@code newVersion}.
+         *
+         * @param input a string representing a version specifier
+         * @param newVersion the version to replace the existing version data in the input with
+         * @return a copy of the input string with the replacements made
+         * @throw IllegalArgumentException if the input could not be parsed
+         */
+        String parseAndReplace(String input, boolean strict=false, Version newVersion) {
+            tryParseAndReplaceVersion(input, strict, newVersion)
+        }
+
+        /**
+         * Parses the text within the given file and tries to construct an instance of
+         * {@code Version} from it.
+         *
+         * @param inputFile a file containing text that represents a version specifier
+         * @param strict set {@code true} if the parse attempt should succeed only if the entire string can be parsed
+         * @return an instance of {@code Version} if the input could be parsed
+         * @throw IllegalArgumentException if the input could not be parsed
+         */
+        Version parse(File inputFile, boolean strict=false) {
+            parse(inputFile.text, strict)
+        }
+
+        /**
+         * Parses the specified input string and tries to construct an instance of
+         * {@code Version} from it.
          *
          * @param input a string representing a version specifier
          * @param strict set {@code true} if the parse attempt should succeed only if the entire string can be parsed
@@ -109,6 +151,10 @@ class Version implements Comparable<Version> {
          * @throw IllegalArgumentException if the input could not be parsed
          */
         Version parse(String input, boolean strict=false) {
+            tryParseVersion(input, strict)
+        }
+
+        private Version tryParseVersion(String input, boolean strict) {
             Version version
 
             if ((version = tryParseFullSnapshotVersion(input, strict)) != null) {
@@ -119,6 +165,22 @@ class Version implements Comparable<Version> {
                 return version
             } else if ((version = tryParseShortReleaseVersion(input, strict)) != null) {
                 return version
+            }
+
+            throw new IllegalArgumentException("Version parser: unable to parse input: $input")
+        }
+
+        private String tryParseAndReplaceVersion(String input, boolean strict, Version replacement) {
+            String updatedText
+
+            if ((updatedText = tryParseAndReplaceFullSnapshotVersion(input, strict, replacement)) != null) {
+                return updatedText
+            } else if ((updatedText = tryParseAndReplaceShortSnapshotVersion(input, strict, replacement)) != null) {
+                return updatedText
+            } else if ((updatedText = tryParseAndReplaceFullReleaseVersion(input, strict, replacement)) != null) {
+                return updatedText
+            } else if ((updatedText = tryParseAndReplaceShortReleaseVersion(input, strict, replacement)) != null) {
+                return updatedText
             }
 
             throw new IllegalArgumentException("Version parser: unable to parse input: $input")
@@ -182,6 +244,42 @@ class Version implements Comparable<Version> {
             builder.version
         }
 
+        private String tryParseAndReplaceFullSnapshotVersion(String input, boolean strict, Version replacement) {
+            Matcher m = checkInputAgainstPattern(input, SNAPSHOT_VERSION_PATTERN, strict)
+            if (m) {
+                return m.replaceAll(replacement.toString())
+            }
+
+            return null
+        }
+
+        private String tryParseAndReplaceShortSnapshotVersion(String input, boolean strict, Version replacement) {
+            Matcher m = checkInputAgainstPattern(input, SNAPSHOT_SHORT_VERSION_PATTERN, strict)
+            if (m) {
+                return m.replaceAll(replacement.toString())
+            }
+
+            return null
+        }
+
+        private String tryParseAndReplaceFullReleaseVersion(String input, boolean strict, Version replacement) {
+            Matcher m = checkInputAgainstPattern(input, RELEASE_VERSION_PATTERN, strict)
+            if (m) {
+                return m.replaceAll(replacement.toString())
+            }
+
+            return null
+        }
+
+        private String tryParseAndReplaceShortReleaseVersion(String input, boolean strict, Version replacement) {
+            Matcher m = checkInputAgainstPattern(input, RELEASE_SHORT_VERSION_PATTERN, strict)
+            if (m) {
+                return m.replaceAll(replacement.toString())
+            }
+
+            return null
+        }
+
         private Matcher checkInputAgainstPattern(String input, Pattern pattern, boolean strict) {
             if (strict && !(input ==~ pattern)) {
                 return null
@@ -216,10 +314,44 @@ class Version implements Comparable<Version> {
 
     private static final String SNAPSHOT_IDENTIFIER = '-SNAPSHOT'
 
+    /**
+     * The major category of this version.
+     */
     final int major = 0
+
+    /**
+     * The minor category of this version.
+     */
     final int minor = 0
+
+    /**
+     * The patch category of this version.
+     */
     final int patch = 0
+
+    /**
+     * Whether this version is a release or snapshot version.
+     */
     final boolean release = false
+
+    /**
+     * Returns a new instance of {@code Version} with incremented {@code category}.
+     *
+     * @param category the version category to increment
+     * @return an incremented {@code Version}
+     */
+    Version incrementByCategory(Version.Category category) {
+        switch(category) {
+            case Version.Category.MAJOR:
+                return incrementMajor()
+            case Version.Category.MINOR:
+                return incrementMinor()
+            case Version.Category.PATCH:
+                return incrementPatch()
+            default:
+                throw new IllegalArgumentException("Invalid increment category: $category")
+        }
+    }
 
     /**
      * Returns a new instance of {@code Version} based on this with incremented major number.
@@ -246,6 +378,25 @@ class Version implements Comparable<Version> {
      */
     Version incrementPatch() {
         new Version(major, minor, patch + 1, release)
+    }
+
+    /**
+     * Returns a new instance of {@code Version} with bumped {@code category}.
+     *
+     * @param category the version category to bump
+     * @return a bumped {@code Version}
+     */
+    Version bumpByCategory(Version.Category category) {
+        switch(category) {
+            case Version.Category.MAJOR:
+                return bumpMajor()
+            case Version.Category.MINOR:
+                return bumpMinor()
+            case Version.Category.PATCH:
+                return bumpPatch()
+            default:
+                throw new IllegalArgumentException("Invalid bump category: $category")
+        }
     }
 
     /**

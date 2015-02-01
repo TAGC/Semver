@@ -46,7 +46,7 @@ description = 'Semantic versioning plugin for managing the version numbering of 
 // Set version
 semver {
     versionFilePath = 'version.properties'
-    snapshotBump = 'PATCH'    
+    snapshotBump = 'MINOR'    
 }
 
 task printVersion(description: 'Prints the current project version.') << { println "Version: $project.version" }
@@ -83,9 +83,14 @@ configurations.all {
 
 // Integration tests.
 sourceSets {
+    test {
+        groovy.srcDirs = [ 'src/test/groovy', 'src/testutil/groovy' ]
+        resources.srcDirs = [ 'src/test/resources', 'src/testutil/resources' ]
+    }
+    
     integrationTest {
-        groovy.srcDir file('src/integTest/groovy')
-        resources.srcDir file('src/integTest/resources')
+        groovy.srcDirs = [ 'src/integTest/groovy', 'src/testutil/groovy' ]
+        resources.srcDirs = [ 'src/integTest/resources', 'src/testutil/resources' ]
         compileClasspath = sourceSets.main.output + configurations.testRuntime
         runtimeClasspath = output + compileClasspath
     }
