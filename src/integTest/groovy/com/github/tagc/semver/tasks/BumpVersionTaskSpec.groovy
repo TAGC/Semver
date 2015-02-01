@@ -37,7 +37,7 @@ class BumpVersionTaskSpec extends Specification {
 
         then:
         notThrown(Exception)
-        Version.Parser.getInstance().parse(versionFileCopy) == bumpedVersion
+        Version.Parser.instance.parse(versionFileCopy) == bumpedVersion
 
         cleanup:
         assert TestUtil.cleanupGitDirectory(project)
@@ -46,5 +46,53 @@ class BumpVersionTaskSpec extends Specification {
         where:
         versionFilePath << TestSetup.getTestVersionFilePaths()
         bumpedVersion << TestSetup.getTestExpectedMajorReleases()
+    }
+
+    def "Bumping project minor version should update version file to represent #bumpedVersion"() {
+        given:
+        URL url = TestUtil.getVersionFileAsResource(versionFilePath)
+        File versionFileCopy = project.file("build/temp/$versionFilePath")
+        FileUtils.copyURLToFile(url, versionFileCopy)
+
+        when:
+        TestUtil.evaluateProjectForReleaseTests(plugin, project, versionFileCopy.toURI().toURL())
+        def bumpMinorTask = project.tasks.findByName(SemVerPlugin.getBumpMinorTaskName())
+        bumpMinorTask.execute()
+
+        then:
+        notThrown(Exception)
+        Version.Parser.instance.parse(versionFileCopy) == bumpedVersion
+
+        cleanup:
+        assert TestUtil.cleanupGitDirectory(project)
+        versionFileCopy.delete()
+
+        where:
+        versionFilePath << TestSetup.getTestVersionFilePaths()
+        bumpedVersion << TestSetup.getTestExpectedMinorReleases()
+    }
+
+    def "Bumping project patch version should update version file to represent #bumpedVersion"() {
+        given:
+        URL url = TestUtil.getVersionFileAsResource(versionFilePath)
+        File versionFileCopy = project.file("build/temp/$versionFilePath")
+        FileUtils.copyURLToFile(url, versionFileCopy)
+
+        when:
+        TestUtil.evaluateProjectForReleaseTests(plugin, project, versionFileCopy.toURI().toURL())
+        def bumpPatchTask = project.tasks.findByName(SemVerPlugin.getBumpPatchTaskName())
+        bumpPatchTask.execute()
+
+        then:
+        notThrown(Exception)
+        Version.Parser.instance.parse(versionFileCopy) == bumpedVersion
+
+        cleanup:
+        assert TestUtil.cleanupGitDirectory(project)
+        versionFileCopy.delete()
+
+        where:
+        versionFilePath << TestSetup.getTestVersionFilePaths()
+        bumpedVersion << TestSetup.getTestExpectedPatchReleases()
     }
 }

@@ -26,6 +26,8 @@ import org.gradle.api.Project
 import org.slf4j.Logger
 
 import com.github.tagc.semver.tasks.BumpMajorTask
+import com.github.tagc.semver.tasks.BumpMinorTask
+import com.github.tagc.semver.tasks.BumpPatchTask
 import com.github.tagc.semver.tasks.PrintVersionTask
 
 /**
@@ -40,6 +42,8 @@ class SemVerPlugin implements Plugin<Project> {
 
     private static final String PRINT_VERSION_TASK_NAME = 'printVersion'
     private static final String BUMP_MAJOR_TASK_NAME = 'bumpMajor'
+    private static final String BUMP_MINOR_TASK_NAME = 'bumpMinor'
+    private static final String BUMP_PATCH_TASK_NAME = 'bumpPatch'
     private static final String MASTER_BRANCH = 'master'
 
     static String getPrintVersionTaskName() {
@@ -48,6 +52,14 @@ class SemVerPlugin implements Plugin<Project> {
 
     static String getBumpMajorTaskName() {
         return BUMP_MAJOR_TASK_NAME
+    }
+
+    static String getBumpMinorTaskName() {
+        return BUMP_MINOR_TASK_NAME
+    }
+
+    static String getBumpPatchTaskName() {
+        return BUMP_PATCH_TASK_NAME
     }
 
     private Grgit repo
@@ -70,11 +82,16 @@ class SemVerPlugin implements Plugin<Project> {
         def extension = project.extensions.findByName(EXTENSION_NAME)
 
         project.task(getPrintVersionTaskName(), type:PrintVersionTask)
-        project.task(getBumpMajorTaskName(), type:BumpMajorTask) {
-            conventionMapping.map('versionFileIn') {
+
+        def majorBumpTask = project.task(getBumpMajorTaskName(), type:BumpMajorTask)
+        def minorBumpTask = project.task(getBumpMinorTaskName(), type:BumpMinorTask)
+        def patchBumpTask = project.task(getBumpPatchTaskName(), type:BumpPatchTask)
+
+        [majorBumpTask, minorBumpTask, patchBumpTask].each { task ->
+            task.conventionMapping.map('versionFileIn') {
                 project.file(URLDecoder.decode(extension.versionFilePath, 'UTF-8'))
             }
-            conventionMapping.map('versionFileOut') {
+            task.conventionMapping.map('versionFileOut') {
                 project.file(URLDecoder.decode(extension.versionFilePath, 'UTF-8'))
             }
         }
@@ -127,17 +144,12 @@ class SemVerPlugin implements Plugin<Project> {
     private Version getAppropriateSnapshotVersion(Project project, Version currVersion, Version.Category snapshotBump) {
         assert currVersion : 'Null currVersion is illegal'
         assert project : 'Null project is illegal'
-        switch (snapshotBump) {
-            case null:
-            case Version.Category.PATCH:
-                return currVersion.bumpPatch().toDevelop()
-            case Version.Category.MINOR:
-                return currVersion.bumpMinor().toDevelop()
-            case Version.Category.MAJOR:
-                return currVersion.bumpMajor().toDevelop()
-            default:
-                throw new AssertionError("Invalid version category provided: $snapshotBump")
+        if (snapshotBump == null)
+        {
+            snapshotBump = Version.Category.PATCH
         }
+
+        return currVersion.bumpByCategory(snapshotBump).toDevelop()
     }
 
     private boolean isOnMasterBranch() {

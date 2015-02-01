@@ -314,10 +314,44 @@ class Version implements Comparable<Version> {
 
     private static final String SNAPSHOT_IDENTIFIER = '-SNAPSHOT'
 
+    /**
+     * The major category of this version.
+     */
     final int major = 0
+
+    /**
+     * The minor category of this version.
+     */
     final int minor = 0
+
+    /**
+     * The patch category of this version.
+     */
     final int patch = 0
+
+    /**
+     * Whether this version is a release or snapshot version.
+     */
     final boolean release = false
+
+    /**
+     * Returns a new instance of {@code Version} with incremented {@code category}.
+     *
+     * @param category the version category to increment
+     * @return an incremented {@code Version}
+     */
+    Version incrementByCategory(Version.Category category) {
+        switch(category) {
+            case Version.Category.MAJOR:
+                return incrementMajor()
+            case Version.Category.MINOR:
+                return incrementMinor()
+            case Version.Category.PATCH:
+                return incrementPatch()
+            default:
+                throw new IllegalArgumentException("Invalid increment category: $category")
+        }
+    }
 
     /**
      * Returns a new instance of {@code Version} based on this with incremented major number.
@@ -344,6 +378,25 @@ class Version implements Comparable<Version> {
      */
     Version incrementPatch() {
         new Version(major, minor, patch + 1, release)
+    }
+
+    /**
+     * Returns a new instance of {@code Version} with bumped {@code category}.
+     *
+     * @param category the version category to bump
+     * @return a bumped {@code Version}
+     */
+    Version bumpByCategory(Version.Category category) {
+        switch(category) {
+            case Version.Category.MAJOR:
+                return bumpMajor()
+            case Version.Category.MINOR:
+                return bumpMinor()
+            case Version.Category.PATCH:
+                return bumpPatch()
+            default:
+                throw new IllegalArgumentException("Invalid bump category: $category")
+        }
     }
 
     /**
