@@ -21,7 +21,7 @@ import com.github.tagc.semver.Version
 /**
  * Performs a minor bump on the version represented by a
  * project's version data file.
- *
+ * <p>
  * This method modifies the version file data, so the changes
  * made are persistent.
  *
