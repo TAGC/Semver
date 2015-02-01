@@ -18,8 +18,7 @@ package com.github.tagc.semver
 
 import groovy.transform.PackageScope
 
-import org.ajoberstar.grgit.Grgit
-import org.eclipse.jgit.errors.RepositoryNotFoundException
+import org.ajoberstar.grgit.exception.GrgitException
 import org.gradle.api.GradleException
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -32,7 +31,7 @@ import com.github.tagc.semver.tasks.PrintVersionTask
 
 /**
  * An {@link org.gradle.api.Plugin} class that handles the application of semantic
- * versioning logic to an {@link org.gradle.api.Project}
+ * versioning logic to an {@link org.gradle.api.Project}.
  *
  * @author davidfallah
  * @since v0.1.0
@@ -44,7 +43,6 @@ class SemVerPlugin implements Plugin<Project> {
     private static final String BUMP_MAJOR_TASK_NAME = 'bumpMajor'
     private static final String BUMP_MINOR_TASK_NAME = 'bumpMinor'
     private static final String BUMP_PATCH_TASK_NAME = 'bumpPatch'
-    private static final String MASTER_BRANCH = 'master'
 
     static String getPrintVersionTaskName() {
         return PRINT_VERSION_TASK_NAME
@@ -62,7 +60,6 @@ class SemVerPlugin implements Plugin<Project> {
         return BUMP_PATCH_TASK_NAME
     }
 
-    private Grgit repo
     private Logger logger
 
     @Override
@@ -81,29 +78,38 @@ class SemVerPlugin implements Plugin<Project> {
     private void addTasks(Project project) {
         def extension = project.extensions.findByName(EXTENSION_NAME)
 
-        project.task(getPrintVersionTaskName(), type:PrintVersionTask)
+        def printVersionTask = project.task(getPrintVersionTaskName(), type:PrintVersionTask)
 
         def majorBumpTask = project.task(getBumpMajorTaskName(), type:BumpMajorTask)
         def minorBumpTask = project.task(getBumpMinorTaskName(), type:BumpMinorTask)
         def patchBumpTask = project.task(getBumpPatchTaskName(), type:BumpPatchTask)
 
-        [majorBumpTask, minorBumpTask, patchBumpTask].each { task ->
+        [
+            majorBumpTask,
+            minorBumpTask,
+            patchBumpTask
+        ].each { task ->
             task.conventionMapping.map('versionFileIn') {
                 project.file(URLDecoder.decode(extension.versionFilePath, 'UTF-8'))
             }
             task.conventionMapping.map('versionFileOut') {
                 project.file(URLDecoder.decode(extension.versionFilePath, 'UTF-8'))
             }
+
+            printVersionTask.shouldRunAfter task
         }
     }
 
     private void setVersionProjectNumber(Project project) {
         assert project : 'Null project is illegal'
 
+        final GitBranchDetector branchDetector
         try {
-            this.repo = Grgit.open(project.file("$project.projectDir"))
-        } catch (RepositoryNotFoundException e) {
-            throw new GradleException('No Git repository can be found for this project')
+            branchDetector = new GitBranchDetector(project)
+        } catch (GrgitException wrappedException) {
+            Exception exception = new GradleException('No Git repository can be found for this project')
+            exception.cause = wrappedException
+            throw exception
         }
 
         def rawVersion = readRawVersion(project)
@@ -111,7 +117,7 @@ class SemVerPlugin implements Plugin<Project> {
         def extension = project.extensions.findByName(EXTENSION_NAME)
         Version.Category snapshotBump = extension.snapshotBump
 
-        if (isOnMasterBranch()) {
+        if (branchDetector.isOnMasterBranch()) {
             project.version = rawVersion.toRelease()
         } else {
             project.version = getAppropriateSnapshotVersion(project, rawVersion, snapshotBump)
@@ -144,21 +150,10 @@ class SemVerPlugin implements Plugin<Project> {
     private Version getAppropriateSnapshotVersion(Project project, Version currVersion, Version.Category snapshotBump) {
         assert currVersion : 'Null currVersion is illegal'
         assert project : 'Null project is illegal'
-        if (snapshotBump == null)
-        {
+        if (snapshotBump == null) {
             snapshotBump = Version.Category.PATCH
         }
 
         return currVersion.bumpByCategory(snapshotBump).toDevelop()
-    }
-
-    private boolean isOnMasterBranch() {
-        logger.info "Current Git branch: $currentBranch"
-        currentBranch == MASTER_BRANCH
-    }
-
-    private String getCurrentBranch() {
-        assert repo : 'Repo does not exist'
-        repo.branch.current.name
     }
 }

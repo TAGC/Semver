@@ -19,6 +19,7 @@ package com.github.tagc.semver.tasks
 import org.apache.commons.io.FileUtils
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.tasks.TaskExecutionException
 import org.gradle.testfixtures.ProjectBuilder
 
 import spock.lang.Specification
@@ -40,18 +41,18 @@ class BumpVersionTaskSpec extends Specification {
         plugin = new SemVerPlugin()
     }
 
-    def "Bumping project major version should update version file to represent #bumpedVersion"() {
-        given:
+    def "Bumping project by #category should update #versionFilePath to represent #bumpedVersion when on master"() {
+        given: "A copy of a file containing version data"
         URL url = TestUtil.getVersionFileAsResource(versionFilePath)
         File versionFileCopy = project.file("build/temp/$versionFilePath")
         FileUtils.copyURLToFile(url, versionFileCopy)
 
-        when:
+        when: "We invoke the appropriate version bump task for a project on the master branch"
         TestUtil.evaluateProjectForReleaseTests(plugin, project, versionFileCopy.toURI().toURL())
-        def bumpMajorTask = project.tasks.findByName(SemVerPlugin.getBumpMajorTaskName())
-        bumpMajorTask.execute()
+        def bumpVersionTask = getBumpVersionTaskForCategory(project, category)
+        bumpVersionTask.execute()
 
-        then:
+        then: "The version data kept within the file should have been updated"
         notThrown(Exception)
         Version.Parser.instance.parse(versionFileCopy) == bumpedVersion
 
@@ -60,55 +61,75 @@ class BumpVersionTaskSpec extends Specification {
         versionFileCopy.delete()
 
         where:
-        versionFilePath << TestSetup.getTestVersionFilePaths()
-        bumpedVersion << TestSetup.getTestExpectedMajorReleases()
+        [category, versionFilePath, bumpedVersion] << getVersionTestData()
     }
 
-    def "Bumping project minor version should update version file to represent #bumpedVersion"() {
-        given:
+    def "Bumping project should cause exception to be thrown when not on master"() {
+        given: "A copy of a file containing version data and its text"
         URL url = TestUtil.getVersionFileAsResource(versionFilePath)
         File versionFileCopy = project.file("build/temp/$versionFilePath")
         FileUtils.copyURLToFile(url, versionFileCopy)
+        def originalText = versionFileCopy.text
 
-        when:
-        TestUtil.evaluateProjectForReleaseTests(plugin, project, versionFileCopy.toURI().toURL())
-        def bumpMinorTask = project.tasks.findByName(SemVerPlugin.getBumpMinorTaskName())
-        bumpMinorTask.execute()
+        when: "We invoke the appropriate version bump task for a project on the develop branch"
+        TestUtil.evaluateProjectForSnapshotTests(plugin, project, versionFileCopy.toURI().toURL(), category)
+        def bumpVersionTask = getBumpVersionTaskForCategory(project, category)
+        bumpVersionTask.execute()
 
-        then:
-        notThrown(Exception)
-        Version.Parser.instance.parse(versionFileCopy) == bumpedVersion
+        then: "An exception should be thrown and the version file should not have been changed"
+        TaskExecutionException e = thrown()
+        e.cause in IllegalStateException
+        versionFileCopy.text == originalText
 
         cleanup:
         assert TestUtil.cleanupGitDirectory(project)
         versionFileCopy.delete()
 
         where:
-        versionFilePath << TestSetup.getTestVersionFilePaths()
-        bumpedVersion << TestSetup.getTestExpectedMinorReleases()
+        [category, versionFilePath, bumpedVersion] << getVersionTestData()
     }
 
-    def "Bumping project patch version should update version file to represent #bumpedVersion"() {
-        given:
-        URL url = TestUtil.getVersionFileAsResource(versionFilePath)
-        File versionFileCopy = project.file("build/temp/$versionFilePath")
-        FileUtils.copyURLToFile(url, versionFileCopy)
+    /*
+     * Return a data list like this:
+     *  [
+     *      [ PATCH, versionFile1, bumpedPatchFile1 ], [ PATCH, versionFile2, bumpedPatchFile2 ] ...
+     *      [ MINOR, versionFile1, bumpedMinorFile1 ], [ MINOR, versionFile2, bumpedMinorFile2 ] ...
+     *      [ MAJOR, versionFile1, bumpedMajorFile1 ], [ MAJOR, versionFile2, bumpedMajorFile2 ] ...
+     *  ]
+     */
+    private getVersionTestData() {
+        def testData = []
+        def versionFiles = TestSetup.getTestVersionFilePaths()
 
-        when:
-        TestUtil.evaluateProjectForReleaseTests(plugin, project, versionFileCopy.toURI().toURL())
-        def bumpPatchTask = project.tasks.findByName(SemVerPlugin.getBumpPatchTaskName())
-        bumpPatchTask.execute()
+        Version.Category.values().each { category ->
+            def expectedReleases = TestSetup.getTestExpectedReleasesForCategory(category)
+            def pairs = [
+                versionFiles,
+                expectedReleases
+            ].transpose()
 
-        then:
-        notThrown(Exception)
-        Version.Parser.instance.parse(versionFileCopy) == bumpedVersion
+            pairs.each { versionFile, expectedRelease ->
+                testData << [
+                    category,
+                    versionFile,
+                    expectedRelease
+                ]
+            }
+        }
 
-        cleanup:
-        assert TestUtil.cleanupGitDirectory(project)
-        versionFileCopy.delete()
+        return testData
+    }
 
-        where:
-        versionFilePath << TestSetup.getTestVersionFilePaths()
-        bumpedVersion << TestSetup.getTestExpectedPatchReleases()
+    private getBumpVersionTaskForCategory(Project project, Version.Category category) {
+        switch(category) {
+            case Version.Category.MAJOR:
+                return project.tasks.findByName(SemVerPlugin.getBumpMajorTaskName())
+            case Version.Category.MINOR:
+                return project.tasks.findByName(SemVerPlugin.getBumpMinorTaskName())
+            case Version.Category.PATCH:
+                return project.tasks.findByName(SemVerPlugin.getBumpPatchTaskName())
+            default:
+                throw new AssertionError("Invalid version category: $category")
+        }
     }
 }

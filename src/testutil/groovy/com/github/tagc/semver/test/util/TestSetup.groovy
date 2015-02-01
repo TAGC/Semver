@@ -68,6 +68,19 @@ class TestSetup {
         return expectedReleases
     }
 
+    static Version[] getTestExpectedSnapshotsForCategory(Version.Category category) {
+        switch(category) {
+            case Version.Category.MAJOR:
+                return getTestExpectedMajorSnapshots()
+            case Version.Category.MINOR:
+                return getTestExpectedMinorSnapshots()
+            case Version.Category.PATCH:
+                return getTestExpectedPatchSnapshots()
+            default:
+                throw new IllegalArgumentException("Invalid version category: $category")
+        }
+    }
+
     static Version[] getTestExpectedPatchSnapshots() {
         return expectedPatchSnapshots
     }
@@ -78,6 +91,19 @@ class TestSetup {
 
     static Version[] getTestExpectedMajorSnapshots() {
         return expectedMajorSnapshots
+    }
+
+    static Version[] getTestExpectedReleasesForCategory(Version.Category category) {
+        switch(category) {
+            case Version.Category.MAJOR:
+                return getTestExpectedMajorReleases()
+            case Version.Category.MINOR:
+                return getTestExpectedMinorReleases()
+            case Version.Category.PATCH:
+                return getTestExpectedPatchReleases()
+            default:
+                throw new IllegalArgumentException("Invalid version category: $category")
+        }
     }
 
     static Version[] getTestExpectedPatchReleases() {

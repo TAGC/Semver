@@ -46,7 +46,7 @@ description = 'Semantic versioning plugin for managing the version numbering of 
 // Set version
 semver {
     versionFilePath = 'version.properties'
-    snapshotBump = 'PATCH'    
+    snapshotBump = 'MINOR'    
 }
 
 task printVersion(description: 'Prints the current project version.') << { println "Version: $project.version" }
