@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>AbstractBumpTask.groovy</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">semver</a> &gt; <a href="index.source.html" class="el_package">com.github.tagc.semver.tasks</a> &gt; <span class="el_source">AbstractBumpTask.groovy</span></div><h1>AbstractBumpTask.groovy</h1><pre class="source lang-java linenums">/*
+ * Copyright 2014-2015 David Fallah
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.github.tagc.semver.tasks
+
+import org.gradle.api.DefaultTask
+import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.InputFile
+import org.gradle.api.tasks.Optional
+import org.gradle.api.tasks.OutputFile
+import org.gradle.api.tasks.TaskAction
+
+import com.github.tagc.semver.GitBranchDetector
+import com.github.tagc.semver.Version
+
+/**
+ * Abstract class for tasks that perform bumps on the version data
+ * represented by a project's version data file.
+ *
+ * @author davidfallah
+ * @since v0.5.0
+ */
+protected class AbstractBumpTask extends DefaultTask {
+
+    private final bumpCategory
+
+    protected AbstractBumpTask(Version.Category bumpCategory) {
+<span class="fc" id="L41">        this.group = 'semver'</span>
+<span class="fc" id="L42">        this.description = 'Performs a bump of the project version.'</span>
+<span class="fc" id="L43">        this.bumpCategory = bumpCategory</span>
+    }
+
+    /**
+     * Whether to force a version update if not on
+     * the Git master branch.
+     */
+    @Input
+    @Optional
+    boolean forceBump
+
+    /**
+     * The file to interpret the current version from.
+     */
+    @InputFile
+    File versionFileIn
+
+    /**
+     * The file to write the new version data to.
+     */
+    @OutputFile
+    File versionFileOut
+
+    @TaskAction
+    void start() {
+<span class="fc" id="L68">        def branchDetector = new GitBranchDetector(project)</span>
+<span class="pc bpc" id="L69" title="6 of 12 branches missed.">        if (!branchDetector.isOnMasterBranch()) {</span>
+<span class="pc bpc" id="L70" title="2 of 4 branches missed.">            if (isForceBump()) {</span>
+<span class="pc" id="L71">                logger.debug &quot;On branch $branchDetector.branch but forcing version bump anyway&quot;</span>
+            } else {
+<span class="pc" id="L73">                throw new IllegalStateException(</span>
+                &quot;Cannot bump version when not on master branch (set 'forceBump' true to override)&quot;)
+            }
+        }
+
+<span class="fc" id="L78">        def versionParser = Version.Parser.instance</span>
+<span class="pc bpc" id="L79" title="2 of 4 branches missed.">        def currVersion = versionParser.parse(getVersionFileIn())</span>
+<span class="fc" id="L80">        def bumpedVersion = currVersion.bumpByCategory(bumpCategory)</span>
+
+<span class="pc bpc" id="L82" title="2 of 4 branches missed.">        getVersionFileOut().text = versionParser.parseAndReplace(getVersionFileIn(), bumpedVersion)</span>
+<span class="fc" id="L83">        project.version = bumpedVersion</span>
+
+<span class="fc" id="L85">        logger.debug &quot;Bumping project version ($currVersion -&gt; $bumpedVersion)&quot;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.1.201405082137</span></div></body></html>

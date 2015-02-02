@@ -101,7 +101,49 @@ class Version implements Comparable&lt;Version&gt; {
         }
 
         /**
-         * Parses the specified input string and tries to construct an instance of {@code Version} from it.
+         * Parses the text within the file and replaces all occurrences of version data
+         * with new version data based on {@code newVersion}.
+         *
+         * This method will not modify the given file.
+         *
+         * @param inputFile a file containing text that represents a version specifier
+         * @param newVersion the version to replace the existing version data in the input with
+         * @return a copy of the file's text with the replacements made
+         * @throw IllegalArgumentException if the input could not be parsed
+         */
+        String parseAndReplace(File inputFile, boolean strict=false, Version newVersion) {
+<span class="pc" id="L115">            parseAndReplace(inputFile.text, strict, newVersion)</span>
+        }
+
+        /**
+         * Parses the specified input string and replaces all occurrences of version data
+         * with new version data based on {@code newVersion}.
+         *
+         * @param input a string representing a version specifier
+         * @param newVersion the version to replace the existing version data in the input with
+         * @return a copy of the input string with the replacements made
+         * @throw IllegalArgumentException if the input could not be parsed
+         */
+        String parseAndReplace(String input, boolean strict=false, Version newVersion) {
+<span class="pc bpc" id="L128" title="2 of 4 branches missed.">            tryParseAndReplaceVersion(input, strict, newVersion)</span>
+        }
+
+        /**
+         * Parses the text within the given file and tries to construct an instance of
+         * {@code Version} from it.
+         *
+         * @param inputFile a file containing text that represents a version specifier
+         * @param strict set {@code true} if the parse attempt should succeed only if the entire string can be parsed
+         * @return an instance of {@code Version} if the input could be parsed
+         * @throw IllegalArgumentException if the input could not be parsed
+         */
+        Version parse(File inputFile, boolean strict=false) {
+<span class="pc" id="L141">            parse(inputFile.text, strict)</span>
+        }
+
+        /**
+         * Parses the specified input string and tries to construct an instance of
+         * {@code Version} from it.
          *
          * @param input a string representing a version specifier
          * @param strict set {@code true} if the parse attempt should succeed only if the entire string can be parsed
@@ -109,85 +151,141 @@ class Version implements Comparable&lt;Version&gt; {
          * @throw IllegalArgumentException if the input could not be parsed
          */
         Version parse(String input, boolean strict=false) {
-<span class="fc" id="L112">            Version version</span>
+<span class="pc bpc" id="L154" title="2 of 4 branches missed.">            tryParseVersion(input, strict)</span>
+        }
 
-<span class="pc bpc" id="L114" title="5 of 10 branches missed.">            if ((version = tryParseFullSnapshotVersion(input, strict)) != null) {</span>
-<span class="pc" id="L115">                return version</span>
-<span class="pc bpc" id="L116" title="2 of 4 branches missed.">            } else if ((version = tryParseShortSnapshotVersion(input, strict)) != null) {</span>
-<span class="pc" id="L117">                return version</span>
-<span class="pc bpc" id="L118" title="2 of 4 branches missed.">            } else if ((version = tryParseFullReleaseVersion(input, strict)) != null) {</span>
-<span class="pc" id="L119">                return version</span>
-<span class="pc bpc" id="L120" title="2 of 4 branches missed.">            } else if ((version = tryParseShortReleaseVersion(input, strict)) != null) {</span>
-<span class="pc" id="L121">                return version</span>
+        private Version tryParseVersion(String input, boolean strict) {
+<span class="fc" id="L158">            Version version</span>
+
+<span class="pc bpc" id="L160" title="5 of 10 branches missed.">            if ((version = tryParseFullSnapshotVersion(input, strict)) != null) {</span>
+<span class="pc" id="L161">                return version</span>
+<span class="pc bpc" id="L162" title="2 of 4 branches missed.">            } else if ((version = tryParseShortSnapshotVersion(input, strict)) != null) {</span>
+<span class="pc" id="L163">                return version</span>
+<span class="pc bpc" id="L164" title="2 of 4 branches missed.">            } else if ((version = tryParseFullReleaseVersion(input, strict)) != null) {</span>
+<span class="pc" id="L165">                return version</span>
+<span class="pc bpc" id="L166" title="2 of 4 branches missed.">            } else if ((version = tryParseShortReleaseVersion(input, strict)) != null) {</span>
+<span class="pc" id="L167">                return version</span>
             }
 
-<span class="pc" id="L124">            throw new IllegalArgumentException(&quot;Version parser: unable to parse input: $input&quot;)</span>
+<span class="pc" id="L170">            throw new IllegalArgumentException(&quot;Version parser: unable to parse input: $input&quot;)</span>
+        }
+
+        private String tryParseAndReplaceVersion(String input, boolean strict, Version replacement) {
+<span class="fc" id="L174">            String updatedText</span>
+
+<span class="pc bpc" id="L176" title="6 of 10 branches missed.">            if ((updatedText = tryParseAndReplaceFullSnapshotVersion(input, strict, replacement)) != null) {</span>
+<span class="nc" id="L177">                return updatedText</span>
+<span class="pc bpc" id="L178" title="3 of 4 branches missed.">            } else if ((updatedText = tryParseAndReplaceShortSnapshotVersion(input, strict, replacement)) != null) {</span>
+<span class="nc" id="L179">                return updatedText</span>
+<span class="pc bpc" id="L180" title="3 of 4 branches missed.">            } else if ((updatedText = tryParseAndReplaceFullReleaseVersion(input, strict, replacement)) != null) {</span>
+<span class="pc" id="L181">                return updatedText</span>
+<span class="nc bnc" id="L182" title="All 4 branches missed.">            } else if ((updatedText = tryParseAndReplaceShortReleaseVersion(input, strict, replacement)) != null) {</span>
+<span class="nc" id="L183">                return updatedText</span>
+            }
+
+<span class="nc" id="L186">            throw new IllegalArgumentException(&quot;Version parser: unable to parse input: $input&quot;)</span>
         }
 
         private Version tryParseFullSnapshotVersion(String input, boolean strict) {
-<span class="pc bpc" id="L128" title="2 of 4 branches missed.">            Matcher m = checkInputAgainstPattern(input, SNAPSHOT_VERSION_PATTERN, strict)</span>
-<span class="fc bfc" id="L129" title="All 4 branches covered.">            if (!m) {</span>
-<span class="fc" id="L130">                return null</span>
+<span class="pc bpc" id="L190" title="2 of 4 branches missed.">            Matcher m = checkInputAgainstPattern(input, SNAPSHOT_VERSION_PATTERN, strict)</span>
+<span class="fc bfc" id="L191" title="All 4 branches covered.">            if (!m) {</span>
+<span class="fc" id="L192">                return null</span>
             }
 
-<span class="fc" id="L133">            def builder = new Version.Builder()</span>
-<span class="fc" id="L134">            builder.setMajor(m[0][MATCHER_MAJOR].toInteger())</span>
-<span class="fc" id="L135">            builder.setMinor(m[0][MATCHER_MINOR].toInteger())</span>
-<span class="fc" id="L136">            builder.setPatch(m[0][MATCHER_PATCH].toInteger())</span>
-<span class="fc" id="L137">            builder.setRelease(false)</span>
+<span class="fc" id="L195">            def builder = new Version.Builder()</span>
+<span class="fc" id="L196">            builder.setMajor(m[0][MATCHER_MAJOR].toInteger())</span>
+<span class="fc" id="L197">            builder.setMinor(m[0][MATCHER_MINOR].toInteger())</span>
+<span class="fc" id="L198">            builder.setPatch(m[0][MATCHER_PATCH].toInteger())</span>
+<span class="fc" id="L199">            builder.setRelease(false)</span>
 
-<span class="pc" id="L139">            builder.version</span>
+<span class="pc" id="L201">            builder.version</span>
         }
 
         private Version tryParseShortSnapshotVersion(String input, boolean strict) {
-<span class="pc bpc" id="L143" title="2 of 4 branches missed.">            Matcher m = checkInputAgainstPattern(input, SNAPSHOT_SHORT_VERSION_PATTERN, strict)</span>
-<span class="fc bfc" id="L144" title="All 4 branches covered.">            if (!m) {</span>
-<span class="fc" id="L145">                return null</span>
+<span class="pc bpc" id="L205" title="2 of 4 branches missed.">            Matcher m = checkInputAgainstPattern(input, SNAPSHOT_SHORT_VERSION_PATTERN, strict)</span>
+<span class="fc bfc" id="L206" title="All 4 branches covered.">            if (!m) {</span>
+<span class="fc" id="L207">                return null</span>
             }
 
-<span class="fc" id="L148">            def builder = new Version.Builder()</span>
-<span class="fc" id="L149">            builder.setMajor(m[0][MATCHER_MAJOR].toInteger())</span>
-<span class="fc" id="L150">            builder.setMinor(m[0][MATCHER_MINOR].toInteger())</span>
-<span class="fc" id="L151">            builder.setRelease(false)</span>
+<span class="fc" id="L210">            def builder = new Version.Builder()</span>
+<span class="fc" id="L211">            builder.setMajor(m[0][MATCHER_MAJOR].toInteger())</span>
+<span class="fc" id="L212">            builder.setMinor(m[0][MATCHER_MINOR].toInteger())</span>
+<span class="fc" id="L213">            builder.setRelease(false)</span>
 
-<span class="pc" id="L153">            builder.version</span>
+<span class="pc" id="L215">            builder.version</span>
         }
 
         private Version tryParseFullReleaseVersion(String input, boolean strict) {
-<span class="pc bpc" id="L157" title="2 of 4 branches missed.">            Matcher m = checkInputAgainstPattern(input, RELEASE_VERSION_PATTERN, strict)</span>
-<span class="fc bfc" id="L158" title="All 4 branches covered.">            if (!m) {</span>
-<span class="fc" id="L159">                return null</span>
+<span class="pc bpc" id="L219" title="2 of 4 branches missed.">            Matcher m = checkInputAgainstPattern(input, RELEASE_VERSION_PATTERN, strict)</span>
+<span class="fc bfc" id="L220" title="All 4 branches covered.">            if (!m) {</span>
+<span class="fc" id="L221">                return null</span>
             }
 
-<span class="fc" id="L162">            def builder = new Version.Builder()</span>
-<span class="fc" id="L163">            builder.setMajor(m[0][MATCHER_MAJOR].toInteger())</span>
-<span class="fc" id="L164">            builder.setMinor(m[0][MATCHER_MINOR].toInteger())</span>
-<span class="fc" id="L165">            builder.setPatch(m[0][MATCHER_PATCH].toInteger())</span>
-<span class="fc" id="L166">            builder.setRelease(true)</span>
+<span class="fc" id="L224">            def builder = new Version.Builder()</span>
+<span class="fc" id="L225">            builder.setMajor(m[0][MATCHER_MAJOR].toInteger())</span>
+<span class="fc" id="L226">            builder.setMinor(m[0][MATCHER_MINOR].toInteger())</span>
+<span class="fc" id="L227">            builder.setPatch(m[0][MATCHER_PATCH].toInteger())</span>
+<span class="fc" id="L228">            builder.setRelease(true)</span>
 
-<span class="pc" id="L168">            builder.version</span>
+<span class="pc" id="L230">            builder.version</span>
         }
 
         private Version tryParseShortReleaseVersion(String input, boolean strict) {
-<span class="pc bpc" id="L172" title="2 of 4 branches missed.">            Matcher m = checkInputAgainstPattern(input, RELEASE_SHORT_VERSION_PATTERN, strict)</span>
-<span class="fc bfc" id="L173" title="All 4 branches covered.">            if (!m) {</span>
-<span class="fc" id="L174">                return null</span>
+<span class="pc bpc" id="L234" title="2 of 4 branches missed.">            Matcher m = checkInputAgainstPattern(input, RELEASE_SHORT_VERSION_PATTERN, strict)</span>
+<span class="fc bfc" id="L235" title="All 4 branches covered.">            if (!m) {</span>
+<span class="fc" id="L236">                return null</span>
             }
 
-<span class="fc" id="L177">            def builder = new Version.Builder()</span>
-<span class="fc" id="L178">            builder.setMajor(m[0][MATCHER_MAJOR].toInteger())</span>
-<span class="fc" id="L179">            builder.setMinor(m[0][MATCHER_MINOR].toInteger())</span>
-<span class="fc" id="L180">            builder.setRelease(true)</span>
+<span class="fc" id="L239">            def builder = new Version.Builder()</span>
+<span class="fc" id="L240">            builder.setMajor(m[0][MATCHER_MAJOR].toInteger())</span>
+<span class="fc" id="L241">            builder.setMinor(m[0][MATCHER_MINOR].toInteger())</span>
+<span class="fc" id="L242">            builder.setRelease(true)</span>
 
-<span class="pc" id="L182">            builder.version</span>
+<span class="pc" id="L244">            builder.version</span>
+        }
+
+        private String tryParseAndReplaceFullSnapshotVersion(String input, boolean strict, Version replacement) {
+<span class="pc bpc" id="L248" title="2 of 4 branches missed.">            Matcher m = checkInputAgainstPattern(input, SNAPSHOT_VERSION_PATTERN, strict)</span>
+<span class="pc bpc" id="L249" title="1 of 2 branches missed.">            if (m) {</span>
+<span class="nc" id="L250">                return m.replaceAll(replacement.toString())</span>
+            }
+
+<span class="pc" id="L253">            return null</span>
+        }
+
+        private String tryParseAndReplaceShortSnapshotVersion(String input, boolean strict, Version replacement) {
+<span class="pc bpc" id="L257" title="2 of 4 branches missed.">            Matcher m = checkInputAgainstPattern(input, SNAPSHOT_SHORT_VERSION_PATTERN, strict)</span>
+<span class="pc bpc" id="L258" title="1 of 2 branches missed.">            if (m) {</span>
+<span class="nc" id="L259">                return m.replaceAll(replacement.toString())</span>
+            }
+
+<span class="pc" id="L262">            return null</span>
+        }
+
+        private String tryParseAndReplaceFullReleaseVersion(String input, boolean strict, Version replacement) {
+<span class="pc bpc" id="L266" title="2 of 4 branches missed.">            Matcher m = checkInputAgainstPattern(input, RELEASE_VERSION_PATTERN, strict)</span>
+<span class="pc bpc" id="L267" title="1 of 2 branches missed.">            if (m) {</span>
+<span class="fc" id="L268">                return m.replaceAll(replacement.toString())</span>
+            }
+
+<span class="nc" id="L271">            return null</span>
+        }
+
+        private String tryParseAndReplaceShortReleaseVersion(String input, boolean strict, Version replacement) {
+<span class="nc bnc" id="L275" title="All 4 branches missed.">            Matcher m = checkInputAgainstPattern(input, RELEASE_SHORT_VERSION_PATTERN, strict)</span>
+<span class="nc bnc" id="L276" title="All 2 branches missed.">            if (m) {</span>
+<span class="nc" id="L277">                return m.replaceAll(replacement.toString())</span>
+            }
+
+<span class="nc" id="L280">            return null</span>
         }
 
         private Matcher checkInputAgainstPattern(String input, Pattern pattern, boolean strict) {
-<span class="pc bpc" id="L186" title="11 of 22 branches missed.">            if (strict &amp;&amp; !(input ==~ pattern)) {</span>
-<span class="pc" id="L187">                return null</span>
+<span class="pc bpc" id="L284" title="11 of 22 branches missed.">            if (strict &amp;&amp; !(input ==~ pattern)) {</span>
+<span class="pc" id="L285">                return null</span>
             }
 
-<span class="pc" id="L190">            input =~ pattern</span>
+<span class="pc" id="L288">            input =~ pattern</span>
         }
     }
 
@@ -210,16 +308,50 @@ class Version implements Comparable&lt;Version&gt; {
          * @return a new instance of {@code Version}
          */
         Version getVersion() {
-<span class="pc" id="L213">            new Version(major, minor, patch, release)</span>
+<span class="pc" id="L311">            new Version(major, minor, patch, release)</span>
         }
     }
 
     private static final String SNAPSHOT_IDENTIFIER = '-SNAPSHOT'
 
+    /**
+     * The major category of this version.
+     */
     final int major = 0
+
+    /**
+     * The minor category of this version.
+     */
     final int minor = 0
+
+    /**
+     * The patch category of this version.
+     */
     final int patch = 0
+
+    /**
+     * Whether this version is a release or snapshot version.
+     */
     final boolean release = false
+
+    /**
+     * Returns a new instance of {@code Version} with incremented {@code category}.
+     *
+     * @param category the version category to increment
+     * @return an incremented {@code Version}
+     */
+    Version incrementByCategory(Version.Category category) {
+<span class="nc" id="L344">        switch (category) {</span>
+<span class="nc bnc" id="L345" title="All 2 branches missed.">            case Version.Category.MAJOR:</span>
+<span class="nc bnc" id="L346" title="All 4 branches missed.">                return incrementMajor()</span>
+<span class="nc bnc" id="L347" title="All 2 branches missed.">            case Version.Category.MINOR:</span>
+<span class="nc bnc" id="L348" title="All 4 branches missed.">                return incrementMinor()</span>
+<span class="nc bnc" id="L349" title="All 2 branches missed.">            case Version.Category.PATCH:</span>
+<span class="nc bnc" id="L350" title="All 4 branches missed.">                return incrementPatch()</span>
+            default:
+<span class="nc" id="L352">                throw new IllegalArgumentException(&quot;Invalid increment category: $category&quot;)</span>
+        }
+    }
 
     /**
      * Returns a new instance of {@code Version} based on this with incremented major number.
@@ -227,7 +359,7 @@ class Version implements Comparable&lt;Version&gt; {
      * @return an incremented {@code Version}
      */
     Version incrementMajor() {
-<span class="pc bpc" id="L230" title="3 of 6 branches missed.">        new Version(major + 1, minor, patch, release)</span>
+<span class="pc bpc" id="L362" title="3 of 6 branches missed.">        new Version(major + 1, minor, patch, release)</span>
     }
 
     /**
@@ -236,7 +368,7 @@ class Version implements Comparable&lt;Version&gt; {
      * @return an incremented {@code Version}
      */
     Version incrementMinor() {
-<span class="pc bpc" id="L239" title="3 of 6 branches missed.">        new Version(major, minor + 1, patch, release)</span>
+<span class="pc bpc" id="L371" title="3 of 6 branches missed.">        new Version(major, minor + 1, patch, release)</span>
     }
 
     /**
@@ -245,7 +377,26 @@ class Version implements Comparable&lt;Version&gt; {
      * @return an incremented {@code Version}
      */
     Version incrementPatch() {
-<span class="pc bpc" id="L248" title="3 of 6 branches missed.">        new Version(major, minor, patch + 1, release)</span>
+<span class="pc bpc" id="L380" title="3 of 6 branches missed.">        new Version(major, minor, patch + 1, release)</span>
+    }
+
+    /**
+     * Returns a new instance of {@code Version} with bumped {@code category}.
+     *
+     * @param category the version category to bump
+     * @return a bumped {@code Version}
+     */
+    Version bumpByCategory(Version.Category category) {
+<span class="fc" id="L390">        switch (category) {</span>
+<span class="fc bfc" id="L391" title="All 2 branches covered.">            case Version.Category.MAJOR:</span>
+<span class="pc bpc" id="L392" title="2 of 4 branches missed.">                return bumpMajor()</span>
+<span class="fc bfc" id="L393" title="All 2 branches covered.">            case Version.Category.MINOR:</span>
+<span class="pc bpc" id="L394" title="2 of 4 branches missed.">                return bumpMinor()</span>
+<span class="pc bpc" id="L395" title="1 of 2 branches missed.">            case Version.Category.PATCH:</span>
+<span class="pc bpc" id="L396" title="2 of 4 branches missed.">                return bumpPatch()</span>
+            default:
+<span class="nc" id="L398">                throw new IllegalArgumentException(&quot;Invalid bump category: $category&quot;)</span>
+        }
     }
 
     /**
@@ -256,7 +407,7 @@ class Version implements Comparable&lt;Version&gt; {
      * @return a bumped {@code Version}
      */
     Version bumpMajor() {
-<span class="pc bpc" id="L259" title="3 of 6 branches missed.">        new Version(major + 1, 0, 0, release)</span>
+<span class="pc bpc" id="L410" title="3 of 6 branches missed.">        new Version(major + 1, 0, 0, release)</span>
     }
 
     /**
@@ -267,7 +418,7 @@ class Version implements Comparable&lt;Version&gt; {
      * @return a bumped {@code Version}
      */
     Version bumpMinor() {
-<span class="pc bpc" id="L270" title="3 of 6 branches missed.">        new Version(major, minor + 1, 0, release)</span>
+<span class="pc bpc" id="L421" title="3 of 6 branches missed.">        new Version(major, minor + 1, 0, release)</span>
     }
 
     /**
@@ -276,7 +427,7 @@ class Version implements Comparable&lt;Version&gt; {
      * @return a bumped {@code Version}
      */
     Version bumpPatch() {
-<span class="pc bpc" id="L279" title="3 of 6 branches missed.">        new Version(major, minor, patch + 1, release)</span>
+<span class="pc bpc" id="L430" title="3 of 6 branches missed.">        new Version(major, minor, patch + 1, release)</span>
     }
 
     /**
@@ -285,7 +436,7 @@ class Version implements Comparable&lt;Version&gt; {
      * @return a release-configured instance of {@code Version}
      */
     Version toRelease() {
-<span class="pc" id="L288">        new Version(major, minor, patch, true)</span>
+<span class="pc" id="L439">        new Version(major, minor, patch, true)</span>
     }
 
     /**
@@ -294,55 +445,56 @@ class Version implements Comparable&lt;Version&gt; {
      * @return a snapshot-configured instance of {@code Version}
      */
     Version toDevelop() {
-<span class="pc" id="L297">        new Version(major, minor, patch, false)</span>
+<span class="pc" id="L448">        new Version(major, minor, patch, false)</span>
     }
 
-    /*   @Override
-     boolean equals(Object o) {
-     if (o == null) {
-     return false
-     } else if (! (o instanceof Version)) {
-     return false
-     } else if (this.major != o.major) {
-     return false
-     } else if (this.minor != o.minor) {
-     return false
-     } else if (this.release != o.release) {
-     return false
-     }
-     this.patch == o.patch
-     }
-     @Override
-     int hashCode() {
-     final int factor = 31
-     def result = 17
-     result = factor * result + major
-     result = factor * result + minor
-     result = factor * result + patch
-     result = factor * result + (release ? 1 : 0)
-     return result
-     }*/
+    @Override
+    boolean equals(Object o) {
+<span class="nc bnc" id="L453" title="All 10 branches missed.">        if (o == null) {</span>
+<span class="nc" id="L454">            return false</span>
+<span class="nc bnc" id="L455" title="All 8 branches missed.">        } else if (! (o instanceof Version)) {</span>
+<span class="nc" id="L456">            return false</span>
+<span class="nc bnc" id="L457" title="All 4 branches missed.">        } else if (this.major != o.major) {</span>
+<span class="nc" id="L458">            return false</span>
+<span class="nc bnc" id="L459" title="All 4 branches missed.">        } else if (this.minor != o.minor) {</span>
+<span class="nc" id="L460">            return false</span>
+<span class="nc bnc" id="L461" title="All 4 branches missed.">        } else if (this.patch != o.patch) {</span>
+<span class="nc" id="L462">            return false</span>
+        }
+<span class="nc" id="L464">        this.release == o.release</span>
+    }
+
+    @Override
+    int hashCode() {
+<span class="fc" id="L469">        final int factor = 31</span>
+<span class="fc" id="L470">        def result = 17</span>
+<span class="fc" id="L471">        result = factor * result + major</span>
+<span class="fc" id="L472">        result = factor * result + minor</span>
+<span class="fc" id="L473">        result = factor * result + patch</span>
+<span class="pc bpc" id="L474" title="1 of 2 branches missed.">        result = factor * result + (release ? 1 : 0)</span>
+<span class="pc" id="L475">        return result</span>
+    }
 
     @Override
     int compareTo(Version that) {
-<span class="pc bpc" id="L328" title="5 of 10 branches missed.">        if (this.major == that.major) {</span>
-<span class="pc bpc" id="L329" title="2 of 4 branches missed.">            if (this.minor == that.minor) {</span>
-<span class="pc bpc" id="L330" title="2 of 4 branches missed.">                if (this.patch == that.patch) {</span>
-<span class="pc" id="L331">                    return -(this.release &lt;=&gt; that.release)</span>
+<span class="pc bpc" id="L480" title="5 of 10 branches missed.">        if (this.major == that.major) {</span>
+<span class="pc bpc" id="L481" title="2 of 4 branches missed.">            if (this.minor == that.minor) {</span>
+<span class="pc bpc" id="L482" title="2 of 4 branches missed.">                if (this.patch == that.patch) {</span>
+<span class="pc" id="L483">                    return -(this.release &lt;=&gt; that.release)</span>
                 }
 
-<span class="pc" id="L334">                return this.patch &lt;=&gt; that.patch</span>
+<span class="pc" id="L486">                return this.patch &lt;=&gt; that.patch</span>
             }
 
-<span class="pc" id="L337">            return this.minor &lt;=&gt; that.minor</span>
+<span class="pc" id="L489">            return this.minor &lt;=&gt; that.minor</span>
         }
 
-<span class="pc" id="L340">        return this.major &lt;=&gt; that.major</span>
+<span class="pc" id="L492">        return this.major &lt;=&gt; that.major</span>
     }
 
     @Override
     String toString() {
-<span class="pc bfc" id="L345" title="All 2 branches covered.">        &quot;$major.$minor.$patch${release ? '' : SNAPSHOT_IDENTIFIER}&quot;</span>
+<span class="pc bfc" id="L497" title="All 2 branches covered.">        &quot;$major.$minor.$patch${release ? '' : SNAPSHOT_IDENTIFIER}&quot;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.1.201405082137</span></div></body></html>
