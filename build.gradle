@@ -51,6 +51,17 @@ semver {
 
 task printVersion(description: 'Prints the current project version.') << { println "Version: $project.version" }
 
+// Respect memory constraints of t2.micro AWS server
+wrapper {
+    def jvmOpts = "-Xmx512m"
+    inputs.property("jvmOpts", jvmOpts)
+    doLast {
+        def optsEnvVar = "DEFAULT_JVM_OPTS"
+        scriptFile.write scriptFile.text.replace("$optsEnvVar=\"\"", "$optsEnvVar=\"$jvmOpts\"")
+        batchScript.write batchScript.text.replace("set $optsEnvVar=", "set $optsEnvVar=$jvmOpts")
+    }
+}
+
 // Project dependencies
 repositories { jcenter() }
 
