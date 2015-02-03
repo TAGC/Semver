@@ -47,7 +47,7 @@ All notable changes to this project will be documented in this file.
  - `:setProjectVersionNumber` - task for setting `project.version` during the execution phase of the project lifecycle.
  - `README.md`.
 
-## [0.1.0] - 2014-12-17
+## 0.1.0 - 2014-12-17
 
 [unreleased]: https://github.com/TAGC/Semver/compare/v0.4.0...HEAD
 [0.4.0]: https://github.com/TAGC/Semver/compare/v0.3.1...v0.4.0
