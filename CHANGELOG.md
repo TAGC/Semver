@@ -11,7 +11,8 @@ All notable changes to this project will be documented in this file.
 
 ## [0.4.0] - 2014-12-31
 ### Added
- - Additional functionality within `com.github.tagc.semver.Version`
+ - Additional functionality within `com.github.tagc.semver.Version`.
+
 ### Fixed
  - Snapshot version calculation.
 
