@@ -33,6 +33,11 @@ import com.github.tagc.semver.test.util.TestUtil
 @Unroll
 class BumpVersionTaskSpec extends Specification {
 
+    private static final String RELEASE_BRANCH = 'release/1.0.0'
+    private static final String HOTFIX_BRANCH = 'hotfix/1.0.0'
+    private static final String MASTER_BRANCH = 'master'
+    private static final String DEVELOP_BRANCH = 'develop'
+
     private Project project
     private Plugin plugin
 
@@ -41,14 +46,17 @@ class BumpVersionTaskSpec extends Specification {
         plugin = new SemVerPlugin()
     }
 
-    def "Bumping project by #category should update #versionFilePath to represent #bumpedVersion when on master"() {
+    def "Bumping project by #category should update #versionFilePath to represent #bumpedVersion when on #branch"() {
         given: "A copy of a file containing version data"
         URL url = TestUtil.getVersionFileAsResource(versionFilePath)
         File versionFileCopy = project.file("build/temp/$versionFilePath")
         FileUtils.copyURLToFile(url, versionFileCopy)
 
-        when: "We invoke the appropriate version bump task for a project on the master branch"
-        TestUtil.evaluateProjectForReleaseTests(plugin, project, versionFileCopy.toURI().toURL())
+        when: "We invoke the appropriate version bump task for a project on the given branch"
+        TestUtil.beginConfiguringProjectWithBranch(plugin, project, branch)
+        TestUtil.configureProjectVersionPath(project, versionFileCopy.toURI().toURL())
+        TestUtil.configureProjectForceBump(project, false)
+        TestUtil.finishConfiguringProject(project)
         def bumpVersionTask = getBumpVersionTaskForCategory(project, category)
         bumpVersionTask.execute()
 
@@ -61,18 +69,19 @@ class BumpVersionTaskSpec extends Specification {
         versionFileCopy.delete()
 
         where:
-        [category, versionFilePath, bumpedVersion] << getVersionTestData()
+        [category, versionFilePath, bumpedVersion, branch] << \
+            getVersionTestData(RELEASE_BRANCH) + getVersionTestData(HOTFIX_BRANCH)
     }
 
-    def "Bumping project should cause exception to be thrown when not on master and forceBump is false"() {
+    def "Bumping project should cause exception to be thrown when on #branch and forceBump is false"() {
         given: "A copy of a file containing version data and its text"
         URL url = TestUtil.getVersionFileAsResource(versionFilePath)
         File versionFileCopy = project.file("build/temp/$versionFilePath")
         FileUtils.copyURLToFile(url, versionFileCopy)
         def originalText = versionFileCopy.text
 
-        when: "We invoke the appropriate version bump task for a project on the develop branch with forceBump set false"
-        TestUtil.beginConfiguringProject(plugin, project, true)
+        when: "We invoke the appropriate version bump task for a project on the given branch with forceBump set false"
+        TestUtil.beginConfiguringProjectWithBranch(plugin, project, branch)
         TestUtil.configureProjectVersionPath(project, versionFileCopy.toURI().toURL())
         TestUtil.configureProjectForceBump(project, false)
         TestUtil.finishConfiguringProject(project)
@@ -89,17 +98,18 @@ class BumpVersionTaskSpec extends Specification {
         versionFileCopy.delete()
 
         where:
-        [category, versionFilePath, bumpedVersion] << getVersionTestData()
+        [category, versionFilePath, bumpedVersion, branch] << \
+            getVersionTestData(MASTER_BRANCH) + getVersionTestData(DEVELOP_BRANCH)
     }
 
-    def "Bumping project by #category should update #versionFilePath to represent #bumpedVersion when not on master and forceBump is true"() {
+    def "Bumping project by #category should update #versionFilePath to represent #bumpedVersion when on #branch and forceBump is true"() {
         given: "A copy of a file containing version data"
         URL url = TestUtil.getVersionFileAsResource(versionFilePath)
         File versionFileCopy = project.file("build/temp/$versionFilePath")
         FileUtils.copyURLToFile(url, versionFileCopy)
 
-        when: "We invoke the appropriate version bump task for a project on the develop branch with forceBump set true"
-        TestUtil.beginConfiguringProject(plugin, project, true)
+        when: "We invoke the appropriate version bump task for a project on the given branch with forceBump set true"
+        TestUtil.beginConfiguringProjectWithBranch(plugin, project, branch)
         TestUtil.configureProjectVersionPath(project, versionFileCopy.toURI().toURL())
         TestUtil.configureProjectForceBump(project, true)
         TestUtil.finishConfiguringProject(project)
@@ -115,18 +125,19 @@ class BumpVersionTaskSpec extends Specification {
         versionFileCopy.delete()
 
         where:
-        [category, versionFilePath, bumpedVersion] << getVersionTestData()
+        [category, versionFilePath, bumpedVersion, branch] << \
+            getVersionTestData(MASTER_BRANCH) + getVersionTestData(DEVELOP_BRANCH)
     }
 
     /*
      * Return a data list like this:
      *  [
-     *      [ PATCH, versionFile1, bumpedPatchFile1 ], [ PATCH, versionFile2, bumpedPatchFile2 ] ...
-     *      [ MINOR, versionFile1, bumpedMinorFile1 ], [ MINOR, versionFile2, bumpedMinorFile2 ] ...
-     *      [ MAJOR, versionFile1, bumpedMajorFile1 ], [ MAJOR, versionFile2, bumpedMajorFile2 ] ...
+     *      [ PATCH, versionFile1, bumpedPatchFile1, branch ], [ PATCH, versionFile2, bumpedPatchFile2, branch ] ...
+     *      [ MINOR, versionFile1, bumpedMinorFile1, branch ], [ MINOR, versionFile2, bumpedMinorFile2, branch ] ...
+     *      [ MAJOR, versionFile1, bumpedMajorFile1, branch ], [ MAJOR, versionFile2, bumpedMajorFile2, branch ] ...
      *  ]
      */
-    private getVersionTestData() {
+    private getVersionTestData(String branch) {
         def testData = []
         def versionFiles = TestSetup.getTestVersionFilePaths()
 
@@ -141,7 +152,8 @@ class BumpVersionTaskSpec extends Specification {
                 testData << [
                     category,
                     versionFile,
-                    expectedRelease
+                    expectedRelease,
+                    branch
                 ]
             }
         }

@@ -29,12 +29,17 @@ semver {
 
     // Optional
     snapshotBump = 'PATCH' // Or 'MINOR' or 'MAJOR'
+	
+    // Optional
+    forceBump = false // Or true
 }
 ```
 
 The `versionFilePath` property must point to a file that stores the 'raw' version string for your project in the form `<major>.<minor>.<patch>`, e.g. `version='1.2.3'` or simply `1.2.3`.
 
 The `snapshotBump` property is optional and specifies what snapshot versions the plugin should derive from the latest released versions. For instance, if the last released version of a project was `v0.1.0` and `snapshotBump=PATCH` was specified, any development work will be treated as `v0.1.1-SNAPSHOT`. If `snapshotBump=MINOR` is specified instead, development work will be treated as `v0.2.0-SNAPSHOT`, and for `snapshotBump=MAJOR` it would be treated as `v1.0.0-SNAPSHOT`. This helps reconcile the differences between workflow strategies such as [Git Flow](http://nvie.com/posts/a-successful-git-branching-model/) which expect release versions to be decided only as releases are about to be made with [Maven's philosophy of always deciding on (or guessing) what the next release version will be](http://docs.oracle.com/middleware/1212/core/MAVEN/maven_version.htm#MAVEN401). Predict whether your next release will introduce minor bug fixes, new (but backwards-compatible) features, or breaking changes, and set `snapshotBump` accordingly. By default (when this property is not explicitly set), `snapshotBump` will be treated as set to `PATCH`.
+
+`forceBump` is an option added in `v0.5.0`. In this release, new tasks were added that allow you to bump the version number of your project using Gradle tasks. By default, these tasks will fail if you try to bump the project version when not on the Git master branch
 
 Description
 ---

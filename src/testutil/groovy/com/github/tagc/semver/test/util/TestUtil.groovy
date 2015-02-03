@@ -31,6 +31,8 @@ import com.github.tagc.semver.Version
  */
 public class TestUtil {
 
+    private static final String MASTER_BRANCH = 'master'
+
     private TestUtil() {
         assert false : "Should not be instantiable"
     }
@@ -54,10 +56,15 @@ public class TestUtil {
 
     static void beginConfiguringProject(Plugin plugin, Project project, boolean forSnapshots) {
         initialiseGitDirectory(project)
-        if (forSnapshots)
-        {
+        if (forSnapshots) {
             checkoutBranch(project, 'develop')
         }
+        plugin.apply(project)
+    }
+
+    static void beginConfiguringProjectWithBranch(Plugin plugin, Project project, String branch) {
+        initialiseGitDirectory(project)
+        checkoutBranch(project, branch)
         plugin.apply(project)
     }
 
@@ -87,12 +94,18 @@ public class TestUtil {
 
     private static void checkoutBranch(Project project, String branch) {
         Grgit grgit = Grgit.open(project.projectDir)
+
         try {
             grgit.checkout(branch:branch, createBranch:true)
-        } catch (GrgitException e) {
+        } catch (GrgitException e1) {
             grgit.add(patterns:['.'], update:true)
             grgit.commit(message:'Initial commit')
-            grgit.checkout(branch:branch, createBranch:true)
+
+            try {
+                grgit.checkout(branch:branch, createBranch:true)
+            } catch (GrgitException e2) {
+                grgit.checkout(branch:branch)
+            }
         }
     }
 }

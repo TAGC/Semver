@@ -45,7 +45,7 @@ protected class AbstractBumpTask extends DefaultTask {
 
     /**
      * Whether to force a version update if not on
-     * the Git master branch.
+     * a Git release or hotfix branch.
      */
     @Input
     @Optional
@@ -66,12 +66,12 @@ protected class AbstractBumpTask extends DefaultTask {
     @TaskAction
     void start() {
         def branchDetector = new GitBranchDetector(project)
-        if (!branchDetector.isOnMasterBranch()) {
+        if (!branchDetector.isOnReleaseBranch() && !branchDetector.isOnHotfixBranch()) {
             if (isForceBump()) {
                 logger.debug "On branch $branchDetector.branch but forcing version bump anyway"
             } else {
                 throw new IllegalStateException(
-                "Cannot bump version when not on master branch (set 'forceBump' true to override)")
+                    "Cannot bump version when not on release or hotfix branch (set 'forceBump' true to override)")
             }
         }
 

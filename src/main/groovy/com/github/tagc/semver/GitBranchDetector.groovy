@@ -28,7 +28,9 @@ import org.gradle.api.Project
  */
 class GitBranchDetector {
 
-    private static final String MASTER_BRANCH = 'master'
+    private static final String MASTER_BRANCH = ~/master/
+    private static final String RELEASE_BRANCH = ~/release.*/
+    private static final String HOTFIX_BRANCH = ~/hotfix.*/
 
     private final Grgit repo
 
@@ -73,6 +75,26 @@ class GitBranchDetector {
      * @return {@code true} if the currently checked-out branch is the master branch
      */
     boolean isOnMasterBranch() {
-        return branch == MASTER_BRANCH
+        return branch ==~ MASTER_BRANCH
+    }
+
+    /**
+     * Returns whether the currently checked-out Git branch in the
+     * Git repository being tracked is a release branch.
+     *
+     * @return {@code true} if the currently checked-out branch is a release branch
+     */
+    boolean isOnReleaseBranch() {
+        return branch ==~ RELEASE_BRANCH
+    }
+
+    /**
+     * Returns whether the currently checked-out Git branch in the
+     * Git repository being tracked is a hotfix branch.
+     *
+     * @return {@code true} if the currently checked-out branch is a hotfix branch
+     */
+    boolean isOnHotfixBranch() {
+         return branch ==~ HOTFIX_BRANCH
     }
 }
