@@ -1,0 +1,6 @@
+groovy:
+  ext: ['.groovy']
+  comment:
+    open:   '/*\n'
+    close:  ' */\n\n'
+    prefix: ' * '

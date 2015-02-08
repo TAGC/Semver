@@ -1,4 +1,7 @@
 // Gradle build script for SemVer plugin project.
+import groovy.text.SimpleTemplateEngine
+import org.ajoberstar.grgit.Grgit
+import org.ajoberstar.gradle.git.auth.BasicPasswordCredentials
 
 // Buildscript dependencies
 buildscript {
@@ -12,8 +15,11 @@ buildscript {
 
         classpath 'org.jfrog.buildinfo:build-info-extractor-gradle:2.2.5'
 
+        // Cobertura plugin
+        //classpath "net.saliman:gradle-cobertura-plugin:2.2.5"
+
         // A previous version of our plugin
-        classpath 'com.github.tagc:semver-plugin:0.3.0'
+        classpath 'com.github.tagc:semver-plugin:0.4.0'
     }
 }
 
@@ -26,6 +32,10 @@ apply plugin: 'maven-publish'
 apply plugin: 'com.jfrog.bintray'
 apply plugin: 'artifactory'
 apply plugin: 'sonar-runner'
+apply plugin: 'codenarc'
+//apply plugin: 'net.saliman.cobertura'
+apply plugin: 'jacoco'
+apply plugin: 'org.ajoberstar.github-pages'
 apply plugin: 'semver' //Plugin applies itself!
 
 // Artifact meta-data
@@ -34,9 +44,23 @@ group = 'com.github.tagc'
 description = 'Semantic versioning plugin for managing the version numbering of Git-controlled projects'
 
 // Set version
-semver { versionFilePath = 'version.properties' }
+semver {
+    versionFilePath = 'version.properties'
+    snapshotBump = 'MINOR'    
+}
 
 task printVersion(description: 'Prints the current project version.') << { println "Version: $project.version" }
+
+// Respect memory constraints of t2.micro AWS server
+wrapper {
+    def jvmOpts = "-Xmx512m"
+    inputs.property("jvmOpts", jvmOpts)
+    doLast {
+        def optsEnvVar = "DEFAULT_JVM_OPTS"
+        scriptFile.write scriptFile.text.replace("$optsEnvVar=\"\"", "$optsEnvVar=\"$jvmOpts\"")
+        batchScript.write batchScript.text.replace("set $optsEnvVar=", "set $optsEnvVar=$jvmOpts")
+    }
+}
 
 // Project dependencies
 repositories { jcenter() }
@@ -59,11 +83,26 @@ dependencies {
     testCompile 'junit:junit:4.11'
 }
 
+configurations.all {
+    resolutionStrategy {
+        //force 'org.codehaus.groovy:groovy-all:2.3.6'
+        // Cobertura includes an ASM version that can't handle Java 8, ASM 5.0.3
+        //handles Java8
+        //force 'org.ow2.asm:asm:5.0.3'
+        //forcedModules = [ 'org.ow2.asm:asm:5.0.3' ]
+    }
+}
+
 // Integration tests.
 sourceSets {
+    test {
+        groovy.srcDirs = [ 'src/test/groovy', 'src/testutil/groovy' ]
+        resources.srcDirs = [ 'src/test/resources', 'src/testutil/resources' ]
+    }
+    
     integrationTest {
-        groovy.srcDir file('src/integTest/groovy')
-        resources.srcDir file('src/integTest/resources')
+        groovy.srcDirs = [ 'src/integTest/groovy', 'src/testutil/groovy' ]
+        resources.srcDirs = [ 'src/integTest/resources', 'src/testutil/resources' ]
         compileClasspath = sourceSets.main.output + configurations.testRuntime
         runtimeClasspath = output + compileClasspath
     }
@@ -74,11 +113,50 @@ task integrationTest(type: Test) {
     group = 'verification'
     testClassesDir = sourceSets.integrationTest.output.classesDir
     classpath = sourceSets.integrationTest.runtimeClasspath
+    
+    jacoco {
+        destinationFile = file("$buildDir/jacoco/integrationTest.exec")
+        classDumpFile = file("$buildDir/classes/integrationTest")
+     }
 }
 
 integrationTest.reports.html.destination = file("$buildDir/reports/intTests")
 
 check.dependsOn integrationTest
+integrationTest.shouldRunAfter test
+
+// License generation
+task addLicenseHeaders(type:Exec, description: 'Adds license headers to sources files.') {
+    executable 'sh'
+    args '-c', 'copyright-header --license-file config/license/LICENSE_HEADER -a src/ -o . -c config/license/GroovyLicenseSyntax.yml'
+}
+
+// Publishing gh-pages
+githubPages {
+    //repoUri = 'git@github.com:TAGC/Semver.git'
+    repoUri = 'https://github.com/TAGC/Semver.git'
+    credentials = new BasicPasswordCredentials("$githubUsername", "$githubPassword")
+    commitMessage = 'Automated Github Pages update'
+}
+
+// Copy tasks
+task copyDoc(type: Copy, description: "Copies documentation from build directory to gh-pages source directory.", group: 'build') {
+    from "$buildDir/docs"
+    into "$projectDir/src/main/ghpages/docs"
+}
+ 
+task copyHealth(description: "Copies project health data to gh-pages source directory.", group: 'build') << {
+    def dirMap = ["reports/codenarc":"codenarc", "reports/jacoco/test/html":"jacoco"]
+    dirMap.each { source, dest ->
+        copy {
+            from "$buildDir/$source"
+            into "$projectDir/src/main/ghpages/health/$dest"
+            exclude '*.xml'
+        }
+    }
+}
+
+publishGhPages.dependsOn copyDoc, copyHealth
 
 // Additional artifact declarations
 task sourcesJar(type: Jar) {
@@ -121,6 +199,7 @@ distributions {
 ext {
     artifactorySnapshotRepoKey = "oss-snapshot-local"
     artifactoryReleaseRepoKey = "oss-release-local"
+    unknownPropertyDefault = 'Unknown'
 }
 
 // Maven publications
@@ -135,10 +214,10 @@ publishing {
                 root.appendNode('name', 'Gradle SemVer plugin')
                 root.appendNode('description', description)
                 root.appendNode('inceptionYear', '2014')
-
+                
                 def license = root.appendNode('licenses').appendNode('license')
-                license.appendNode('name', 'MIT License')
-                license.appendNode('url', 'http://www.opensource.org/licenses/mit-license.php')
+                license.appendNode('name', 'The Apache Software License, Version 2.0')
+                license.appendNode('url', 'http://www.apache.org/licenses/LICENSE-2.0.txt')
                 license.appendNode('distribution', 'repo')
 
                 def developer = root.appendNode('developers').appendNode('developer')
@@ -172,7 +251,7 @@ bintray {
         websiteUrl = 'https://github.com/TAGC/Semver'
         issueTrackerUrl = 'https://github.com/TAGC/Semver/issues'
         vcsUrl = 'https://github.com/TAGC/Semver.git'
-        licenses = ['MIT']
+        licenses = ['Apache-2.0']
         labels = [
             'gradle',
             'semantic-versioning'
@@ -222,5 +301,43 @@ sonarRunner {
         property 'sonar.password', "${sonarPassword}"
         property 'sonar.language', 'grvy'
         property 'source-encoding', 'UTF-8'
+        property 'sonar.groovy.codenarc.reportPath', "$buildDir/reports/codenarc/main.xml"
+        property 'sonar.groovy.cobertura.reportPath', "$buildDir/reports/cobertura/coverage.xml"
     }
 }
+
+project.tasks.findByName('sonarRunner').dependsOn 'check'
+
+// Cobertura
+//check.dependsOn 'cobertura'
+
+//cobertura {
+//    coverageFormats = [ 'html', 'xml' ]
+//}
+
+// Codenarc
+codenarc {
+    configFile = new File("$projectDir/config/codenarc/rules.groovy")
+    ignoreFailures = true
+}
+
+tasks.withType(CodeNarc) {
+    reports {
+        html.enabled = true
+    }
+}
+
+codenarcMain {
+    outputs.upToDateWhen { false }
+}
+// Jacoco
+
+jacocoTestReport {
+    executionData test, integrationTest
+    
+    reports {
+        html.enabled true
+    }
+}
+
+check.finalizedBy(jacocoTestReport)
