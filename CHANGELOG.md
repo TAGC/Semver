@@ -2,6 +2,8 @@
 All notable changes to this project will be documented in this file.
 
 ## [Unreleased][unreleased]
+
+## [0.5.0] - 2015-02-08
 ### Added
  - `CHANGELOG.md`.
  - `:printVersion` - task that prints the string representation of the version that the Semver plugin has set Gradle's `project.version` property to.
@@ -52,7 +54,8 @@ All notable changes to this project will be documented in this file.
 
 ## 0.1.0 - 2014-12-17
 
-[unreleased]: https://github.com/TAGC/Semver/compare/v0.4.0...HEAD
+[unreleased]: https://github.com/TAGC/Semver/compare/v0.5.0...HEAD
+[0.5.0]: https://github.com/TAGC/Semver/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/TAGC/Semver/compare/v0.3.1...v0.4.0
 [0.3.1]: https://github.com/TAGC/Semver/compare/v0.3.0...v0.3.1
 [0.3.0]: https://github.com/TAGC/Semver/compare/v0.2.2...v0.3.0
