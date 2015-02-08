@@ -5,9 +5,12 @@ All notable changes to this project will be documented in this file.
 ### Added
  - `CHANGELOG.md`.
  - `:printVersion` - task that prints the string representation of the version that the Semver plugin has set Gradle's `project.version` property to.
- - `:bumpMajor`, `:bumpMinor`, `:bumpPatch` - tasks that bump the project version and update the file containing the version data.
+ - `:bump`, `:bumpMajor`, `:bumpMinor`, `:bumpPatch` - tasks that bump the project version and update the file containing the version data.
  - `:changeVersion` - task that is called whenever the project version is modified, which can perform custom actions or be depended upon by other tasks.
  - License headers to source files.
+
+### Changed
+ - Major refactoring of code.
 
 ## [0.4.0] - 2014-12-31
 ### Added

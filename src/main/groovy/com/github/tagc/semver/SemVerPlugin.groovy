@@ -77,6 +77,10 @@ class SemVerPlugin implements Plugin<Project> {
         return CHANGE_VERSION_TASK_NAME
     }
 
+    static String getModifiesVersionIndicatorProperty() {
+        return MODIFIES_VERSION_INDICATOR_PROPERTY
+    }
+
     private Logger logger
 
     @Override
@@ -96,12 +100,12 @@ class SemVerPlugin implements Plugin<Project> {
          */
         project.gradle.taskGraph.whenReady { taskGraph ->
             def numVersionModifierTasks = taskGraph.allTasks.findAll { task ->
-                task.hasProperty(MODIFIES_VERSION_INDICATOR_PROPERTY) \
-                    && task."$MODIFIES_VERSION_INDICATOR_PROPERTY"
+                task.hasProperty(getModifiesVersionIndicatorProperty()) \
+                    && task."${getModifiesVersionIndicatorProperty()}"
             }.size()
 
             if (numVersionModifierTasks > 1) {
-                throw new GradleException('Only one task may modify the project version in a single build')
+                throw new GradleException('Only one task may modify the project version in a single build.')
             }
         }
     }
@@ -144,8 +148,8 @@ class SemVerPlugin implements Plugin<Project> {
         try {
             branchDetector = new GitBranchDetector(project)
         } catch (GrgitException wrappedException) {
-            Exception exception = new GradleException('No Git repository can be found for this project')
-            exception.cause = wrappedException
+            def exception = new GradleException('No Git repository can be found for this project.',
+                wrappedException)
             throw exception
         }
 
@@ -158,12 +162,12 @@ class SemVerPlugin implements Plugin<Project> {
             project, rawVersion, snapshotBump)
 
         if (appliedVersion == null) {
-            throw new GradleException('No appropriate version could be applied for this project')
+            throw new GradleException('No appropriate version could be applied for this project.')
         }
 
         project.version = appliedVersion
 
-        logger.info "Set project version to $project.version"
+        logger.info "Set project version to ${project.version}."
     }
 
     private Version readRawVersion(Project project) {
@@ -173,12 +177,12 @@ class SemVerPlugin implements Plugin<Project> {
         final String versionFilePath = URLDecoder.decode(extension.versionFilePath, UTF_8_ENCODING)
 
         if (!versionFilePath) {
-            throw new GradleException('Version file has not been specified')
+            throw new GradleException('Version file has not been specified.')
         }
 
         def versionFile = project.file(versionFilePath)
         if (!versionFile.exists()) {
-            throw new GradleException("Missing version file: $versionFile.canonicalPath")
+            throw new GradleException("Missing version file: ${versionFile.canonicalPath}.")
         }
 
         BaseVersion.Parser.instance.parse(versionFile.text)

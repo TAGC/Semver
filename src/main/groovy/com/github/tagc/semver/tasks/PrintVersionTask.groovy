@@ -41,6 +41,6 @@ class PrintVersionTask extends DefaultTask {
 
     @PackageScope
     getOutput() {
-        return "Project version: $project.version"
+        return "Project version: ${project.version}."
     }
 }

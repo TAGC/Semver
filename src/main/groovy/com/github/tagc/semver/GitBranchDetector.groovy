@@ -17,6 +17,8 @@
 package com.github.tagc.semver
 
 import org.ajoberstar.grgit.Grgit
+import org.ajoberstar.grgit.exception.GrgitException
+import org.eclipse.jgit.errors.RepositoryNotFoundException
 import org.gradle.api.Project
 
 import com.github.tagc.semver.version.BaseVersion
@@ -42,11 +44,17 @@ class GitBranchDetector {
      * open a Git repository in the project base directory.
      *
      * @param project a Gradle project
-     * @throws GrgitException if no Git repository exists in the project
+     * @throws Grgit if no Git repository exists in the project
      *         base directory to be opened
      */
     GitBranchDetector(Project project) {
-        repo = Grgit.open(project.file("$project.projectDir"))
+        try {
+            repo = Grgit.open(project.file("$project.projectDir"))
+        } catch (RepositoryNotFoundException wrappedException) {
+            def exception = new GrgitException("No Git repository was found for $project",
+                    wrappedException)
+            throw exception
+        }
     }
 
     /**
@@ -54,11 +62,18 @@ class GitBranchDetector {
      * open a Git repository in the given directory.
      *
      * @param repoDir the file location of the Git repository to open
-     * @throws GrgitException if no Git repository exists in the given
+     * @throws Grgit if no Git repository exists in the given
      *         file location to be opened
      */
     GitBranchDetector(File repoDir) {
         repo = Grgit.open(repoDir)
+        try {
+            repo = Grgit.open(repoDir)
+        } catch (RepositoryNotFoundException wrappedException) {
+            def exception = new GrgitException("No Git repository was found at $repoDir",
+                    wrappedException)
+            throw exception
+        }
     }
 
     /**
@@ -120,6 +135,6 @@ class GitBranchDetector {
             return versionParser.parse(branch, false)
         }
 
-        throw new IllegalStateException('Not on release or hotfix Git branch')
+        throw new IllegalStateException('Not on release or hotfix Git branch.')
     }
 }

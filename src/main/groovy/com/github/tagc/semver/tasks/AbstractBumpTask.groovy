@@ -37,7 +37,7 @@ import com.github.tagc.semver.version.Version
 protected class AbstractBumpTask extends DefaultTask {
 
     private static final TASK_GROUP = 'semver'
-    private static final TASK_DESCRIPTION = 'Performs a bump of the project version'
+    private static final TASK_DESCRIPTION = 'Performs a bump of the project version.'
 
     private final versionBumpCategory
 
@@ -96,7 +96,7 @@ protected class AbstractBumpTask extends DefaultTask {
         getVersionFileOut().text = versionParser.parseAndReplace(getVersionFileIn(), bumpedVersion)
         project.version = bumpedVersion
 
-        logger.debug "Bumping project version ($currVersion -> $bumpedVersion)"
+        logger.debug "Bumping project version ($currVersion -> $bumpedVersion)."
     }
 
     /**
@@ -111,10 +111,10 @@ protected class AbstractBumpTask extends DefaultTask {
         def branchDetector = new GitBranchDetector(project)
         if (!branchDetector.isOnReleaseBranch() && !branchDetector.isOnHotfixBranch()) {
             if (isForceBump()) {
-                logger.debug "On branch $branchDetector.branch but forcing version bump anyway"
+                logger.debug "On branch $branchDetector.branch but forcing version bump anyway."
             } else {
                 throw new IllegalStateException(
-                "Cannot bump version when not on release or hotfix branch (set 'forceBump' true to override)")
+                "Cannot bump version when not on release or hotfix branch (set 'forceBump' true to override).")
             }
         }
     }
@@ -130,7 +130,7 @@ protected class AbstractBumpTask extends DefaultTask {
      */
     protected Version.Category getBumpCategory() {
         if (versionBumpCategory == null) {
-            throw new IllegalStateException('No category is specified to bump by')
+            throw new IllegalStateException('No category is specified to bump by.')
         }
 
         versionBumpCategory

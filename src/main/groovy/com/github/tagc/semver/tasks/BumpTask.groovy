@@ -18,6 +18,7 @@ package com.github.tagc.semver.tasks
 
 import com.github.tagc.semver.GitBranchDetector
 import com.github.tagc.semver.SemVerException
+import com.github.tagc.semver.SemVerPlugin
 import com.github.tagc.semver.version.Version
 
 /**
@@ -38,6 +39,32 @@ class BumpTask extends AbstractBumpTask {
 
     BumpTask() {
         this.description = 'Bumps the project version to match the version in the current release or hotfix branch.'
+
+        /*
+         * Skip if the branch version and raw project version are the same.
+         */
+        onlyIf {
+            GitBranchDetector branchDetector = new GitBranchDetector(project)
+
+            try {
+                return branchDetector.tryParseBranchVersion() != project.version.unwrap()
+            } catch (IllegalStateException e) {
+
+                /*
+                 * Allow task to be run so informative error message can be presented to user.
+                 */
+                return true
+            }
+        }
+    }
+
+    protected checkValidGitBranch() {
+        def branchDetector = new GitBranchDetector(project)
+        if (!branchDetector.isOnReleaseBranch() && !branchDetector.isOnHotfixBranch()) {
+            throw new IllegalStateException(
+                "Cannot bump version with :${SemVerPlugin.getBumpTaskName()} when not on" + \
+                ' release or hotfix branch.')
+        }
     }
 
     /**
@@ -61,12 +88,16 @@ class BumpTask extends AbstractBumpTask {
 
         def branchVersion = branchDetector.tryParseBranchVersion()
         if (branchVersion == null) {
+            def bumpPatchTaskName = SemVerPlugin.getBumpPatchTaskName()
+            def bumpMinorTaskName = SemVerPlugin.getBumpMinorTaskName()
+            def bumpMajorTaskName = SemVerPlugin.getBumpMajorTaskName()
+
             throw new SemVerException('Could not figure out how to bump the project version based on ' + \
                 "the current Git branch ($branchDetector.branch). Try manually bumping the project " + \
-                'using :bumpPatch, :bumpMinor or :bumpMajor instead')
+                "using :$bumpPatchTaskName, :$bumpMinorTaskName or :$bumpMajorTaskName instead.")
         }
 
-        logger.debug "Interpreting version $branchVersion for Git branch $branchDetector.branch"
+        logger.debug "Interpreting version $branchVersion for Git branch ${branchDetector.branch}."
 
         def rawProjectVersion = project.version.unwrap()
         logger.debug "Raw project version = $rawProjectVersion"

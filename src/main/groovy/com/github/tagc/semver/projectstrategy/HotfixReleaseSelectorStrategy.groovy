@@ -27,21 +27,30 @@ class HotfixReleaseSelectorStrategy extends AbstractProjectVersionSelectorStrate
         Version branchVersion = branchDetector.tryParseBranchVersion()
         if (branchVersion == null) {
             project.logger.warn 'Unable to parse version associated with current Git branch' + \
-            " ($branchDetector.branch)"
+            " ($branchDetector.branch)."
 
             return rawVersion.toDevelop()
         } else if (branchVersion.equals(rawVersion)) {
 
             return rawVersion.toRelease()
         } else if (branchVersion > rawVersion) {
-            project.logger.quiet "You should use :${SemVerPlugin.getBumpTaskName()} to match" + \
-            " the version of the current Git branch ($branchDetector.branch)"
+            project.gradle.taskGraph.whenReady { taskGraph ->
+                def modifiedTasksPresent = taskGraph.allTasks.findAll { task ->
+                    task.hasProperty(SemVerPlugin.getModifiesVersionIndicatorProperty()) \
+                        && task."${SemVerPlugin.getModifiesVersionIndicatorProperty()}"
+                }.size() > 0
+
+                if (!modifiedTasksPresent) {
+                    project.logger.quiet "You should use :${SemVerPlugin.getBumpTaskName()} to match" + \
+                        " the version of the current Git branch ($branchDetector.branch)."
+                }
+            }
 
             return rawVersion.toDevelop()
         }
 
         project.logger.warn "Current project version ($rawVersion) is set greater than" + \
-            " the version of the current Git branch ($branchDetector.branch)"
+            " the version of the current Git branch ($branchDetector.branch)."
 
         return rawVersion.toDevelop()
     }
