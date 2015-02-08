@@ -14,57 +14,32 @@
  * limitations under the License.
  */
 
-package com.github.tagc.semver
+package com.github.tagc.semver.version
 
 import groovy.transform.Immutable
+import groovy.transform.PackageScope
 
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 
 /**
- * Represents a semantic version number for a project.
- * <p>
- * {@code Version} objects are immutable. They can be compared based on the standard for semantic version comparisons
- * (based on lexicographic comparison of major, minor and patch numbers).
+ * A concrete, base implementation of {@link com.github.tagc.semver.version.Version Version}.
  *
  * @author davidfallah
  * @since v0.1.0
  */
 @Immutable
-class Version implements Comparable<Version> {
+@PackageScope
+final class BaseVersion implements Version {
 
     /**
-     * Version category enumeration - enumerates the {@code major}, {@code minor} and {@code patch}
-     * segments of version strings.
-     *
-     * @author davidfallah
-     * @since 0.3.1
-     */
-    static enum Category {
-        /**
-         * Patch category (incremented for minor bug fixes that have no effect on public API).
-         */
-        PATCH,
-
-        /**
-         * Minor category (incremented for minor feature additions or major bug fixes. Backwards
-         * compatibility is maintained).
-         */
-        MINOR,
-
-        /**
-         * Major category (incremented for major, breaking changes).
-         */
-        MAJOR
-    }
-
-    /**
-     * Version parser - parses strings and constructs {@link com.github.tagc.semver.Version Version}
+     * Version parser - parses strings and constructs {@link com.github.tagc.semver.version.BaseVersion BaseVersion}
      * instances from them.
      *
      * @author davidfallah
      * @since 0.2.1
      */
+    @Singleton
     static class Parser {
         private static final Pattern WHITESPACE = ~/\s*/
         private static final Pattern VERSION_PATTERN = ~/(\d+)\.(\d+).(\d+)/
@@ -86,20 +61,6 @@ class Version implements Comparable<Version> {
         private static final int MATCHER_MINOR = 2
         private static final int MATCHER_PATCH = 3
 
-        static final Parser INSTANCE = new Parser()
-
-        /**
-         * Returns a singleton instance of {@code Parser}.
-         *
-         * @return a reference to a {@code Parser}
-         */
-        static Parser getInstance() {
-            return INSTANCE
-        }
-
-        private Parser() {
-        }
-
         /**
          * Parses the text within the file and replaces all occurrences of version data
          * with new version data based on {@code newVersion}.
@@ -108,8 +69,7 @@ class Version implements Comparable<Version> {
          *
          * @param inputFile a file containing text that represents a version specifier
          * @param newVersion the version to replace the existing version data in the input with
-         * @return a copy of the file's text with the replacements made
-         * @throw IllegalArgumentException if the input could not be parsed
+         * @return a copy of the file's text with the replacements made, if any
          */
         String parseAndReplace(File inputFile, boolean strict=false, Version newVersion) {
             parseAndReplace(inputFile.text, strict, newVersion)
@@ -121,8 +81,7 @@ class Version implements Comparable<Version> {
          *
          * @param input a string representing a version specifier
          * @param newVersion the version to replace the existing version data in the input with
-         * @return a copy of the input string with the replacements made
-         * @throw IllegalArgumentException if the input could not be parsed
+         * @return a copy of the input string with the replacements made, if any
          */
         String parseAndReplace(String input, boolean strict=false, Version newVersion) {
             tryParseAndReplaceVersion(input, strict, newVersion)
@@ -134,10 +93,9 @@ class Version implements Comparable<Version> {
          *
          * @param inputFile a file containing text that represents a version specifier
          * @param strict set {@code true} if the parse attempt should succeed only if the entire string can be parsed
-         * @return an instance of {@code Version} if the input could be parsed
-         * @throw IllegalArgumentException if the input could not be parsed
+         * @return an instance of {@code BaseVersion} if the input could be parsed or {@code null} if it could not
          */
-        Version parse(File inputFile, boolean strict=false) {
+        BaseVersion parse(File inputFile, boolean strict=false) {
             parse(inputFile.text, strict)
         }
 
@@ -147,15 +105,14 @@ class Version implements Comparable<Version> {
          *
          * @param input a string representing a version specifier
          * @param strict set {@code true} if the parse attempt should succeed only if the entire string can be parsed
-         * @return an instance of {@code Version} if the input could be parsed
-         * @throw IllegalArgumentException if the input could not be parsed
+         * @return an instance of {@code BaseVersion} if the input could be parsed or {@code null} if it could not
          */
-        Version parse(String input, boolean strict=false) {
+        BaseVersion parse(String input, boolean strict=false) {
             tryParseVersion(input, strict)
         }
 
-        private Version tryParseVersion(String input, boolean strict) {
-            Version version
+        private BaseVersion tryParseVersion(String input, boolean strict) {
+            BaseVersion version
 
             if ((version = tryParseFullSnapshotVersion(input, strict)) != null) {
                 return version
@@ -167,11 +124,12 @@ class Version implements Comparable<Version> {
                 return version
             }
 
-            throw new IllegalArgumentException("Version parser: unable to parse input: $input")
+            return null
         }
 
         private String tryParseAndReplaceVersion(String input, boolean strict, Version replacement) {
             String updatedText
+            String originalText = updatedText
 
             if ((updatedText = tryParseAndReplaceFullSnapshotVersion(input, strict, replacement)) != null) {
                 return updatedText
@@ -183,7 +141,7 @@ class Version implements Comparable<Version> {
                 return updatedText
             }
 
-            throw new IllegalArgumentException("Version parser: unable to parse input: $input")
+            return originalText
         }
 
         private Version tryParseFullSnapshotVersion(String input, boolean strict) {
@@ -192,56 +150,52 @@ class Version implements Comparable<Version> {
                 return null
             }
 
-            def builder = new Version.Builder()
+            def builder = new BaseVersion.Builder()
             builder.setMajor(m[0][MATCHER_MAJOR].toInteger())
-            builder.setMinor(m[0][MATCHER_MINOR].toInteger())
-            builder.setPatch(m[0][MATCHER_PATCH].toInteger())
-            builder.setRelease(false)
-
-            builder.version
+                    .setMinor(m[0][MATCHER_MINOR].toInteger())
+                    .setPatch(m[0][MATCHER_PATCH].toInteger())
+                    .setRelease(false)
+                    .build()
         }
 
-        private Version tryParseShortSnapshotVersion(String input, boolean strict) {
+        private BaseVersion tryParseShortSnapshotVersion(String input, boolean strict) {
             Matcher m = checkInputAgainstPattern(input, SNAPSHOT_SHORT_VERSION_PATTERN, strict)
             if (!m) {
                 return null
             }
 
-            def builder = new Version.Builder()
+            def builder = new BaseVersion.Builder()
             builder.setMajor(m[0][MATCHER_MAJOR].toInteger())
-            builder.setMinor(m[0][MATCHER_MINOR].toInteger())
-            builder.setRelease(false)
-
-            builder.version
+                    .setMinor(m[0][MATCHER_MINOR].toInteger())
+                    .setRelease(false)
+                    .build()
         }
 
-        private Version tryParseFullReleaseVersion(String input, boolean strict) {
+        private BaseVersion tryParseFullReleaseVersion(String input, boolean strict) {
             Matcher m = checkInputAgainstPattern(input, RELEASE_VERSION_PATTERN, strict)
             if (!m) {
                 return null
             }
 
-            def builder = new Version.Builder()
+            def builder = new BaseVersion.Builder()
             builder.setMajor(m[0][MATCHER_MAJOR].toInteger())
-            builder.setMinor(m[0][MATCHER_MINOR].toInteger())
-            builder.setPatch(m[0][MATCHER_PATCH].toInteger())
-            builder.setRelease(true)
-
-            builder.version
+                    .setMinor(m[0][MATCHER_MINOR].toInteger())
+                    .setPatch(m[0][MATCHER_PATCH].toInteger())
+                    .setRelease(true)
+                    .build()
         }
 
-        private Version tryParseShortReleaseVersion(String input, boolean strict) {
+        private BaseVersion tryParseShortReleaseVersion(String input, boolean strict) {
             Matcher m = checkInputAgainstPattern(input, RELEASE_SHORT_VERSION_PATTERN, strict)
             if (!m) {
                 return null
             }
 
-            def builder = new Version.Builder()
+            def builder = new BaseVersion.Builder()
             builder.setMajor(m[0][MATCHER_MAJOR].toInteger())
-            builder.setMinor(m[0][MATCHER_MINOR].toInteger())
-            builder.setRelease(true)
-
-            builder.version
+                    .setMinor(m[0][MATCHER_MINOR].toInteger())
+                    .setRelease(true)
+                    .build()
         }
 
         private String tryParseAndReplaceFullSnapshotVersion(String input, boolean strict, Version replacement) {
@@ -302,13 +256,33 @@ class Version implements Comparable<Version> {
         int patch = 0
         boolean release = false
 
+        BaseVersion.Builder setMajor(int major) {
+            this.major = major
+            return this
+        }
+
+        BaseVersion.Builder setMinor(int minor) {
+            this.minor = minor
+            return this
+        }
+
+        BaseVersion.Builder setPatch(int patch) {
+            this.patch = patch
+            return this
+        }
+
+        BaseVersion.Builder setRelease(boolean release) {
+            this.release = release
+            return this
+        }
+
         /**
          * Constructs and returns a {@code Version} object based on this builder's configuration.
          *
          * @return a new instance of {@code Version}
          */
-        Version getVersion() {
-            new Version(major, minor, patch, release)
+        BaseVersion build() {
+            new BaseVersion(major, minor, patch, release)
         }
     }
 
@@ -317,29 +291,24 @@ class Version implements Comparable<Version> {
     /**
      * The major category of this version.
      */
-    final int major = 0
+    int major = 0
 
     /**
      * The minor category of this version.
      */
-    final int minor = 0
+    int minor = 0
 
     /**
      * The patch category of this version.
      */
-    final int patch = 0
+    int patch = 0
 
     /**
      * Whether this version is a release or snapshot version.
      */
-    final boolean release = false
+    boolean release = false
 
-    /**
-     * Returns a new instance of {@code Version} with incremented {@code category}.
-     *
-     * @param category the version category to increment
-     * @return an incremented {@code Version}
-     */
+    @Override
     Version incrementByCategory(Version.Category category) {
         switch (category) {
             case Version.Category.MAJOR:
@@ -353,39 +322,22 @@ class Version implements Comparable<Version> {
         }
     }
 
-    /**
-     * Returns a new instance of {@code Version} based on this with incremented major number.
-     *
-     * @return an incremented {@code Version}
-     */
+    @Override
     Version incrementMajor() {
-        new Version(major + 1, minor, patch, release)
+        new BaseVersion(major + 1, minor, patch, release)
     }
 
-    /**
-     * Returns a new instance of {@code Version} based on this with incremented minor number.
-     *
-     * @return an incremented {@code Version}
-     */
+    @Override
     Version incrementMinor() {
-        new Version(major, minor + 1, patch, release)
+        new BaseVersion(major, minor + 1, patch, release)
     }
 
-    /**
-     * Returns a new instance of {@code Version} based on this with incremented patch number.
-     *
-     * @return an incremented {@code Version}
-     */
+    @Override
     Version incrementPatch() {
-        new Version(major, minor, patch + 1, release)
+        new BaseVersion(major, minor, patch + 1, release)
     }
 
-    /**
-     * Returns a new instance of {@code Version} with bumped {@code category}.
-     *
-     * @param category the version category to bump
-     * @return a bumped {@code Version}
-     */
+    @Override
     Version bumpByCategory(Version.Category category) {
         switch (category) {
             case Version.Category.MAJOR:
@@ -399,53 +351,47 @@ class Version implements Comparable<Version> {
         }
     }
 
-    /**
-     * Returns a new instance of {@code Version} with bumped major number.
-     * <p>
-     * The minor and patch number are reset to 0.
-     *
-     * @return a bumped {@code Version}
-     */
+    @Override
     Version bumpMajor() {
-        new Version(major + 1, 0, 0, release)
+        new BaseVersion(major + 1, 0, 0, release)
     }
 
-    /**
-     * Returns a new instance of {@code Version} with bumped minor number.
-     * <p>
-     * The patch number is reset to 0.
-     *
-     * @return a bumped {@code Version}
-     */
+    @Override
     Version bumpMinor() {
-        new Version(major, minor + 1, 0, release)
+        new BaseVersion(major, minor + 1, 0, release)
     }
 
-    /**
-     * Returns a new instance of {@code Version} with bumped patch number.
-     *
-     * @return a bumped {@code Version}
-     */
+    @Override
     Version bumpPatch() {
-        new Version(major, minor, patch + 1, release)
+        new BaseVersion(major, minor, patch + 1, release)
     }
 
-    /**
-     * Returns a new instance of {@code Version} for releases.
-     *
-     * @return a release-configured instance of {@code Version}
-     */
+    @Override
     Version toRelease() {
-        new Version(major, minor, patch, true)
+        new BaseVersion(major, minor, patch, true)
     }
 
-    /**
-     * Returns a new instance of {@code Version} for snapshots.
-     *
-     * @return a snapshot-configured instance of {@code Version}
-     */
+    @Override
     Version toDevelop() {
-        new Version(major, minor, patch, false)
+        new BaseVersion(major, minor, patch, false)
+    }
+
+    @Override
+    Version.Category distanceFrom(Version newerVersion) {
+        if (newerVersion.toRelease() == this.bumpMajor().toRelease()) {
+            return Version.Category.MAJOR
+        } else if (newerVersion.toRelease() == this.bumpMinor().toRelease()) {
+            return Version.Category.MINOR
+        } else if (newerVersion.toRelease() == this.bumpPatch().toRelease()) {
+            return Version.Category.PATCH
+        }
+
+        return null
+    }
+
+    @Override
+    BaseVersion unwrap() {
+        return this
     }
 
     @Override

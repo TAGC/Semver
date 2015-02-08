@@ -24,7 +24,7 @@ import spock.lang.Specification
 import spock.lang.Unroll
 
 import com.github.tagc.semver.SemVerPlugin
-import com.github.tagc.semver.Version
+import com.github.tagc.semver.version.VersionFactory
 
 @Unroll
 class PrintVersionTaskSpec extends Specification {
@@ -55,6 +55,6 @@ class PrintVersionTaskSpec extends Specification {
             (1..5),
             [true, false]
         ])
-        version = new Version(major:combination[0], minor:combination[1], patch:combination[2], release:combination[3])
+        version = VersionFactory.makeBaseVersion(major:combination[0], minor:combination[1], patch:combination[2], release:combination[3])
     }
 }

@@ -26,17 +26,14 @@ import spock.lang.Specification
 import spock.lang.Unroll
 
 import com.github.tagc.semver.SemVerPlugin
-import com.github.tagc.semver.Version
 import com.github.tagc.semver.test.util.TestSetup
 import com.github.tagc.semver.test.util.TestUtil
+import com.github.tagc.semver.test.util.TestSetup.TestBranchType
+import com.github.tagc.semver.version.BaseVersion
+import com.github.tagc.semver.version.Version
 
 @Unroll
 class BumpVersionTaskSpec extends Specification {
-
-    private static final String RELEASE_BRANCH = 'release/1.0.0'
-    private static final String HOTFIX_BRANCH = 'hotfix/1.0.0'
-    private static final String MASTER_BRANCH = 'master'
-    private static final String DEVELOP_BRANCH = 'develop'
 
     private Project project
     private Plugin plugin
@@ -62,7 +59,7 @@ class BumpVersionTaskSpec extends Specification {
 
         then: "The version data kept within the file should have been updated"
         notThrown(Exception)
-        Version.Parser.instance.parse(versionFileCopy) == bumpedVersion
+        BaseVersion.Parser.instance.parse(versionFileCopy) == bumpedVersion
 
         cleanup:
         assert TestUtil.cleanupGitDirectory(project)
@@ -70,10 +67,66 @@ class BumpVersionTaskSpec extends Specification {
 
         where:
         [category, versionFilePath, bumpedVersion, branch] << \
-            getVersionTestData(RELEASE_BRANCH) + getVersionTestData(HOTFIX_BRANCH)
+            getVersionTestData(TestBranchType.RELEASE) + getVersionTestData(TestBranchType.HOTFIX)
     }
 
-    def "Bumping project should cause exception to be thrown when on #branch and forceBump is false"() {
+    def "Bumping project with :bump should update #versionFilePath to represent #bumpedVersion when on #branch"() {
+        given: "A copy of a file containing version data"
+        URL url = TestUtil.getVersionFileAsResource(versionFilePath)
+        File versionFileCopy = project.file("build/temp/$versionFilePath")
+        FileUtils.copyURLToFile(url, versionFileCopy)
+
+        when: "We invoke :bump for a project on the given branch"
+        TestUtil.beginConfiguringProjectWithBranch(plugin, project, branch)
+        TestUtil.configureProjectVersionPath(project, versionFileCopy.toURI().toURL())
+        TestUtil.configureProjectForceBump(project, false)
+        TestUtil.finishConfiguringProject(project)
+        def bumpVersionTask = project.tasks.findByName(SemVerPlugin.getBumpTaskName())
+        bumpVersionTask.execute()
+
+        then: "The version data kept within the file should have been updated"
+        notThrown(Exception)
+        BaseVersion.Parser.instance.parse(versionFileCopy) == bumpedVersion
+
+        cleanup:
+        assert TestUtil.cleanupGitDirectory(project)
+        versionFileCopy.delete()
+
+        where:
+        [_, versionFilePath, bumpedVersion, branch] << \
+            getVersionTestData(TestBranchType.RELEASE) + getVersionTestData(TestBranchType.HOTFIX)
+    }
+
+    def "Bumping project with :bump should cause exception to be thrown when on #branch (from which version cannot be parsed)"() {
+        given: "A copy of a file containing version data"
+        URL url = TestUtil.getVersionFileAsResource(versionFilePath)
+        File versionFileCopy = project.file("build/temp/$versionFilePath")
+        FileUtils.copyURLToFile(url, versionFileCopy)
+        def originalText = versionFileCopy.text
+
+        when: "We invoke :bump for a project on the given branch"
+        TestUtil.beginConfiguringProjectWithBranch(plugin, project, branch)
+        TestUtil.configureProjectVersionPath(project, versionFileCopy.toURI().toURL())
+        TestUtil.configureProjectForceBump(project, false)
+        TestUtil.finishConfiguringProject(project)
+        def bumpVersionTask = project.tasks.findByName(SemVerPlugin.getBumpTaskName())
+        bumpVersionTask.execute()
+
+        then: "An exception should be thrown and the version file should not have been changed"
+        TaskExecutionException e = thrown()
+        e.cause in RuntimeException
+        versionFileCopy.text == originalText
+
+        cleanup:
+        assert TestUtil.cleanupGitDirectory(project)
+        versionFileCopy.delete()
+
+        where:
+        [_, versionFilePath, bumpedVersion, branch] << \
+            getVersionTestData(TestBranchType.BAD_RELEASE) + getVersionTestData(TestBranchType.BAD_HOTFIX)
+    }
+
+    def "Bumping project should cause exception to be thrown when on #branch (not hotfix or master) and forceBump is false"() {
         given: "A copy of a file containing version data and its text"
         URL url = TestUtil.getVersionFileAsResource(versionFilePath)
         File versionFileCopy = project.file("build/temp/$versionFilePath")
@@ -99,7 +152,7 @@ class BumpVersionTaskSpec extends Specification {
 
         where:
         [category, versionFilePath, bumpedVersion, branch] << \
-            getVersionTestData(MASTER_BRANCH) + getVersionTestData(DEVELOP_BRANCH)
+            getVersionTestData(TestBranchType.MASTER) + getVersionTestData(TestBranchType.DEVELOP)
     }
 
     def "Bumping project by #category should update #versionFilePath to represent #bumpedVersion when on #branch and forceBump is true"() {
@@ -118,7 +171,7 @@ class BumpVersionTaskSpec extends Specification {
 
         then: "The version data kept within the file should have been updated"
         notThrown(Exception)
-        Version.Parser.instance.parse(versionFileCopy) == bumpedVersion
+        BaseVersion.Parser.instance.parse(versionFileCopy) == bumpedVersion
 
         cleanup:
         assert TestUtil.cleanupGitDirectory(project)
@@ -126,7 +179,7 @@ class BumpVersionTaskSpec extends Specification {
 
         where:
         [category, versionFilePath, bumpedVersion, branch] << \
-            getVersionTestData(MASTER_BRANCH) + getVersionTestData(DEVELOP_BRANCH)
+            getVersionTestData(TestBranchType.MASTER) + getVersionTestData(TestBranchType.DEVELOP)
     }
 
     /*
@@ -137,18 +190,21 @@ class BumpVersionTaskSpec extends Specification {
      *      [ MAJOR, versionFile1, bumpedMajorFile1, branch ], [ MAJOR, versionFile2, bumpedMajorFile2, branch ] ...
      *  ]
      */
-    private getVersionTestData(String branch) {
+    private getVersionTestData(TestBranchType branchType) {
         def testData = []
         def versionFiles = TestSetup.getTestVersionFilePaths()
 
         Version.Category.values().each { category ->
             def expectedReleases = TestSetup.getTestExpectedReleasesForCategory(category)
-            def pairs = [
+            def branches = TestSetup.getTestExpectedBranches(category, branchType)
+
+            def associations = [
                 versionFiles,
-                expectedReleases
+                expectedReleases,
+                branches
             ].transpose()
 
-            pairs.each { versionFile, expectedRelease ->
+            associations.each { versionFile, expectedRelease, branch ->
                 testData << [
                     category,
                     versionFile,

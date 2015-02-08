@@ -19,6 +19,9 @@ package com.github.tagc.semver
 import org.ajoberstar.grgit.Grgit
 import org.gradle.api.Project
 
+import com.github.tagc.semver.version.BaseVersion
+import com.github.tagc.semver.version.Version
+
 /**
  * This entity is used to attempt to retrieve the name of the currently
  * checked-out Git branch within a Git repository.
@@ -95,6 +98,28 @@ class GitBranchDetector {
      * @return {@code true} if the currently checked-out branch is a hotfix branch
      */
     boolean isOnHotfixBranch() {
-         return branch ==~ HOTFIX_BRANCH
+        return branch ==~ HOTFIX_BRANCH
+    }
+
+    /**
+     * Tries to parse the version of the currently checked-out release or hotfix Git branch.
+     * <p>
+     * Before calling this method, it is advised to check that the project is on a release or
+     * hotfix branch.
+     *
+     * @return an instance of {@code Version} matching the branch version if it could be parsed,
+     *      otherwise {@code null}
+     * @throws IllegalStateException if the project is not on a hotfix or release Git branch
+     * @see {@link #isOnReleaseBranch}
+     * @see {@link #isOnHotfixBranch}
+     */
+    Version tryParseBranchVersion() {
+        def versionParser = BaseVersion.Parser.instance
+
+        if (isOnReleaseBranch() || isOnHotfixBranch()) {
+            return versionParser.parse(branch, false)
+        }
+
+        throw new IllegalStateException('Not on release or hotfix Git branch')
     }
 }

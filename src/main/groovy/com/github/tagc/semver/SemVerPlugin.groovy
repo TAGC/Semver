@@ -27,8 +27,12 @@ import org.gradle.api.logging.Logger
 import com.github.tagc.semver.tasks.BumpMajorTask
 import com.github.tagc.semver.tasks.BumpMinorTask
 import com.github.tagc.semver.tasks.BumpPatchTask
+import com.github.tagc.semver.tasks.BumpTask
 import com.github.tagc.semver.tasks.ChangeVersionTask
 import com.github.tagc.semver.tasks.PrintVersionTask
+import com.github.tagc.semver.version.BaseVersion
+import com.github.tagc.semver.version.Version
+import com.github.tagc.semver.version.VersionFactory
 
 /**
  * An {@link org.gradle.api.Plugin} class that handles the application of semantic
@@ -45,6 +49,7 @@ class SemVerPlugin implements Plugin<Project> {
     private static final String BUMP_MAJOR_TASK_NAME = 'bumpMajor'
     private static final String BUMP_MINOR_TASK_NAME = 'bumpMinor'
     private static final String BUMP_PATCH_TASK_NAME = 'bumpPatch'
+    private static final String BUMP_TASK_NAME = 'bump'
     private static final String CHANGE_VERSION_TASK_NAME = 'changeVersion'
     private static final String MODIFIES_VERSION_INDICATOR_PROPERTY = 'modifiesVersion'
 
@@ -62,6 +67,10 @@ class SemVerPlugin implements Plugin<Project> {
 
     static String getBumpPatchTaskName() {
         return BUMP_PATCH_TASK_NAME
+    }
+
+    static String getBumpTaskName() {
+        return BUMP_TASK_NAME
     }
 
     static String getChangeVersionTaskName() {
@@ -106,11 +115,13 @@ class SemVerPlugin implements Plugin<Project> {
         def majorBumpTask = project.task(getBumpMajorTaskName(), type:BumpMajorTask)
         def minorBumpTask = project.task(getBumpMinorTaskName(), type:BumpMinorTask)
         def patchBumpTask = project.task(getBumpPatchTaskName(), type:BumpPatchTask)
+        def bumpTask = project.task(getBumpTaskName(), type:BumpTask)
 
         [
             majorBumpTask,
             minorBumpTask,
-            patchBumpTask
+            patchBumpTask,
+            bumpTask
         ].each { task ->
             task.conventionMapping.map('versionFileIn') {
                 project.file(URLDecoder.decode(extension.versionFilePath, UTF_8_ENCODING))
@@ -146,7 +157,7 @@ class SemVerPlugin implements Plugin<Project> {
         if (branchDetector.isOnMasterBranch()) {
             project.version = rawVersion.toRelease()
         } else {
-            project.version = getAppropriateSnapshotVersion(project, rawVersion, snapshotBump)
+            project.version = getAppropriateSnapshotVersion(rawVersion, snapshotBump)
         }
 
         logger.info "Set project version to $project.version"
@@ -167,21 +178,20 @@ class SemVerPlugin implements Plugin<Project> {
             throw new GradleException("Missing version file: $versionFile.canonicalPath")
         }
 
-        Version.Parser.instance.parse(versionFile.text)
+        BaseVersion.Parser.instance.parse(versionFile.text)
     }
 
     /*
      * By default, bump by patch.
      */
-    private Version getAppropriateSnapshotVersion(Project project, Version currVersion, Version.Category snapshotBump) {
+    private Version getAppropriateSnapshotVersion(Version currVersion, Version.Category snapshotBump) {
         assert currVersion : 'Null currVersion is illegal'
-        assert project : 'Null project is illegal'
 
         Version.Category assumedSnapshotBump = snapshotBump
         if (assumedSnapshotBump == null) {
             assumedSnapshotBump = Version.Category.PATCH
         }
 
-        return currVersion.bumpByCategory(assumedSnapshotBump).toDevelop()
+        return VersionFactory.makeDecoratedSnapshotBumpedWithCategory(currVersion, assumedSnapshotBump)
     }
 }

@@ -16,6 +16,8 @@
 
 package com.github.tagc.semver
 
+import com.github.tagc.semver.version.Version
+
 /**
  * Plugin extension for {@link com.github.tagc.semver.SemVerPlugin SemVerPlugin}.
  * <p>

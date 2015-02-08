@@ -21,7 +21,7 @@ import org.ajoberstar.grgit.exception.GrgitException
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 
-import com.github.tagc.semver.Version
+import com.github.tagc.semver.version.Version;
 
 /**
  * Static utility class for test specifications.

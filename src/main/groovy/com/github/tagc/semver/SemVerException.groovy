@@ -14,24 +14,27 @@
  * limitations under the License.
  */
 
-package com.github.tagc.semver.tasks
-
-import com.github.tagc.semver.version.Version
+package com.github.tagc.semver
 
 /**
- * Performs a minor bump on the version represented by a
- * project's version data file.
- * <p>
- * This method modifies the version file data, so the changes
- * made are persistent.
+ * An unchecked exception class for representing semantic versioning-related
+ * exceptions.
  *
  * @author davidfallah
- * @since v0.5.0
+ * @since 0.5.0
  */
-class BumpMinorTask extends AbstractBumpTask {
+class SemVerException extends RuntimeException {
 
-    BumpMinorTask() {
-        super(Version.Category.MINOR)
-        this.description = 'Performs a minor bump of the project version.'
+    /**
+     * Constructs a {@code SemverException} with the given message.
+     *
+     * @param message the message to be associated with the exception
+     */
+    SemVerException(String message) {
+        super(message)
+    }
+
+    String toString() {
+        return "Semantic versioning failure: ${message}"
     }
 }

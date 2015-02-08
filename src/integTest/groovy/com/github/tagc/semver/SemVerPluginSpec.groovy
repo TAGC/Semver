@@ -16,6 +16,7 @@
 
 package com.github.tagc.semver
 
+import org.gradle.api.GradleException
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.testfixtures.ProjectBuilder
@@ -25,6 +26,7 @@ import spock.lang.Unroll
 
 import com.github.tagc.semver.test.util.TestSetup
 import com.github.tagc.semver.test.util.TestUtil
+import com.github.tagc.semver.version.Version
 
 /**
  * Test specification for {@link com.github.tagc.semver.SemVerPlugin SemVerPlugin}.
@@ -74,7 +76,7 @@ class SemVerPluginSpec extends Specification {
         TestUtil.evaluateProjectForReleaseTests(plugin, project, url)
 
         then:
-        project.version == expectedVersion
+        project.version.equals(expectedVersion)
 
         cleanup:
         assert TestUtil.cleanupGitDirectory(project)
@@ -92,7 +94,7 @@ class SemVerPluginSpec extends Specification {
         TestUtil.evaluateProjectForSnapshotTests(plugin, project, url, Version.Category.MAJOR)
 
         then:
-        project.version == expectedVersion
+        project.version.equals(expectedVersion)
 
         cleanup:
         assert TestUtil.cleanupGitDirectory(project)
@@ -110,7 +112,7 @@ class SemVerPluginSpec extends Specification {
         TestUtil.evaluateProjectForSnapshotTests(plugin, project, url, Version.Category.MINOR)
 
         then:
-        project.version == expectedVersion
+        project.version.equals(expectedVersion)
 
         cleanup:
         assert TestUtil.cleanupGitDirectory(project)
@@ -128,7 +130,7 @@ class SemVerPluginSpec extends Specification {
         TestUtil.evaluateProjectForSnapshotTests(plugin, project, url, Version.Category.PATCH)
 
         then:
-        project.version == expectedVersion
+        project.version.equals(expectedVersion)
 
         cleanup:
         assert TestUtil.cleanupGitDirectory(project)
@@ -149,7 +151,7 @@ class SemVerPluginSpec extends Specification {
         TestUtil.evaluateProjectForSnapshotTests(plugin, project, url, null)
 
         then:
-        project.version == expectedVersion
+        project.version.equals(expectedVersion)
 
         cleanup:
         assert TestUtil.cleanupGitDirectory(project)
@@ -157,5 +159,33 @@ class SemVerPluginSpec extends Specification {
         where:
         versionFilePath << TestSetup.getTestVersionFilePaths()
         expectedVersion << TestSetup.getTestExpectedPatchSnapshots()
+    }
+
+    def "If no version file is specified, the build should fail with an exception"() {
+        when:
+        TestUtil.beginConfiguringProject(plugin, project, false)
+        TestUtil.finishConfiguringProject(project)
+
+        then:
+        thrown(GradleException)
+
+        cleanup:
+        assert TestUtil.cleanupGitDirectory(project)
+    }
+
+    def "If the version file specified does not exist, the build should fail with an exception"() {
+        given: "A non-existent file"
+        def mockUrl = new URL("file:///foo")
+
+        when:
+        TestUtil.beginConfiguringProject(plugin, project, false)
+        TestUtil.configureProjectVersionPath(project, mockUrl)
+        TestUtil.finishConfiguringProject(project)
+
+        then:
+        thrown(GradleException)
+
+        cleanup:
+        assert TestUtil.cleanupGitDirectory(project)
     }
 }

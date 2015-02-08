@@ -24,7 +24,8 @@ import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
 
 import com.github.tagc.semver.GitBranchDetector
-import com.github.tagc.semver.Version
+import com.github.tagc.semver.version.BaseVersion
+import com.github.tagc.semver.version.Version
 
 /**
  * Abstract class for tasks that perform bumps on the version data
@@ -35,13 +36,10 @@ import com.github.tagc.semver.Version
  */
 protected class AbstractBumpTask extends DefaultTask {
 
-    private final bumpCategory
+    private static final TASK_GROUP = 'semver'
+    private static final TASK_DESCRIPTION = 'Performs a bump of the project version'
 
-    protected AbstractBumpTask(Version.Category bumpCategory) {
-        this.group = 'semver'
-        this.description = 'Performs a bump of the project version.'
-        this.bumpCategory = bumpCategory
-    }
+    private final versionBumpCategory
 
     /**
      * Whether to force a version update if not on
@@ -63,19 +61,35 @@ protected class AbstractBumpTask extends DefaultTask {
     @OutputFile
     File versionFileOut
 
+    /**
+     * Constructs an {@code AbstractBumpTask} without specifying any version category to bump the
+     * current version by when executed.
+     * <p>
+     * Subclasses using this constructor should override {@link #getBumpCategory()}.
+     */
+    protected AbstractBumpTask() {
+        this.group = TASK_GROUP
+        this.description = TASK_DESCRIPTION
+        this.versionBumpCategory = null
+    }
+
+    /**
+     * Constructs an {@code AbstractBumpTask} that will bump the current version by {@code bumpCategory}
+     * when executed.
+     *
+     * @param bumpCategory the category to bump the current project version by
+     */
+    protected AbstractBumpTask(Version.Category bumpCategory) {
+        this.group = TASK_GROUP
+        this.description = TASK_DESCRIPTION
+        this.versionBumpCategory = bumpCategory
+    }
+
     @TaskAction
     void start() {
-        def branchDetector = new GitBranchDetector(project)
-        if (!branchDetector.isOnReleaseBranch() && !branchDetector.isOnHotfixBranch()) {
-            if (isForceBump()) {
-                logger.debug "On branch $branchDetector.branch but forcing version bump anyway"
-            } else {
-                throw new IllegalStateException(
-                    "Cannot bump version when not on release or hotfix branch (set 'forceBump' true to override)")
-            }
-        }
+        checkValidGitBranch()
 
-        def versionParser = Version.Parser.instance
+        def versionParser = BaseVersion.Parser.instance
         def currVersion = versionParser.parse(getVersionFileIn())
         def bumpedVersion = currVersion.bumpByCategory(bumpCategory)
 
@@ -83,5 +97,42 @@ protected class AbstractBumpTask extends DefaultTask {
         project.version = bumpedVersion
 
         logger.debug "Bumping project version ($currVersion -> $bumpedVersion)"
+    }
+
+    /**
+     * Checks that the currently checked-out Git branch is a valid branch for bumping
+     * the current version.
+     * <p>
+     * This method can be overridden by subclasses of this task class.
+     *
+     * @throws IllegalStateException if the currently checked-out Git branch is not valid
+     */
+    protected checkValidGitBranch() {
+        def branchDetector = new GitBranchDetector(project)
+        if (!branchDetector.isOnReleaseBranch() && !branchDetector.isOnHotfixBranch()) {
+            if (isForceBump()) {
+                logger.debug "On branch $branchDetector.branch but forcing version bump anyway"
+            } else {
+                throw new IllegalStateException(
+                "Cannot bump version when not on release or hotfix branch (set 'forceBump' true to override)")
+            }
+        }
+    }
+
+    /**
+     * Returns the {@code Version.Category} to bump the current version by.
+     * <p>
+     * Any subclass of this task class that does not construct this class with a non-null
+     * instance of {@code Version.Category} should override this method.
+     *
+     * @return the version category to bump the current version by
+     * @throws IllegalStateException if the version bump category is not set
+     */
+    protected Version.Category getBumpCategory() {
+        if (versionBumpCategory == null) {
+            throw new IllegalStateException('No category is specified to bump by')
+        }
+
+        versionBumpCategory
     }
 }
