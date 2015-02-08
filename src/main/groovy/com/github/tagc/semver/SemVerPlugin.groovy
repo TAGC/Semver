@@ -24,6 +24,7 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.logging.Logger
 
+import com.github.tagc.semver.projectstrategy.VersionSelectionManager
 import com.github.tagc.semver.tasks.BumpMajorTask
 import com.github.tagc.semver.tasks.BumpMinorTask
 import com.github.tagc.semver.tasks.BumpPatchTask
@@ -32,7 +33,6 @@ import com.github.tagc.semver.tasks.ChangeVersionTask
 import com.github.tagc.semver.tasks.PrintVersionTask
 import com.github.tagc.semver.version.BaseVersion
 import com.github.tagc.semver.version.Version
-import com.github.tagc.semver.version.VersionFactory
 
 /**
  * An {@link org.gradle.api.Plugin} class that handles the application of semantic
@@ -154,11 +154,14 @@ class SemVerPlugin implements Plugin<Project> {
         def extension = project.extensions.findByName(EXTENSION_NAME)
         Version.Category snapshotBump = extension.snapshotBump
 
-        if (branchDetector.isOnMasterBranch()) {
-            project.version = rawVersion.toRelease()
-        } else {
-            project.version = getAppropriateSnapshotVersion(rawVersion, snapshotBump)
+        def appliedVersion = VersionSelectionManager.instance.selectVersionForProject(
+            project, rawVersion, snapshotBump)
+
+        if (appliedVersion == null) {
+            throw new GradleException('No appropriate version could be applied for this project')
         }
+
+        project.version = appliedVersion
 
         logger.info "Set project version to $project.version"
     }
@@ -179,19 +182,5 @@ class SemVerPlugin implements Plugin<Project> {
         }
 
         BaseVersion.Parser.instance.parse(versionFile.text)
-    }
-
-    /*
-     * By default, bump by patch.
-     */
-    private Version getAppropriateSnapshotVersion(Version currVersion, Version.Category snapshotBump) {
-        assert currVersion : 'Null currVersion is illegal'
-
-        Version.Category assumedSnapshotBump = snapshotBump
-        if (assumedSnapshotBump == null) {
-            assumedSnapshotBump = Version.Category.PATCH
-        }
-
-        return VersionFactory.makeDecoratedSnapshotBumpedWithCategory(currVersion, assumedSnapshotBump)
     }
 }
