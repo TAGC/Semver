@@ -19,7 +19,7 @@ buildscript {
         //classpath "net.saliman:gradle-cobertura-plugin:2.2.5"
 
         // A previous version of our plugin
-        classpath 'com.github.tagc:semver-plugin:0.4.0'
+        classpath 'com.github.tagc:semver-plugin:0.5.0'
     }
 }
 
@@ -46,10 +46,8 @@ description = 'Semantic versioning plugin for managing the version numbering of 
 // Set version
 semver {
     versionFilePath = 'version.properties'
-    snapshotBump = 'MINOR'    
+    snapshotBump = 'PATCH'
 }
-
-task printVersion(description: 'Prints the current project version.') << { println "Version: $project.version" }
 
 // Respect memory constraints of t2.micro AWS server
 wrapper {
