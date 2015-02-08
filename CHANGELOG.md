@@ -3,6 +3,13 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased][unreleased]
 
+## [0.5.1] - 2015-02-08
+### Changed
+ - Make plugin depend on v0.5.0 of itself.
+
+### Removed
+ - `.bumpversion.cfg` as it's no longer needed.
+
 ## [0.5.0] - 2015-02-08
 ### Added
  - `CHANGELOG.md`.
@@ -54,7 +61,8 @@ All notable changes to this project will be documented in this file.
 
 ## 0.1.0 - 2014-12-17
 
-[unreleased]: https://github.com/TAGC/Semver/compare/v0.5.0...HEAD
+[unreleased]: https://github.com/TAGC/Semver/compare/v0.5.1...HEAD
+[0.5.1]: https://github.com/TAGC/Semver/compare/v0.5.0...v0.5.1
 [0.5.0]: https://github.com/TAGC/Semver/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/TAGC/Semver/compare/v0.3.1...v0.4.0
 [0.3.1]: https://github.com/TAGC/Semver/compare/v0.3.0...v0.3.1
