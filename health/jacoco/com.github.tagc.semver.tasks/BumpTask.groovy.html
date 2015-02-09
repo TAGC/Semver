@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>BumpTask.groovy</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">semver</a> &gt; <a href="index.source.html" class="el_package">com.github.tagc.semver.tasks</a> &gt; <span class="el_source">BumpTask.groovy</span></div><h1>BumpTask.groovy</h1><pre class="source lang-java linenums">/*
+ * Copyright 2014-2015 David Fallah
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.github.tagc.semver.tasks
+
+import com.github.tagc.semver.GitBranchDetector
+import com.github.tagc.semver.SemVerException
+import com.github.tagc.semver.SemVerPlugin
+import com.github.tagc.semver.version.Version
+
+/**
+ * Tries to bump the current project version based on the version
+ * specified within the current hotfix or release Git branch that
+ * the project is on.
+ * &lt;p&gt;
+ * If a {@link com.github.tagc.semver.Version version} cannot be
+ * interpreted for the Git branch, this task will fail.
+ * &lt;p&gt;
+ * This method modifies the version file data, so the changes
+ * made are persistent.
+ *
+ * @author davidfallah
+ * @since v0.5.0
+ */
+class BumpTask extends AbstractBumpTask {
+
+    BumpTask() {
+<span class="fc" id="L41">        this.description = 'Bumps the project version to match the version in the current release or hotfix branch.'</span>
+
+        /*
+         * Skip if the branch version and raw project version are the same.
+         */
+<span class="fc" id="L46">        onlyIf {</span>
+<span class="fc" id="L47">            GitBranchDetector branchDetector = new GitBranchDetector(project)</span>
+
+<span class="pc bpc" id="L49" title="3 of 6 branches missed.">            try {</span>
+<span class="pc" id="L50">                return branchDetector.tryParseBranchVersion() != project.version.unwrap()</span>
+            } catch (IllegalStateException e) {
+
+                /*
+                 * Allow task to be run so informative error message can be presented to user.
+                 */
+<span class="nc" id="L56">                return true</span>
+            }
+        }
+    }
+
+    protected checkValidGitBranch() {
+<span class="fc" id="L62">        def branchDetector = new GitBranchDetector(project)</span>
+<span class="pc bpc" id="L63" title="16 of 26 branches missed.">        if (!branchDetector.isOnReleaseBranch() &amp;&amp; !branchDetector.isOnHotfixBranch()) {</span>
+<span class="nc" id="L64">            throw new IllegalStateException(</span>
+<span class="pc" id="L65">                &quot;Cannot bump version with :${SemVerPlugin.getBumpTaskName()} when not on&quot; + \</span>
+                ' release or hotfix branch.')
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     * &lt;p&gt;
+     * {@code BumpTask} overrides this method to try to figure out which category
+     * the current project should be bumped by based on the name of the currently
+     * checked-out hotfix or release branch.
+     *
+     * @throws GrgitException if no Git repository exists for the project
+     * @throws IllegalStateException if the currently checked-out branch is not a
+     *         hotfix or release branch
+     * @throws RuntimeException if no version information could be extracted from
+     *         the Git branch
+     * @throws RuntimeException if the version associated with the Git branch is
+     *         not a valid distance from the current project version
+     */
+    @Override
+    protected Version.Category getBumpCategory() {
+<span class="fc" id="L87">        GitBranchDetector branchDetector = new GitBranchDetector(project)</span>
+
+<span class="fc" id="L89">        def branchVersion = branchDetector.tryParseBranchVersion()</span>
+<span class="pc bpc" id="L90" title="5 of 10 branches missed.">        if (branchVersion == null) {</span>
+<span class="pc" id="L91">            def bumpPatchTaskName = SemVerPlugin.getBumpPatchTaskName()</span>
+<span class="pc" id="L92">            def bumpMinorTaskName = SemVerPlugin.getBumpMinorTaskName()</span>
+<span class="pc" id="L93">            def bumpMajorTaskName = SemVerPlugin.getBumpMajorTaskName()</span>
+
+<span class="pc" id="L95">            throw new SemVerException('Could not figure out how to bump the project version based on ' + \</span>
+                &quot;the current Git branch ($branchDetector.branch). Try manually bumping the project &quot; + \
+                &quot;using :$bumpPatchTaskName, :$bumpMinorTaskName or :$bumpMajorTaskName instead.&quot;)
+        }
+
+<span class="fc" id="L100">        logger.debug &quot;Interpreting version $branchVersion for Git branch ${branchDetector.branch}.&quot;</span>
+
+<span class="fc" id="L102">        def rawProjectVersion = project.version.unwrap()</span>
+<span class="fc" id="L103">        logger.debug &quot;Raw project version = $rawProjectVersion&quot;</span>
+
+<span class="fc" id="L105">        def bumpCategory = rawProjectVersion.distanceFrom(branchVersion)</span>
+<span class="pc bpc" id="L106" title="6 of 10 branches missed.">        if (bumpCategory == null) {</span>
+<span class="nc" id="L107">            throw new SemVerException('The version associated with the current Git branch ' + \</span>
+                &quot;($branchDetector.branch) isn't considered valid given the current project &quot; + \
+                &quot;version ($project.version). Set 'forceBump' true to override.&quot;)
+        }
+
+<span class="pc" id="L112">        return bumpCategory</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.1.201405082137</span></div></body></html>

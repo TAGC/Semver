@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>AbstractProjectVersionSelectorStrategy.groovy</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">semver</a> &gt; <a href="index.source.html" class="el_package">com.github.tagc.semver.projectstrategy</a> &gt; <span class="el_source">AbstractProjectVersionSelectorStrategy.groovy</span></div><h1>AbstractProjectVersionSelectorStrategy.groovy</h1><pre class="source lang-java linenums">/*
+ * Copyright 2014-2015 David Fallah
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+
+package com.github.tagc.semver.projectstrategy
+
+import groovy.transform.PackageScope
+
+import com.github.tagc.semver.version.Version
+
+/**
+ * An abstract class that provides default behaviour for concrete instances of
+ * {@code ProjectVersionSelectorStrategy}.
+ *
+ * @author davidfallah
+ * @since v0.5.0
+ */
+@PackageScope
+abstract class AbstractProjectVersionSelectorStrategy implements ProjectVersionSelectorStrategy {
+
+    @Override
+    Version handleProjectVersionSelection(VersionSelectionData versionSelectionData,
+            ProjectVersionSelectorStrategy[] successors) {
+<span class="fc bfc" id="L37" title="All 2 branches covered.">        if (canChooseVersionForGitBranch(versionSelectionData)) {</span>
+<span class="pc" id="L38">            return chooseVersion(versionSelectionData)</span>
+<span class="pc bpc" id="L39" title="2 of 4 branches missed.">        } else if (!successors) {</span>
+<span class="nc" id="L40">            return null</span>
+        }
+
+<span class="pc" id="L43">        return successors.head().handleProjectVersionSelection(versionSelectionData, successors.tail())</span>
+    }
+
+    /**
+     * Returns whether this {@code ProjectVersionSelectorStrategy} can choose a
+     * {@code Version} to set for {@code project}.
+     *
+     * @param versionSelectionData an object containing information to allow
+     *      a version to be selected
+     * @return {@code true} if a {@code Version} can be chosen for the given
+     *      Git branch, otherwise {@code false}
+     */
+    protected abstract boolean canChooseVersionForGitBranch(VersionSelectionData versionSelectionData)
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.1.201405082137</span></div></body></html>

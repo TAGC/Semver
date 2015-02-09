@@ -24,7 +24,8 @@ import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
 
 import com.github.tagc.semver.GitBranchDetector
-import com.github.tagc.semver.Version
+import com.github.tagc.semver.version.BaseVersion
+import com.github.tagc.semver.version.Version
 
 /**
  * Abstract class for tasks that perform bumps on the version data
@@ -35,17 +36,14 @@ import com.github.tagc.semver.Version
  */
 protected class AbstractBumpTask extends DefaultTask {
 
-    private final bumpCategory
+    private static final TASK_GROUP = 'semver'
+    private static final TASK_DESCRIPTION = 'Performs a bump of the project version.'
 
-    protected AbstractBumpTask(Version.Category bumpCategory) {
-<span class="fc" id="L41">        this.group = 'semver'</span>
-<span class="fc" id="L42">        this.description = 'Performs a bump of the project version.'</span>
-<span class="fc" id="L43">        this.bumpCategory = bumpCategory</span>
-    }
+    private final versionBumpCategory
 
     /**
      * Whether to force a version update if not on
-     * the Git master branch.
+     * a Git release or hotfix branch.
      */
     @Input
     @Optional
@@ -63,26 +61,79 @@ protected class AbstractBumpTask extends DefaultTask {
     @OutputFile
     File versionFileOut
 
+    /**
+     * Constructs an {@code AbstractBumpTask} without specifying any version category to bump the
+     * current version by when executed.
+     * &lt;p&gt;
+     * Subclasses using this constructor should override {@link #getBumpCategory()}.
+     */
+    protected AbstractBumpTask() {
+<span class="fc" id="L71">        this.group = TASK_GROUP</span>
+<span class="fc" id="L72">        this.description = TASK_DESCRIPTION</span>
+<span class="fc" id="L73">        this.versionBumpCategory = null</span>
+    }
+
+    /**
+     * Constructs an {@code AbstractBumpTask} that will bump the current version by {@code bumpCategory}
+     * when executed.
+     *
+     * @param bumpCategory the category to bump the current project version by
+     */
+    protected AbstractBumpTask(Version.Category bumpCategory) {
+<span class="fc" id="L83">        this.group = TASK_GROUP</span>
+<span class="fc" id="L84">        this.description = TASK_DESCRIPTION</span>
+<span class="fc" id="L85">        this.versionBumpCategory = bumpCategory</span>
+    }
+
     @TaskAction
     void start() {
-<span class="fc" id="L68">        def branchDetector = new GitBranchDetector(project)</span>
-<span class="pc bpc" id="L69" title="6 of 12 branches missed.">        if (!branchDetector.isOnMasterBranch()) {</span>
-<span class="pc bpc" id="L70" title="2 of 4 branches missed.">            if (isForceBump()) {</span>
-<span class="pc" id="L71">                logger.debug &quot;On branch $branchDetector.branch but forcing version bump anyway&quot;</span>
+<span class="pc bpc" id="L90" title="2 of 4 branches missed.">        checkValidGitBranch()</span>
+
+<span class="fc" id="L92">        def versionParser = BaseVersion.Parser.instance</span>
+<span class="pc bpc" id="L93" title="2 of 4 branches missed.">        def currVersion = versionParser.parse(getVersionFileIn())</span>
+<span class="fc" id="L94">        def bumpedVersion = currVersion.bumpByCategory(bumpCategory)</span>
+
+<span class="pc bpc" id="L96" title="2 of 4 branches missed.">        getVersionFileOut().text = versionParser.parseAndReplace(getVersionFileIn(), bumpedVersion)</span>
+<span class="fc" id="L97">        project.version = bumpedVersion</span>
+
+<span class="fc" id="L99">        logger.debug &quot;Bumping project version ($currVersion -&gt; $bumpedVersion).&quot;</span>
+    }
+
+    /**
+     * Checks that the currently checked-out Git branch is a valid branch for bumping
+     * the current version.
+     * &lt;p&gt;
+     * This method can be overridden by subclasses of this task class.
+     *
+     * @throws IllegalStateException if the currently checked-out Git branch is not valid
+     */
+    protected checkValidGitBranch() {
+<span class="fc" id="L111">        def branchDetector = new GitBranchDetector(project)</span>
+<span class="pc bpc" id="L112" title="13 of 26 branches missed.">        if (!branchDetector.isOnReleaseBranch() &amp;&amp; !branchDetector.isOnHotfixBranch()) {</span>
+<span class="pc bpc" id="L113" title="2 of 4 branches missed.">            if (isForceBump()) {</span>
+<span class="pc" id="L114">                logger.debug &quot;On branch $branchDetector.branch but forcing version bump anyway.&quot;</span>
             } else {
-<span class="pc" id="L73">                throw new IllegalStateException(</span>
-                &quot;Cannot bump version when not on master branch (set 'forceBump' true to override)&quot;)
+<span class="pc" id="L116">                throw new IllegalStateException(</span>
+                &quot;Cannot bump version when not on release or hotfix branch (set 'forceBump' true to override).&quot;)
             }
         }
+    }
 
-<span class="fc" id="L78">        def versionParser = Version.Parser.instance</span>
-<span class="pc bpc" id="L79" title="2 of 4 branches missed.">        def currVersion = versionParser.parse(getVersionFileIn())</span>
-<span class="fc" id="L80">        def bumpedVersion = currVersion.bumpByCategory(bumpCategory)</span>
+    /**
+     * Returns the {@code Version.Category} to bump the current version by.
+     * &lt;p&gt;
+     * Any subclass of this task class that does not construct this class with a non-null
+     * instance of {@code Version.Category} should override this method.
+     *
+     * @return the version category to bump the current version by
+     * @throws IllegalStateException if the version bump category is not set
+     */
+    protected Version.Category getBumpCategory() {
+<span class="pc bpc" id="L132" title="6 of 10 branches missed.">        if (versionBumpCategory == null) {</span>
+<span class="nc" id="L133">            throw new IllegalStateException('No category is specified to bump by.')</span>
+        }
 
-<span class="pc bpc" id="L82" title="2 of 4 branches missed.">        getVersionFileOut().text = versionParser.parseAndReplace(getVersionFileIn(), bumpedVersion)</span>
-<span class="fc" id="L83">        project.version = bumpedVersion</span>
-
-<span class="fc" id="L85">        logger.debug &quot;Bumping project version ($currVersion -&gt; $bumpedVersion)&quot;</span>
+<span class="pc" id="L136">        versionBumpCategory</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.1.201405082137</span></div></body></html>

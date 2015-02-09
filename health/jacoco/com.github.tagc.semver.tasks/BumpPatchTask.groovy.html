@@ -16,7 +16,7 @@
 
 package com.github.tagc.semver.tasks
 
-import com.github.tagc.semver.Version
+import com.github.tagc.semver.version.Version
 
 /**
  * Performs a patch bump on the version represented by a

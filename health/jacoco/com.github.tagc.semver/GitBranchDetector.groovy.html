@@ -17,7 +17,12 @@
 package com.github.tagc.semver
 
 import org.ajoberstar.grgit.Grgit
+import org.ajoberstar.grgit.exception.GrgitException
+import org.eclipse.jgit.errors.RepositoryNotFoundException
 import org.gradle.api.Project
+
+import com.github.tagc.semver.version.BaseVersion
+import com.github.tagc.semver.version.Version
 
 /**
  * This entity is used to attempt to retrieve the name of the currently
@@ -28,7 +33,9 @@ import org.gradle.api.Project
  */
 class GitBranchDetector {
 
-    private static final String MASTER_BRANCH = 'master'
+    private static final String MASTER_BRANCH = ~/master/
+    private static final String RELEASE_BRANCH = ~/release.*/
+    private static final String HOTFIX_BRANCH = ~/hotfix.*/
 
     private final Grgit repo
 
@@ -37,11 +44,17 @@ class GitBranchDetector {
      * open a Git repository in the project base directory.
      *
      * @param project a Gradle project
-     * @throws GrgitException if no Git repository exists in the project
+     * @throws Grgit if no Git repository exists in the project
      *         base directory to be opened
      */
     GitBranchDetector(Project project) {
-<span class="fc" id="L44">        repo = Grgit.open(project.file(&quot;$project.projectDir&quot;))</span>
+        try {
+<span class="pc" id="L52">            repo = Grgit.open(project.file(&quot;$project.projectDir&quot;))</span>
+        } catch (RepositoryNotFoundException wrappedException) {
+<span class="nc" id="L54">            def exception = new GrgitException(&quot;No Git repository was found for $project&quot;,</span>
+                    wrappedException)
+<span class="pc" id="L56">            throw exception</span>
+        }
     }
 
     /**
@@ -49,11 +62,18 @@ class GitBranchDetector {
      * open a Git repository in the given directory.
      *
      * @param repoDir the file location of the Git repository to open
-     * @throws GrgitException if no Git repository exists in the given
+     * @throws Grgit if no Git repository exists in the given
      *         file location to be opened
      */
     GitBranchDetector(File repoDir) {
-<span class="nc" id="L56">        repo = Grgit.open(repoDir)</span>
+<span class="nc" id="L69">        repo = Grgit.open(repoDir)</span>
+        try {
+<span class="nc" id="L71">            repo = Grgit.open(repoDir)</span>
+        } catch (RepositoryNotFoundException wrappedException) {
+<span class="nc" id="L73">            def exception = new GrgitException(&quot;No Git repository was found at $repoDir&quot;,</span>
+                    wrappedException)
+<span class="nc" id="L75">            throw exception</span>
+        }
     }
 
     /**
@@ -63,7 +83,7 @@ class GitBranchDetector {
      * @return the current Git branch name
      */
     String getBranch() {
-<span class="pc" id="L66">        return repo.branch.current.name</span>
+<span class="pc" id="L86">        return repo.branch.current.name</span>
     }
 
     /**
@@ -73,7 +93,49 @@ class GitBranchDetector {
      * @return {@code true} if the currently checked-out branch is the master branch
      */
     boolean isOnMasterBranch() {
-<span class="pc bpc" id="L76" title="3 of 6 branches missed.">        return branch == MASTER_BRANCH</span>
+<span class="pc" id="L96">        return branch ==~ MASTER_BRANCH</span>
+    }
+
+    /**
+     * Returns whether the currently checked-out Git branch in the
+     * Git repository being tracked is a release branch.
+     *
+     * @return {@code true} if the currently checked-out branch is a release branch
+     */
+    boolean isOnReleaseBranch() {
+<span class="pc" id="L106">        return branch ==~ RELEASE_BRANCH</span>
+    }
+
+    /**
+     * Returns whether the currently checked-out Git branch in the
+     * Git repository being tracked is a hotfix branch.
+     *
+     * @return {@code true} if the currently checked-out branch is a hotfix branch
+     */
+    boolean isOnHotfixBranch() {
+<span class="pc" id="L116">        return branch ==~ HOTFIX_BRANCH</span>
+    }
+
+    /**
+     * Tries to parse the version of the currently checked-out release or hotfix Git branch.
+     * &lt;p&gt;
+     * Before calling this method, it is advised to check that the project is on a release or
+     * hotfix branch.
+     *
+     * @return an instance of {@code Version} matching the branch version if it could be parsed,
+     *      otherwise {@code null}
+     * @throws IllegalStateException if the project is not on a hotfix or release Git branch
+     * @see {@link #isOnReleaseBranch}
+     * @see {@link #isOnHotfixBranch}
+     */
+    Version tryParseBranchVersion() {
+<span class="fc" id="L132">        def versionParser = BaseVersion.Parser.instance</span>
+
+<span class="pc bpc" id="L134" title="11 of 18 branches missed.">        if (isOnReleaseBranch() || isOnHotfixBranch()) {</span>
+<span class="pc" id="L135">            return versionParser.parse(branch, false)</span>
+        }
+
+<span class="nc" id="L138">        throw new IllegalStateException('Not on release or hotfix Git branch.')</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.1.201405082137</span></div></body></html>

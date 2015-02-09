@@ -24,11 +24,15 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.logging.Logger
 
+import com.github.tagc.semver.projectstrategy.VersionSelectionManager
 import com.github.tagc.semver.tasks.BumpMajorTask
 import com.github.tagc.semver.tasks.BumpMinorTask
 import com.github.tagc.semver.tasks.BumpPatchTask
+import com.github.tagc.semver.tasks.BumpTask
 import com.github.tagc.semver.tasks.ChangeVersionTask
 import com.github.tagc.semver.tasks.PrintVersionTask
+import com.github.tagc.semver.version.BaseVersion
+import com.github.tagc.semver.version.Version
 
 /**
  * An {@link org.gradle.api.Plugin} class that handles the application of semantic
@@ -45,144 +49,143 @@ class SemVerPlugin implements Plugin&lt;Project&gt; {
     private static final String BUMP_MAJOR_TASK_NAME = 'bumpMajor'
     private static final String BUMP_MINOR_TASK_NAME = 'bumpMinor'
     private static final String BUMP_PATCH_TASK_NAME = 'bumpPatch'
+    private static final String BUMP_TASK_NAME = 'bump'
     private static final String CHANGE_VERSION_TASK_NAME = 'changeVersion'
     private static final String MODIFIES_VERSION_INDICATOR_PROPERTY = 'modifiesVersion'
 
     static String getPrintVersionTaskName() {
-<span class="pc" id="L52">        return PRINT_VERSION_TASK_NAME</span>
+<span class="pc" id="L57">        return PRINT_VERSION_TASK_NAME</span>
     }
 
     static String getBumpMajorTaskName() {
-<span class="pc" id="L56">        return BUMP_MAJOR_TASK_NAME</span>
+<span class="pc" id="L61">        return BUMP_MAJOR_TASK_NAME</span>
     }
 
     static String getBumpMinorTaskName() {
-<span class="pc" id="L60">        return BUMP_MINOR_TASK_NAME</span>
+<span class="pc" id="L65">        return BUMP_MINOR_TASK_NAME</span>
     }
 
     static String getBumpPatchTaskName() {
-<span class="pc" id="L64">        return BUMP_PATCH_TASK_NAME</span>
+<span class="pc" id="L69">        return BUMP_PATCH_TASK_NAME</span>
+    }
+
+    static String getBumpTaskName() {
+<span class="pc" id="L73">        return BUMP_TASK_NAME</span>
     }
 
     static String getChangeVersionTaskName() {
-<span class="pc" id="L68">        return CHANGE_VERSION_TASK_NAME</span>
+<span class="pc" id="L77">        return CHANGE_VERSION_TASK_NAME</span>
+    }
+
+    static String getModifiesVersionIndicatorProperty() {
+<span class="nc" id="L81">        return MODIFIES_VERSION_INDICATOR_PROPERTY</span>
     }
 
     private Logger logger
 
     @Override
     void apply(Project project) {
-<span class="pc bpc" id="L75" title="2 of 4 branches missed.">        if (!project) {</span>
-<span class="nc" id="L76">            throw new GradleException('Plugin cannot be applied to null project')</span>
+<span class="pc bpc" id="L88" title="2 of 4 branches missed.">        if (!project) {</span>
+<span class="nc" id="L89">            throw new GradleException('Plugin cannot be applied to null project')</span>
         }
 
-<span class="fc" id="L79">        logger = project.logger</span>
-<span class="fc" id="L80">        project.extensions.create(EXTENSION_NAME, SemVerPluginExtension)</span>
-<span class="fc" id="L81">        addTasks(project)</span>
+<span class="fc" id="L92">        logger = project.logger</span>
+<span class="fc" id="L93">        project.extensions.create(EXTENSION_NAME, SemVerPluginExtension)</span>
+<span class="fc" id="L94">        addTasks(project)</span>
 
-<span class="pc" id="L83">        project.afterEvaluate { setVersionProjectNumber(project) }</span>
+<span class="pc" id="L96">        project.afterEvaluate { setVersionProjectNumber(project) }</span>
 
         /*
          * Ensure that at most one task modifies the project version.
          */
-<span class="fc" id="L88">        project.gradle.taskGraph.whenReady { taskGraph -&gt;</span>
-<span class="nc" id="L89">            def numVersionModifierTasks = taskGraph.allTasks.findAll { task -&gt;</span>
-<span class="nc bnc" id="L90" title="All 14 branches missed.">                task.hasProperty(MODIFIES_VERSION_INDICATOR_PROPERTY) \</span>
-                    &amp;&amp; task.&quot;$MODIFIES_VERSION_INDICATOR_PROPERTY&quot;
+<span class="fc" id="L101">        project.gradle.taskGraph.whenReady { taskGraph -&gt;</span>
+<span class="nc" id="L102">            def numVersionModifierTasks = taskGraph.allTasks.findAll { task -&gt;</span>
+<span class="nc bnc" id="L103" title="All 10 branches missed.">                task.hasProperty(getModifiesVersionIndicatorProperty()) \</span>
+<span class="nc bnc" id="L104" title="All 4 branches missed.">                    &amp;&amp; task.&quot;${getModifiesVersionIndicatorProperty()}&quot;</span>
             }.size()
 
-<span class="nc bnc" id="L94" title="All 12 branches missed.">            if (numVersionModifierTasks &gt; 1) {</span>
-<span class="nc" id="L95">                throw new GradleException('Only one task may modify the project version in a single build')</span>
+<span class="nc bnc" id="L107" title="All 12 branches missed.">            if (numVersionModifierTasks &gt; 1) {</span>
+<span class="nc" id="L108">                throw new GradleException('Only one task may modify the project version in a single build.')</span>
             }
         }
     }
 
     private void addTasks(Project project) {
-<span class="fc" id="L101">        def extension = project.extensions.findByName(EXTENSION_NAME)</span>
+<span class="fc" id="L114">        def extension = project.extensions.findByName(EXTENSION_NAME)</span>
 
-<span class="pc bpc" id="L103" title="2 of 4 branches missed.">        def printVersionTask = project.task(getPrintVersionTaskName(), type:PrintVersionTask)</span>
-<span class="pc bpc" id="L104" title="2 of 4 branches missed.">        def changeVersionTask = project.task(getChangeVersionTaskName(), type:ChangeVersionTask)</span>
+<span class="pc bpc" id="L116" title="2 of 4 branches missed.">        def printVersionTask = project.task(getPrintVersionTaskName(), type:PrintVersionTask)</span>
+<span class="pc bpc" id="L117" title="2 of 4 branches missed.">        def changeVersionTask = project.task(getChangeVersionTaskName(), type:ChangeVersionTask)</span>
 
-<span class="pc bpc" id="L106" title="2 of 4 branches missed.">        def majorBumpTask = project.task(getBumpMajorTaskName(), type:BumpMajorTask)</span>
-<span class="pc bpc" id="L107" title="2 of 4 branches missed.">        def minorBumpTask = project.task(getBumpMinorTaskName(), type:BumpMinorTask)</span>
-<span class="pc bpc" id="L108" title="2 of 4 branches missed.">        def patchBumpTask = project.task(getBumpPatchTaskName(), type:BumpPatchTask)</span>
+<span class="pc bpc" id="L119" title="2 of 4 branches missed.">        def majorBumpTask = project.task(getBumpMajorTaskName(), type:BumpMajorTask)</span>
+<span class="pc bpc" id="L120" title="2 of 4 branches missed.">        def minorBumpTask = project.task(getBumpMinorTaskName(), type:BumpMinorTask)</span>
+<span class="pc bpc" id="L121" title="2 of 4 branches missed.">        def patchBumpTask = project.task(getBumpPatchTaskName(), type:BumpPatchTask)</span>
+<span class="pc bpc" id="L122" title="2 of 4 branches missed.">        def bumpTask = project.task(getBumpTaskName(), type:BumpTask)</span>
 
-<span class="fc" id="L110">        [</span>
+<span class="fc" id="L124">        [</span>
             majorBumpTask,
             minorBumpTask,
-            patchBumpTask
+            patchBumpTask,
+            bumpTask
         ].each { task -&gt;
-<span class="fc" id="L115">            task.conventionMapping.map('versionFileIn') {</span>
-<span class="pc" id="L116">                project.file(URLDecoder.decode(extension.versionFilePath, UTF_8_ENCODING))</span>
+<span class="fc" id="L130">            task.conventionMapping.map('versionFileIn') {</span>
+<span class="pc" id="L131">                project.file(URLDecoder.decode(extension.versionFilePath, UTF_8_ENCODING))</span>
             }
-<span class="fc" id="L118">            task.conventionMapping.map('versionFileOut') {</span>
-<span class="pc" id="L119">                project.file(URLDecoder.decode(extension.versionFilePath, UTF_8_ENCODING))</span>
+<span class="fc" id="L133">            task.conventionMapping.map('versionFileOut') {</span>
+<span class="pc" id="L134">                project.file(URLDecoder.decode(extension.versionFilePath, UTF_8_ENCODING))</span>
             }
-<span class="pc" id="L121">            task.conventionMapping.map('forceBump') { extension.forceBump }</span>
-<span class="fc" id="L122">            task.ext.&quot;$MODIFIES_VERSION_INDICATOR_PROPERTY&quot; = true</span>
+<span class="pc" id="L136">            task.conventionMapping.map('forceBump') { extension.forceBump }</span>
+<span class="fc" id="L137">            task.ext.&quot;$MODIFIES_VERSION_INDICATOR_PROPERTY&quot; = true</span>
 
-<span class="fc" id="L124">            printVersionTask.shouldRunAfter task</span>
-<span class="pc" id="L125">            task.dependsOn changeVersionTask</span>
+<span class="fc" id="L139">            printVersionTask.shouldRunAfter task</span>
+<span class="pc" id="L140">            task.dependsOn changeVersionTask</span>
         }
     }
 
     private void setVersionProjectNumber(Project project) {
-<span class="pc bpc" id="L130" title="1 of 2 branches missed.">        assert project : 'Null project is illegal'</span>
+<span class="pc bpc" id="L145" title="1 of 2 branches missed.">        assert project : 'Null project is illegal'</span>
 
-<span class="fc" id="L132">        final GitBranchDetector branchDetector</span>
+<span class="fc" id="L147">        final GitBranchDetector branchDetector</span>
         try {
-<span class="pc" id="L134">            branchDetector = new GitBranchDetector(project)</span>
+<span class="pc" id="L149">            branchDetector = new GitBranchDetector(project)</span>
         } catch (GrgitException wrappedException) {
-<span class="nc" id="L136">            Exception exception = new GradleException('No Git repository can be found for this project')</span>
-<span class="nc" id="L137">            exception.cause = wrappedException</span>
-<span class="pc" id="L138">            throw exception</span>
+<span class="nc" id="L151">            def exception = new GradleException('No Git repository can be found for this project.',</span>
+                wrappedException)
+<span class="pc" id="L153">            throw exception</span>
         }
 
-<span class="fc" id="L141">        def rawVersion = readRawVersion(project)</span>
+<span class="fc" id="L156">        def rawVersion = readRawVersion(project)</span>
 
-<span class="fc" id="L143">        def extension = project.extensions.findByName(EXTENSION_NAME)</span>
-<span class="fc" id="L144">        Version.Category snapshotBump = extension.snapshotBump</span>
+<span class="fc" id="L158">        def extension = project.extensions.findByName(EXTENSION_NAME)</span>
+<span class="fc" id="L159">        Version.Category snapshotBump = extension.snapshotBump</span>
 
-<span class="fc bfc" id="L146" title="All 2 branches covered.">        if (branchDetector.isOnMasterBranch()) {</span>
-<span class="fc" id="L147">            project.version = rawVersion.toRelease()</span>
-        } else {
-<span class="fc" id="L149">            project.version = getAppropriateSnapshotVersion(project, rawVersion, snapshotBump)</span>
+<span class="fc" id="L161">        def appliedVersion = VersionSelectionManager.instance.selectVersionForProject(</span>
+            project, rawVersion, snapshotBump)
+
+<span class="pc bpc" id="L164" title="6 of 10 branches missed.">        if (appliedVersion == null) {</span>
+<span class="nc" id="L165">            throw new GradleException('No appropriate version could be applied for this project.')</span>
         }
 
-<span class="fc" id="L152">        logger.info &quot;Set project version to $project.version&quot;</span>
+<span class="fc" id="L168">        project.version = appliedVersion</span>
+
+<span class="fc" id="L170">        logger.info &quot;Set project version to ${project.version}.&quot;</span>
     }
 
     private Version readRawVersion(Project project) {
-<span class="pc bpc" id="L156" title="1 of 2 branches missed.">        assert project : 'Null project is illegal'</span>
+<span class="pc bpc" id="L174" title="1 of 2 branches missed.">        assert project : 'Null project is illegal'</span>
 
-<span class="fc" id="L158">        def extension = project.extensions.findByName(EXTENSION_NAME)</span>
-<span class="fc" id="L159">        final String versionFilePath = URLDecoder.decode(extension.versionFilePath, UTF_8_ENCODING)</span>
+<span class="fc" id="L176">        def extension = project.extensions.findByName(EXTENSION_NAME)</span>
+<span class="fc" id="L177">        final String versionFilePath = URLDecoder.decode(extension.versionFilePath, UTF_8_ENCODING)</span>
 
-<span class="pc bpc" id="L161" title="2 of 4 branches missed.">        if (!versionFilePath) {</span>
-<span class="nc" id="L162">            throw new GradleException('Version file has not been specified')</span>
+<span class="pc bpc" id="L179" title="2 of 4 branches missed.">        if (!versionFilePath) {</span>
+<span class="nc" id="L180">            throw new GradleException('Version file has not been specified.')</span>
         }
 
-<span class="fc" id="L165">        def versionFile = project.file(versionFilePath)</span>
-<span class="pc bpc" id="L166" title="2 of 4 branches missed.">        if (!versionFile.exists()) {</span>
-<span class="nc" id="L167">            throw new GradleException(&quot;Missing version file: $versionFile.canonicalPath&quot;)</span>
+<span class="fc" id="L183">        def versionFile = project.file(versionFilePath)</span>
+<span class="fc bfc" id="L184" title="All 4 branches covered.">        if (!versionFile.exists()) {</span>
+<span class="fc" id="L185">            throw new GradleException(&quot;Missing version file: ${versionFile.canonicalPath}.&quot;)</span>
         }
 
-<span class="pc" id="L170">        Version.Parser.instance.parse(versionFile.text)</span>
-    }
-
-    /*
-     * By default, bump by patch.
-     */
-    private Version getAppropriateSnapshotVersion(Project project, Version currVersion, Version.Category snapshotBump) {
-<span class="pc bpc" id="L177" title="1 of 2 branches missed.">        assert currVersion : 'Null currVersion is illegal'</span>
-<span class="pc bpc" id="L178" title="1 of 2 branches missed.">        assert project : 'Null project is illegal'</span>
-
-<span class="fc" id="L180">        Version.Category assumedSnapshotBump = snapshotBump</span>
-<span class="pc bpc" id="L181" title="5 of 10 branches missed.">        if (assumedSnapshotBump == null) {</span>
-<span class="pc" id="L182">            assumedSnapshotBump = Version.Category.PATCH</span>
-        }
-
-<span class="pc" id="L185">        return currVersion.bumpByCategory(assumedSnapshotBump).toDevelop()</span>
+<span class="pc" id="L188">        BaseVersion.Parser.instance.parse(versionFile.text)</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.1.201405082137</span></div></body></html>
