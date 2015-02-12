@@ -2,8 +2,8 @@
 <html>
 <head>
 
-<title>com.github.tagc.semver.tasks (semver 0.5.2-SNAPSHOT API)</title>
-<meta name="keywords" content="com.github.tagc.semver.tasks package">
+<title>com.github.tagc.semver.projectstrategy (semver 0.5.2-SNAPSHOT API)</title>
+<meta name="keywords" content="com.github.tagc.semver.projectstrategy package">
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <link rel ="stylesheet" TYPE="text/css" HREF="../../../../../stylesheet.css" title="Style">
 <link href="../../../../../groovy.ico" type="image/x-icon" rel="shortcut icon">
@@ -11,7 +11,7 @@
 <script type="text/javascript">
 function windowTitle()
 {
-    parent.document.title="com.github.tagc.semver.tasks (semver 0.5.2-SNAPSHOT API)";
+    parent.document.title="com.github.tagc.semver.projectstrategy (semver 0.5.2-SNAPSHOT API)";
 }
 </script>
 <noscript>
@@ -40,7 +40,7 @@ function windowTitle()
 
 <div class="subNav">
     <ul class="navList">
-        <li><a href="../../../../../index.html?com/github/tagc/semver/tasks/package-summary.html" target="_top">Frames</a></li>
+        <li><a href="../../../../../index.html?com/github/tagc/semver/projectstrategy/package-summary.html" target="_top">Frames</a></li>
         <li><a href="package-summary.html" target="_top">No Frames</a></li>
     </ul>
 </div>
@@ -48,7 +48,7 @@ function windowTitle()
 <!-- ========= END OF TOP NAVBAR ========= -->
 
 <div class="header">
-    <h1 class="title">Package com.github.tagc.semver.tasks</h1>
+    <h1 class="title">Package com.github.tagc.semver.projectstrategy</h1>
 </div>
 
 <div class="header">
@@ -57,6 +57,34 @@ function windowTitle()
 
 <div class="contentContainer">
 
+
+    <div class="summary">
+        <ul class="blockList">
+            <li class="blockList">
+                <table border="0" cellpadding="3" cellspacing="0" summary="Interface Summary">
+                    <caption><span>Interface Summary</span><span class="tabEnd">&nbsp;</span></caption>
+                    <tbody>
+                    <tr>
+                        <th class="colFirst" scope="col">Interface</th>
+                        <th class="colLast" scope="col">Description</th>
+                    </tr>
+<tr class="altColor">
+                            <td class="colOne">
+                                <strong><a href="ProjectVersionSelectorStrategy.html" title="class in com/github/tagc/semver/projectstrategy">
+                                    ProjectVersionSelectorStrategy
+                                </a></strong>
+                            </td>
+                            <td>Handles the selection of an instance of <CODE>Version</CODE> to
+ set for the version of the project that this plugin is applied
+ to.</td>
+                        </tr>
+
+                    </tbody>
+                </table>
+            </li>
+            </ul>
+        </div>
+    
 
 
 
@@ -72,66 +100,59 @@ function windowTitle()
                     </tr>
 <tr class="altColor">
                             <td class="colOne">
-                                <strong><a href="AbstractBumpTask.html" title="class in com/github/tagc/semver/tasks">
-                                    AbstractBumpTask
+                                <strong><a href="AbstractProjectVersionSelectorStrategy.html" title="class in com/github/tagc/semver/projectstrategy">
+                                    AbstractProjectVersionSelectorStrategy
                                 </a></strong>
                             </td>
-                            <td>Abstract class for tasks that perform bumps on the version data
- represented by a project's version data file.</td>
+                            <td>An abstract class that provides default behaviour for concrete instances of
+ <CODE>ProjectVersionSelectorStrategy</CODE>.</td>
                         </tr>
 <tr class="altColor">
                             <td class="colOne">
-                                <strong><a href="BumpMajorTask.html" title="class in com/github/tagc/semver/tasks">
-                                    BumpMajorTask
+                                <strong><a href="DefaultVersionSelectorStrategy.html" title="class in com/github/tagc/semver/projectstrategy">
+                                    DefaultVersionSelectorStrategy
                                 </a></strong>
                             </td>
-                            <td>Performs a major bump on the version represented by a
- project's version data file.</td>
+                            <td>Handles version selection for projects if no other
+ <CODE>ProjectVersionSelectorStrategy</CODE> can.</td>
                         </tr>
 <tr class="altColor">
                             <td class="colOne">
-                                <strong><a href="BumpMinorTask.html" title="class in com/github/tagc/semver/tasks">
-                                    BumpMinorTask
+                                <strong><a href="HotfixReleaseSelectorStrategy.html" title="class in com/github/tagc/semver/projectstrategy">
+                                    HotfixReleaseSelectorStrategy
                                 </a></strong>
                             </td>
-                            <td>Performs a minor bump on the version represented by a
- project's version data file.</td>
+                            <td>Handles version selection for projects that are on a hotfix or release Git branch.</td>
                         </tr>
 <tr class="altColor">
                             <td class="colOne">
-                                <strong><a href="BumpPatchTask.html" title="class in com/github/tagc/semver/tasks">
-                                    BumpPatchTask
+                                <strong><a href="MasterVersionSelectorStrategy.html" title="class in com/github/tagc/semver/projectstrategy">
+                                    MasterVersionSelectorStrategy
                                 </a></strong>
                             </td>
-                            <td>Performs a patch bump on the version represented by a
- project's version data file.</td>
+                            <td>Handles version selection for projects that are on the master Git branch.</td>
                         </tr>
 <tr class="altColor">
                             <td class="colOne">
-                                <strong><a href="BumpTask.html" title="class in com/github/tagc/semver/tasks">
-                                    BumpTask
+                                <strong><a href="VersionSelectionData.html" title="class in com/github/tagc/semver/projectstrategy">
+                                    VersionSelectionData
                                 </a></strong>
                             </td>
-                            <td>Tries to bump the current project version based on the version
- specified within the current hotfix or release Git branch that
- the project is on.</td>
+                            <td>A class for producing immutable objects that capture the information
+ required by instances of <CODE>ProjectVersionSelectionStrategy</CODE> to
+ choose which <CODE>Version</CODE> to select for the project that this plugin
+ is applied to.</td>
                         </tr>
 <tr class="altColor">
                             <td class="colOne">
-                                <strong><a href="ChangeVersionTask.html" title="class in com/github/tagc/semver/tasks">
-                                    ChangeVersionTask
+                                <strong><a href="VersionSelectionManager.html" title="class in com/github/tagc/semver/projectstrategy">
+                                    VersionSelectionManager
                                 </a></strong>
                             </td>
-                            <td>All concrete instances of <a href='../../../../../com/github/tagc/semver/tasks/AbstractBumpTask.html' title='AbstractBumpTask'>AbstractBumpTask</a>
- ought to depend on the execution of this task.</td>
-                        </tr>
-<tr class="altColor">
-                            <td class="colOne">
-                                <strong><a href="PrintVersionTask.html" title="class in com/github/tagc/semver/tasks">
-                                    PrintVersionTask
-                                </a></strong>
-                            </td>
-                            <td>Prints the string representation of the current project version to standard output.</td>
+                            <td>Manages the selection of an instance of <CODE>Version</CODE> to set
+ as the version of the project that this plugin is applied to by
+ delegating the responsibility to a chain of
+ <CODE>ProjectVersionSelectionStrategy</CODE> instances.</td>
                         </tr>
 
                     </tbody>

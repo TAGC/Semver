@@ -1,2 +1,4 @@
 com.github.tagc.semver
+com.github.tagc.semver.projectstrategy
 com.github.tagc.semver.tasks
+com.github.tagc.semver.version

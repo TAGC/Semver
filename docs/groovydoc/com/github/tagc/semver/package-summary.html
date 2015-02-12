@@ -2,7 +2,7 @@
 <html>
 <head>
 
-<title>com.github.tagc.semver (semver 0.4.1-SNAPSHOT API)</title>
+<title>com.github.tagc.semver (semver 0.5.2-SNAPSHOT API)</title>
 <meta name="keywords" content="com.github.tagc.semver package">
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <link rel ="stylesheet" TYPE="text/css" HREF="../../../../stylesheet.css" title="Style">
@@ -11,7 +11,7 @@
 <script type="text/javascript">
 function windowTitle()
 {
-    parent.document.title="com.github.tagc.semver (semver 0.4.1-SNAPSHOT API)";
+    parent.document.title="com.github.tagc.semver (semver 0.5.2-SNAPSHOT API)";
 }
 </script>
 <noscript>
@@ -72,12 +72,21 @@ function windowTitle()
                     </tr>
 <tr class="altColor">
                             <td class="colOne">
+                                <strong><a href="GitBranchDetector.html" title="class in com/github/tagc/semver">
+                                    GitBranchDetector
+                                </a></strong>
+                            </td>
+                            <td>This entity is used to attempt to retrieve the name of the currently
+ checked-out Git branch within a Git repository.</td>
+                        </tr>
+<tr class="altColor">
+                            <td class="colOne">
                                 <strong><a href="SemVerPlugin.html" title="class in com/github/tagc/semver">
                                     SemVerPlugin
                                 </a></strong>
                             </td>
                             <td>An org.gradle.api.Plugin class that handles the application of semantic
- versioning logic to an org.gradle.api.Project</td>
+ versioning logic to an org.gradle.api.Project.</td>
                         </tr>
 <tr class="altColor">
                             <td class="colOne">
@@ -87,32 +96,6 @@ function windowTitle()
                             </td>
                             <td>Plugin extension for <a href='../../../../com/github/tagc/semver/SemVerPlugin.html' title='SemVerPlugin'>SemVerPlugin</a>.</td>
                         </tr>
-<tr class="altColor">
-                            <td class="colOne">
-                                <strong><a href="Version.html" title="class in com/github/tagc/semver">
-                                    Version
-                                </a></strong>
-                            </td>
-                            <td>Represents a semantic version number for a project.</td>
-                        </tr>
-<tr class="altColor">
-                            <td class="colOne">
-                                <strong><a href="Version.Builder.html" title="class in com/github/tagc/semver">
-                                    Version.Builder
-                                </a></strong>
-                            </td>
-                            <td>Version builder - allows for <a href='../../../../com/github/tagc/semver/Version.html' title='Version'>Version</a> construction parameters to be
- selected incrementally.</td>
-                        </tr>
-<tr class="altColor">
-                            <td class="colOne">
-                                <strong><a href="Version.Parser.html" title="class in com/github/tagc/semver">
-                                    Version.Parser
-                                </a></strong>
-                            </td>
-                            <td>Version parser - parses strings and constructs <a href='../../../../com/github/tagc/semver/Version.html' title='Version'>Version</a>
- instances from them.</td>
-                        </tr>
 
                     </tbody>
                 </table>
@@ -120,26 +103,27 @@ function windowTitle()
             </ul>
         </div>
     
+
 
 
     <div class="summary">
         <ul class="blockList">
             <li class="blockList">
-                <table border="0" cellpadding="3" cellspacing="0" summary="Enum Summary">
-                    <caption><span>Enum Summary</span><span class="tabEnd">&nbsp;</span></caption>
+                <table border="0" cellpadding="3" cellspacing="0" summary="Exception Summary">
+                    <caption><span>Exception Summary</span><span class="tabEnd">&nbsp;</span></caption>
                     <tbody>
                     <tr>
-                        <th class="colFirst" scope="col">Enum</th>
+                        <th class="colFirst" scope="col">Exception</th>
                         <th class="colLast" scope="col">Description</th>
                     </tr>
 <tr class="altColor">
                             <td class="colOne">
-                                <strong><a href="Version.Category.html" title="class in com/github/tagc/semver">
-                                    Version.Category
+                                <strong><a href="SemVerException.html" title="class in com/github/tagc/semver">
+                                    SemVerException
                                 </a></strong>
                             </td>
-                            <td>Version category enumeration - enumerates the <CODE>major</CODE>, <CODE>minor</CODE> and <CODE>patch</CODE>
- segments of version strings.</td>
+                            <td>An unchecked exception class for representing semantic versioning-related
+ exceptions.</td>
                         </tr>
 
                     </tbody>
@@ -148,7 +132,6 @@ function windowTitle()
             </ul>
         </div>
     
-
 
 
 
